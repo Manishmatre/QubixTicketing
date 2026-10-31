@@ -7,7 +7,6 @@ import { apiClient } from '../../api/client';
 import { NotificationItem } from '../../types';
 import { Avatar } from '../ui/Avatar';
 import { UniversalSearchModal } from './UniversalSearchModal';
-import { WorkspaceDropdown } from './WorkspaceDropdown';
 import {
   Bell,
   Search,
@@ -27,17 +26,20 @@ import {
   Sun,
   Moon,
   Laptop,
+  Menu,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface TopHeaderProps {
   onOpenCreateTicket: () => void;
   onSearchChange?: (val: string) => void;
+  onToggleMobileMenu?: () => void;
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
   onOpenCreateTicket,
   onSearchChange,
+  onToggleMobileMenu,
 }) => {
   const { user, organization } = useAuth();
   const { socket, onlineUserIds } = useSocket();
@@ -136,46 +138,62 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
   return (
     <>
-      <header className="h-14 bg-white border-b border-[#EAECF0] px-5 flex items-center justify-between shrink-0 font-sans z-20">
-        {/* Left: Dynamic Breadcrumb & Workspace Switcher */}
-        <div className="flex items-center gap-3 min-w-0">
+      <header className="h-14 bg-white border-b border-[#EAECF0] px-3 sm:px-5 flex items-center justify-between shrink-0 font-sans z-20">
+        {/* Left: Mobile Menu Toggle & Dynamic Breadcrumb */}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={onToggleMobileMenu}
+            className="md:hidden p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title="Open navigation menu"
+            aria-label="Toggle navigation menu"
+          >
+            <Menu className="w-5 h-5 text-slate-600" />
+          </button>
+
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
               <HeaderIcon className="w-4 h-4" />
             </div>
-            <h1 className="text-sm font-bold text-slate-900 tracking-tight hidden lg:block">
+            <h1 className="text-sm font-bold text-slate-900 tracking-tight truncate">
               {headerTitle}
             </h1>
-          </div>
-
-          <div className="h-4 w-[1px] bg-slate-200 hidden sm:block" />
-
-          {/* Organization / Company Switcher Pill */}
-          <div className="min-w-0 max-w-[220px]">
-            <WorkspaceDropdown variant="header" />
           </div>
         </div>
 
         {/* Middle: Universal Search Bar Trigger */}
-        <div
-          onClick={() => setIsSearchModalOpen(true)}
-          className="hidden sm:flex w-80 relative items-center cursor-pointer group"
-          title="Open Universal Search (⌘K / Ctrl+K)"
-        >
-          <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 absolute left-3 pointer-events-none transition-colors" />
-          <div className="w-full bg-[#F8FAFC] group-hover:bg-slate-100/80 border border-[#EAECF0] rounded-lg pl-8 pr-10 py-1.5 text-xs text-slate-400 transition-all select-none">
-            Search tickets, projects, or pages...
+        <div className="flex items-center justify-center">
+          {/* Desktop & Tablet Search Bar */}
+          <div
+            onClick={() => setIsSearchModalOpen(true)}
+            className="hidden sm:flex w-64 md:w-72 lg:w-80 relative items-center cursor-pointer group"
+            title="Open Universal Search (⌘K / Ctrl+K)"
+          >
+            <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 absolute left-3 pointer-events-none transition-colors" />
+            <div className="w-full bg-[#F8FAFC] group-hover:bg-slate-100/80 border border-[#EAECF0] rounded-lg pl-8 pr-10 py-1.5 text-xs text-slate-400 transition-all select-none truncate">
+              Search tickets, projects, or pages...
+            </div>
+            <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none bg-slate-100 px-1 py-0.5 rounded border border-slate-200/60">
+              ⌘K
+            </span>
           </div>
-          <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none bg-slate-100 px-1 py-0.5 rounded border border-slate-200/60">
-            ⌘K
-          </span>
+
+          {/* Mobile Search Icon Button */}
+          <button
+            type="button"
+            onClick={() => setIsSearchModalOpen(true)}
+            className="sm:hidden p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title="Search tickets (⌘K)"
+          >
+            <Search className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Right: Actions, Live Teammates, Theme Toggle & Profile */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           {/* Live Online Teammates Indicator */}
           <div
-            className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-800"
+            className="hidden lg:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-800"
             title={`${Math.max(1, onlineUserIds.length)} teammate(s) currently online with live sync`}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -185,7 +203,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           {/* + New Ticket Button */}
           <button
             onClick={onOpenCreateTicket}
-            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all active:scale-[0.98] cursor-pointer"
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all active:scale-[0.98] cursor-pointer"
+            title="Create New Ticket"
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">New ticket</span>

@@ -19,9 +19,18 @@ import {
   CalendarRange,
   PanelLeftClose,
   PanelLeft,
+  X,
 } from 'lucide-react';
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isMobileDrawer?: boolean;
+  onCloseMobile?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({
+  isMobileDrawer = false,
+  onCloseMobile,
+}) => {
   const { user, organization, memberships, switchOrganization, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -38,6 +47,8 @@ export const Sidebar: React.FC = () => {
     });
   };
 
+  const effectiveCollapsed = isMobileDrawer ? false : isCollapsed;
+
   // Role-Based Access Control inside current organization
   const userRole = organization?.role || 'employee';
   const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
@@ -45,12 +56,28 @@ export const Sidebar: React.FC = () => {
   return (
     <aside
       className={`${
-        isCollapsed ? 'w-16' : 'w-64'
+        isMobileDrawer
+          ? 'w-full h-full'
+          : effectiveCollapsed
+          ? 'w-16'
+          : 'w-64'
       } bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800 transition-all duration-300 ease-in-out`}
     >
       {/* 1. Interactive Multi-Workspace Switcher */}
-      <div className={`h-14 px-2.5 border-b border-[#EAECF0] bg-white flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
-        <WorkspaceDropdown variant="sidebar" isCollapsed={isCollapsed} />
+      <div className={`h-14 px-2.5 border-b border-[#EAECF0] bg-white flex items-center justify-between ${effectiveCollapsed ? 'justify-center' : ''}`}>
+        <div className="flex-1 min-w-0">
+          <WorkspaceDropdown variant="sidebar" isCollapsed={effectiveCollapsed} />
+        </div>
+        {isMobileDrawer && (
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            className="p-1.5 ml-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title="Close menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* 2. Primary Navigation Links */}
@@ -236,34 +263,37 @@ export const Sidebar: React.FC = () => {
           </>
         )}
 
-        {/* Collapse / Expand Toggle Button */}
-        <button
-          onClick={toggleCollapse}
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse to icon-only'}
-          className={`w-full flex items-center ${
-            isCollapsed ? 'justify-center p-2' : 'justify-between px-2.5 py-1.5'
-          } rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer text-xs font-medium`}
-        >
-          <div className="flex items-center gap-2">
-            {isCollapsed ? (
-              <PanelLeft className="w-4 h-4 text-blue-600" />
-            ) : (
-              <PanelLeftClose className="w-4 h-4 text-slate-400" />
-            )}
-            {!isCollapsed && <span>Collapse sidebar</span>}
-          </div>
-          {!isCollapsed && <span className="text-[10px] text-slate-400 font-mono">⌘B</span>}
-        </button>
+        {/* Collapse / Expand Toggle Button (Desktop Only) */}
+        {!isMobileDrawer && (
+          <button
+            onClick={toggleCollapse}
+            title={effectiveCollapsed ? 'Expand sidebar' : 'Collapse to icon-only'}
+            className={`w-full flex items-center ${
+              effectiveCollapsed ? 'justify-center p-2' : 'justify-between px-2.5 py-1.5'
+            } rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer text-xs font-medium`}
+          >
+            <div className="flex items-center gap-2">
+              {effectiveCollapsed ? (
+                <PanelLeft className="w-4 h-4 text-blue-600" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4 text-slate-400" />
+              )}
+              {!effectiveCollapsed && <span>Collapse sidebar</span>}
+            </div>
+            {!effectiveCollapsed && <span className="text-[10px] text-slate-400 font-mono">⌘B</span>}
+          </button>
+        )}
 
         {/* User Card */}
         <div className="pt-2 mt-1 border-t border-[#EAECF0] flex items-center justify-between px-1">
           <Link
             to="/workspace/profile"
-            className={`flex items-center ${isCollapsed ? 'justify-center w-full' : 'gap-2.5 min-w-0'} hover:opacity-85 transition-opacity`}
+            onClick={onCloseMobile}
+            className={`flex items-center ${effectiveCollapsed ? 'justify-center w-full' : 'gap-2.5 min-w-0'} hover:opacity-85 transition-opacity`}
             title={`View Profile: ${user?.name || 'User'}`}
           >
             <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
-            {!isCollapsed && (
+            {!effectiveCollapsed && (
               <div className="min-w-0">
                 <p className="text-xs font-bold text-slate-900 truncate leading-tight">
                   {user?.name || 'User'}
@@ -274,7 +304,7 @@ export const Sidebar: React.FC = () => {
               </div>
             )}
           </Link>
-          {!isCollapsed && (
+          {!effectiveCollapsed && (
             <button
               onClick={() => logout()}
               title="Log Out"

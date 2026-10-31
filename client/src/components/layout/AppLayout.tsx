@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Sidebar } from './Sidebar';
@@ -13,6 +13,12 @@ export const AppLayout: React.FC = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [searchFilter, setSearchFilter] = useState<string>('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
+  // Close mobile drawer on route transition
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   if (isLoading) {
     return (
@@ -39,14 +45,33 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#F8FAFC]">
-      {/* Sidebar Navigation */}
-      <Sidebar />
+      {/* Desktop Sidebar Navigation */}
+      <div className="hidden md:flex shrink-0 h-full">
+        <Sidebar />
+      </div>
+
+      {/* Mobile Drawer Slide-out Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-fadeIn"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className="relative w-72 max-w-[85vw] h-full bg-white shadow-2xl flex flex-col z-10 animate-slideRight">
+            <Sidebar
+              isMobileDrawer
+              onCloseMobile={() => setIsMobileMenuOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main Content Viewport */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         <TopHeader
           onOpenCreateTicket={() => setIsCreateModalOpen(true)}
           onSearchChange={setSearchFilter}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
         />
 
         <main className="flex-1 flex overflow-hidden">
