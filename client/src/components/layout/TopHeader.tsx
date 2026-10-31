@@ -7,6 +7,7 @@ import { apiClient } from '../../api/client';
 import { NotificationItem } from '../../types';
 import { Avatar } from '../ui/Avatar';
 import { UniversalSearchModal } from './UniversalSearchModal';
+import { WorkspaceDropdown } from './WorkspaceDropdown';
 import {
   Bell,
   Search,
@@ -136,14 +137,23 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   return (
     <>
       <header className="h-14 bg-white border-b border-[#EAECF0] px-5 flex items-center justify-between shrink-0 font-sans z-20">
-        {/* Left: Dynamic Breadcrumb */}
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <HeaderIcon className="w-4 h-4" />
+        {/* Left: Dynamic Breadcrumb & Workspace Switcher */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <HeaderIcon className="w-4 h-4" />
+            </div>
+            <h1 className="text-sm font-bold text-slate-900 tracking-tight hidden lg:block">
+              {headerTitle}
+            </h1>
           </div>
-          <h1 className="text-sm font-bold text-slate-900 tracking-tight">
-            {headerTitle}
-          </h1>
+
+          <div className="h-4 w-[1px] bg-slate-200 hidden sm:block" />
+
+          {/* Organization / Company Switcher Pill */}
+          <div className="min-w-0 max-w-[220px]">
+            <WorkspaceDropdown variant="header" />
+          </div>
         </div>
 
         {/* Middle: Universal Search Bar Trigger */}

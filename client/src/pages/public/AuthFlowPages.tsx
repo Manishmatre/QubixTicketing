@@ -508,6 +508,9 @@ export const AcceptInvitePage: React.FC = () => {
         const res = await apiClient.get(`/auth/invitation/${token}`);
         if (res.data.success) {
           setInvitation(res.data.data);
+          if (res.data.data?.existingUserName) {
+            setName(res.data.data.existingUserName);
+          }
         } else {
           setError(res.data.error?.message || 'Invitation is invalid or has expired.');
         }
@@ -600,28 +603,49 @@ export const AcceptInvitePage: React.FC = () => {
               </div>
             </div>
 
-            <form onSubmit={handleAccept} className="space-y-4 text-xs">
-              <Input
-                label="Your Full Name *"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Sarah Jenkins"
-                required
-              />
+            {invitation?.userExists ? (
+              <div className="space-y-4">
+                <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 space-y-1">
+                  <p className="font-bold flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                    Verified QubixDesk Account Detected
+                  </p>
+                  <p className="text-[11px] text-blue-700 leading-relaxed">
+                    You already have an account as <strong>{invitation?.existingUserName || invitation?.email}</strong>. Simply click below to accept this invitation and access this workspace.
+                  </p>
+                </div>
 
-              <Input
-                label="Set Password *"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
-                required
-              />
+                <form onSubmit={handleAccept}>
+                  <Button type="submit" variant="primary" className="w-full text-xs font-semibold py-2.5" isLoading={isSubmitting}>
+                    Accept & Open Workspace &rarr;
+                  </Button>
+                </form>
+              </div>
+            ) : (
+              <form onSubmit={handleAccept} className="space-y-4 text-xs">
+                <Input
+                  label="Your Full Name *"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Sarah Jenkins"
+                  required
+                />
 
-              <Button type="submit" variant="primary" className="w-full text-xs font-semibold" isLoading={isSubmitting}>
-                Accept & Join Workspace
-              </Button>
-            </form>
+                <Input
+                  label="Set Password (min 8 characters) *"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="At least 8 characters"
+                  required
+                  minLength={8}
+                />
+
+                <Button type="submit" variant="primary" className="w-full text-xs font-semibold py-2.5" isLoading={isSubmitting}>
+                  Create Account & Join Workspace &rarr;
+                </Button>
+              </form>
+            )}
           </div>
         )}
       </div>

@@ -30,6 +30,19 @@ export class EmailAdapter {
     }
   }
 
+  public getBaseUrl(): string {
+    if (process.env.APP_URL && process.env.APP_URL.startsWith('http')) {
+      return process.env.APP_URL.replace(/\/+$/, '');
+    }
+    const raw = process.env.FRONTEND_URL || '';
+    const first = raw.split(',')[0]?.trim();
+    if (first && first.startsWith('http') && !first.includes('localhost')) {
+      return first.replace(/\/+$/, '');
+    }
+    // Always default to live production domain to prevent localhost leakage in emails
+    return 'https://qubixdesk.toolio.tech';
+  }
+
   async sendEmail(options: EmailOptions): Promise<boolean> {
     const from = process.env.SMTP_FROM || 'QubixDesk <arionextech@gmail.com>';
 
@@ -60,8 +73,8 @@ export class EmailAdapter {
   }
 
   async sendOtpVerificationEmail(to: string, name: string, otp: string, token?: string): Promise<boolean> {
-    const frontendUrl = process.env.FRONTEND_URL || 'https://qubixdesk.toolio.tech';
-    const verifyUrl = token ? `${frontendUrl}/verify-email?token=${token}&email=${encodeURIComponent(to)}` : `${frontendUrl}/verify-email?email=${encodeURIComponent(to)}`;
+    const baseUrl = this.getBaseUrl();
+    const verifyUrl = token ? `${baseUrl}/verify-email?token=${token}&email=${encodeURIComponent(to)}` : `${baseUrl}/verify-email?email=${encodeURIComponent(to)}`;
 
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; border-radius: 16px;">
@@ -104,17 +117,16 @@ export class EmailAdapter {
   }
 
   async sendVerificationEmail(to: string, name: string, token: string): Promise<boolean> {
-    // For backwards compatibility, extract or generate 6-digit code and forward to sendOtpVerificationEmail
     const fallbackOtp = Math.floor(100000 + Math.random() * 900000).toString();
     return this.sendOtpVerificationEmail(to, name, fallbackOtp, token);
   }
 
   async sendPasswordResetEmail(to: string, name: string, token: string): Promise<boolean> {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
+    const baseUrl = this.getBaseUrl();
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`;
 
     const html = `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; rounded: 16px;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; border-radius: 16px;">
         <div style="margin-bottom: 24px; text-align: center;">
           <h1 style="color: #0F172A; font-size: 22px; font-weight: 800; margin: 0;">QUBIXDESK</h1>
           <p style="color: #64748B; font-size: 12px; margin: 4px 0 0 0;">Work Smarter. Track Better. Deliver Faster.</p>
@@ -156,11 +168,11 @@ export class EmailAdapter {
     role: string,
     token: string
   ): Promise<boolean> {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const inviteUrl = `${frontendUrl}/accept-invite?token=${token}`;
+    const baseUrl = this.getBaseUrl();
+    const inviteUrl = `${baseUrl}/accept-invite?token=${token}`;
 
     const html = `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; rounded: 16px;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; border-radius: 16px;">
         <div style="margin-bottom: 24px; text-align: center;">
           <h1 style="color: #0F172A; font-size: 22px; font-weight: 800; margin: 0;">QUBIXDESK</h1>
           <p style="color: #64748B; font-size: 12px; margin: 4px 0 0 0;">Work Smarter. Track Better. Deliver Faster.</p>
@@ -172,7 +184,7 @@ export class EmailAdapter {
           </p>
           <div style="text-align: center; margin: 24px 0;">
             <a href="${inviteUrl}" style="background-color: #2563EB; color: #ffffff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-block;">
-              Accept Invitation & Join Team
+              Accept Invitation & Join Team &rarr;
             </a>
           </div>
           <p style="font-size: 12px; color: #64748B; margin: 0;">
@@ -189,6 +201,61 @@ export class EmailAdapter {
       to,
       subject: `You've been invited to join ${orgName} on QubixDesk`,
       text: `Hi,\nYou have been invited to join ${orgName} as ${role}. Accept your invitation at: ${inviteUrl}`,
+      html,
+    });
+  }
+
+  async sendWorkspaceAddedEmail(
+    to: string,
+    orgName: string,
+    inviterName: string,
+    role: string,
+    userName: string
+  ): Promise<boolean> {
+    const baseUrl = this.getBaseUrl();
+    const loginUrl = `${baseUrl}/login`;
+
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; border-radius: 16px;">
+        <div style="margin-bottom: 24px; text-align: center;">
+          <h1 style="color: #0F172A; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">QUBIXDESK</h1>
+          <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Next-Gen Enterprise Issue & Project Ticketing</p>
+        </div>
+        <div style="background: #F8FAFC; border: 1px solid #EAECF0; padding: 28px; border-radius: 12px; margin-bottom: 24px;">
+          <div style="display: inline-block; background: #EFF6FF; color: #2563EB; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; text-transform: uppercase;">
+            Workspace Access Granted
+          </div>
+          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 12px 0;">
+            You have been added to ${orgName}
+          </h2>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+            Hi <strong>${userName || 'there'}</strong>,<br/>
+            <strong>${inviterName || 'Workspace Admin'}</strong> has added you to the <strong>${orgName}</strong> workspace with the role of <strong>${role}</strong>.
+          </p>
+          <div style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
+            <p style="font-size: 13px; color: #475569; margin: 0; line-height: 1.5;">
+              ✨ <strong>Multi-Workspace Tip:</strong> Since you already have an active QubixDesk account, you can easily switch between your companies anytime using the <strong>Workspace Switcher</strong> in the dashboard navigation!
+            </p>
+          </div>
+          <div style="text-align: center; margin: 24px 0 16px 0;">
+            <a href="${loginUrl}" style="background-color: #2563EB; color: #ffffff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 700; display: inline-block;">
+              Access Workspace & Tickets &rarr;
+            </a>
+          </div>
+          <p style="font-size: 12px; color: #64748B; text-align: center; margin: 0;">
+            Direct link: <a href="${loginUrl}" style="color: #2563EB; word-break: break-all;">${loginUrl}</a>
+          </p>
+        </div>
+        <p style="font-size: 11px; color: #94A3B8; text-align: center; margin: 0;">
+          QubixDesk Enterprise Multi-Tenant Ticketing • Secure & Isolated
+        </p>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to,
+      subject: `You have been added to ${orgName} on QubixDesk`,
+      text: `Hi ${userName},\n\nYou have been added to ${orgName} on QubixDesk with the role of ${role}.\n\nAccess your workspace at: ${loginUrl}\n\nSince you already have a QubixDesk account, you can switch between your workspaces anytime using the Workspace Switcher in your dashboard.\n\n- The QubixDesk Team`,
       html,
     });
   }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { WorkspaceDropdown } from './WorkspaceDropdown';
 import { Avatar } from '../ui/Avatar';
 import {
   Ticket as TicketIcon,
@@ -47,51 +48,9 @@ export const Sidebar: React.FC = () => {
         isCollapsed ? 'w-16' : 'w-64'
       } bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800 transition-all duration-300 ease-in-out`}
     >
-      {/* 1. Organization Workspace Selector */}
-      <div className={`h-14 px-3 border-b border-[#EAECF0] bg-white flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
-        {isCollapsed ? (
-          <div
-            onClick={toggleCollapse}
-            title={`${organization?.name || 'Workspace'} (Click to expand)`}
-            className="w-9 h-9 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-black text-sm flex items-center justify-center cursor-pointer shadow-xs transition-colors"
-          >
-            {organization?.name ? organization.name.charAt(0).toUpperCase() : 'W'}
-          </div>
-        ) : (
-          <div className="w-full bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
-            <div className="min-w-0 flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                {organization?.name ? organization.name.charAt(0).toUpperCase() : 'W'}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-900 truncate leading-tight">
-                  {organization?.name || 'Workspace'}
-                </p>
-                <p className="text-[10px] text-blue-600 font-semibold capitalize truncate">
-                  {organization?.subscriptionPlan || 'Free'} Plan
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center text-slate-400 group-hover:text-slate-600 shrink-0 ml-1">
-              <ChevronDown className="w-3.5 h-3.5" />
-            </div>
-
-            {memberships.length > 1 && (
-              <select
-                className="opacity-0 absolute inset-0 cursor-pointer w-full h-full"
-                value={organization?.id}
-                onChange={(e) => switchOrganization(e.target.value)}
-              >
-                {memberships.map((m: any) => (
-                  <option key={m.organization?.id} value={m.organization?.id}>
-                    {m.organization?.name} ({m.role})
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-        )}
+      {/* 1. Interactive Multi-Workspace Switcher */}
+      <div className={`h-14 px-2.5 border-b border-[#EAECF0] bg-white flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
+        <WorkspaceDropdown variant="sidebar" isCollapsed={isCollapsed} />
       </div>
 
       {/* 2. Primary Navigation Links */}

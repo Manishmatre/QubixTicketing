@@ -394,12 +394,32 @@ export const switchOrganization = async (req: Request, res: Response): Promise<v
       activeOrganizationId: organizationId,
     });
 
+    const allMemberships = await OrganizationMembership.find({
+      userId: req.user._id,
+      status: 'active',
+    }).populate('organizationId');
+
     res.json({
       success: true,
       data: {
         accessToken: newAccessToken,
         organization: membership ? membership.organizationId : null,
         role: membership ? membership.role : 'owner',
+        memberships: allMemberships.map((m: any) => ({
+          id: m._id,
+          organization: m.organizationId
+            ? {
+                id: m.organizationId._id,
+                name: m.organizationId.name,
+                slug: m.organizationId.slug,
+                logoUrl: m.organizationId.logoUrl,
+                subscriptionPlan: m.organizationId.subscriptionPlan,
+              }
+            : null,
+          role: m.role,
+          jobTitle: m.jobTitle,
+          department: m.department,
+        })),
       },
     });
   } catch (err: any) {
@@ -682,6 +702,8 @@ export const getInvitationDetails = async (req: Request, res: Response): Promise
       return;
     }
 
+    const existingUser = await User.findOne({ email: invitation.email.toLowerCase().trim() });
+
     res.json({
       success: true,
       data: {
@@ -689,6 +711,8 @@ export const getInvitationDetails = async (req: Request, res: Response): Promise
         role: invitation.role,
         organization: invitation.organizationId,
         invitedBy: invitation.invitedBy,
+        userExists: Boolean(existingUser),
+        existingUserName: existingUser?.name || '',
       },
     });
   } catch (err: any) {
@@ -710,23 +734,23 @@ export const acceptInvitation = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    let user = await User.findOne({ email: invitation.email });
+    let user = await User.findOne({ email: invitation.email.toLowerCase().trim() });
 
-    // If user does not exist yet, require name & password to create account
+    // If user does not exist yet, require name & password (min 8 characters)
     if (!user) {
       if (!name || !password) {
-        res.status(400).json({ success: false, error: { message: 'Name and password are required to create your account.' } });
+        res.status(400).json({ success: false, error: { message: 'Full name and password are required to create your account.' } });
         return;
       }
-      if (password.length < 6) {
-        res.status(400).json({ success: false, error: { message: 'Password must be at least 6 characters.' } });
+      if (password.length < 8) {
+        res.status(400).json({ success: false, error: { message: 'Password must be at least 8 characters.' } });
         return;
       }
 
       const passwordHash = await hashPassword(password);
       user = await User.create({
         name: name.trim(),
-        email: invitation.email,
+        email: invitation.email.toLowerCase().trim(),
         passwordHash,
         isVerified: true,
         activeOrganizationId: invitation.organizationId,
@@ -736,23 +760,34 @@ export const acceptInvitation = async (req: Request, res: Response): Promise<voi
       await user.save();
     }
 
-    // Check if membership already exists
-    const existingMembership = await OrganizationMembership.findOne({
+    // Activate membership
+    let existingMembership = await OrganizationMembership.findOne({
       organizationId: invitation.organizationId,
       userId: user._id,
     });
 
     if (!existingMembership) {
-      await OrganizationMembership.create({
+      existingMembership = await OrganizationMembership.create({
         organizationId: invitation.organizationId,
         userId: user._id,
         role: invitation.role,
         status: 'active',
       });
+    } else {
+      existingMembership.status = 'active';
+      existingMembership.role = invitation.role;
+      await existingMembership.save();
     }
 
     invitation.status = 'accepted';
     await invitation.save();
+
+    const allMemberships = await OrganizationMembership.find({
+      userId: user._id,
+      status: 'active',
+    }).populate('organizationId');
+
+    const targetOrg = await Organization.findById(invitation.organizationId);
 
     const accessToken = generateAccessToken({
       userId: user._id.toString(),
@@ -761,14 +796,56 @@ export const acceptInvitation = async (req: Request, res: Response): Promise<voi
       activeOrganizationId: invitation.organizationId.toString(),
     });
 
+    const refreshToken = generateRefreshToken({ userId: user._id.toString() });
+
+    res.cookie('qubix_refresh', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.json({
       success: true,
       message: 'Invitation accepted! Welcome to the team.',
       data: {
         accessToken,
-        userId: user._id,
-        email: user.email,
-        name: user.name,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phoneNumber: user.phoneNumber || '',
+          designation: user.designation || '',
+          avatarUrl: user.avatarUrl,
+          isSuperAdmin: user.isSuperAdmin,
+          isVerified: user.isVerified,
+          activeOrganizationId: user.activeOrganizationId,
+        },
+        organization: targetOrg
+          ? {
+              id: targetOrg._id,
+              name: targetOrg.name,
+              slug: targetOrg.slug,
+              logoUrl: targetOrg.logoUrl,
+              subscriptionPlan: targetOrg.subscriptionPlan,
+              role: invitation.role,
+            }
+          : null,
+        memberships: allMemberships.map((m: any) => ({
+          id: m._id,
+          organization: m.organizationId
+            ? {
+                id: m.organizationId._id,
+                name: m.organizationId.name,
+                slug: m.organizationId.slug,
+                logoUrl: m.organizationId.logoUrl,
+                subscriptionPlan: m.organizationId.subscriptionPlan,
+              }
+            : null,
+          role: m.role,
+          jobTitle: m.jobTitle,
+          department: m.department,
+        })),
       },
     });
   } catch (err: any) {

@@ -350,8 +350,20 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
   try {
     const { email, role, jobTitle, department } = req.body;
 
-    if (!email || !email.includes('@')) {
-      res.status(400).json({ success: false, error: { message: 'Valid email required' } });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(String(email).trim())) {
+      res.status(400).json({ success: false, error: { message: 'A valid email address is required.' } });
+      return;
+    }
+
+    const normalized = String(email).toLowerCase().trim();
+
+    // Prevent inviting yourself
+    if (req.user && req.user.email.toLowerCase() === normalized) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'You cannot invite your own email address to this workspace.' },
+      });
       return;
     }
 
@@ -365,7 +377,6 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    const normalized = email.toLowerCase().trim();
     const token = crypto.randomBytes(24).toString('hex');
 
     // Check if user already exists
@@ -380,7 +391,7 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
       if (existingMembership) {
         res.status(409).json({
           success: false,
-          error: { message: 'This user is already a member of this workspace.' },
+          error: { message: 'This user is already an active member of this workspace.' },
         });
         return;
       }
@@ -392,24 +403,57 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
         role: (role as OrgRole) || 'employee',
         jobTitle: jobTitle || '',
         department: department || 'General',
+        status: 'active',
       });
 
       const org = await Organization.findById(req.organizationId);
-      await emailService.sendEmail({
-        to: normalized,
-        subject: `You've been added to ${org?.name || 'team workspace'} on QubixDesk`,
-        text: `Hi ${existingUser.name},\nYou have been added to ${org?.name || 'the team workspace'} on QubixDesk as ${role}. Log in at http://localhost:5173/login to access your tickets.`,
-      });
+      await emailService.sendWorkspaceAddedEmail(
+        normalized,
+        org?.name || 'Team Workspace',
+        req.user?.name || 'Workspace Administrator',
+        role || 'employee',
+        existingUser.name
+      );
 
       res.status(201).json({
         success: true,
-        message: 'Member successfully added to workspace.',
+        message: `${existingUser.name} has been added to the workspace. An access notification email has been dispatched.`,
         data: membership,
       });
       return;
     }
 
-    // Otherwise create pending invitation
+    // Check if a pending invitation already exists for this email
+    const pendingInvitation = await Invitation.findOne({
+      organizationId: req.organizationId,
+      email: normalized,
+      status: 'pending',
+    });
+
+    if (pendingInvitation) {
+      pendingInvitation.token = token;
+      pendingInvitation.role = (role as OrgRole) || pendingInvitation.role;
+      pendingInvitation.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      await pendingInvitation.save();
+
+      const org = await Organization.findById(req.organizationId);
+      await emailService.sendTeamInvitationEmail(
+        normalized,
+        org?.name || 'Workspace',
+        req.user?.name || 'Workspace Administrator',
+        role || pendingInvitation.role,
+        token
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `An invitation was already pending for ${normalized}. A fresh invitation email has been resent.`,
+        data: pendingInvitation,
+      });
+      return;
+    }
+
+    // Otherwise create new pending invitation
     const invitation = await Invitation.create({
       organizationId: req.organizationId,
       email: normalized,
@@ -423,14 +467,14 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
     await emailService.sendTeamInvitationEmail(
       normalized,
       org?.name || 'Workspace',
-      req.user?.name || 'Your team',
+      req.user?.name || 'Workspace Administrator',
       role || 'employee',
       token
     );
 
     res.status(201).json({
       success: true,
-      message: 'Invitation sent successfully via SMTP email.',
+      message: 'Invitation sent successfully via email.',
       data: invitation,
     });
   } catch (err: any) {

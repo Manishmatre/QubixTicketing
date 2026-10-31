@@ -361,3 +361,4 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
     </div>
   );
 };
+
