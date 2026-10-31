@@ -18,10 +18,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const { user, organization } = useAuth();
 
   useEffect(() => {
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+    const socketUrl =
+      import.meta.env.VITE_SOCKET_URL ||
+      (window.location.port === '5173' ? 'http://localhost:4000' : window.location.origin);
+
     const socketInstance = io(socketUrl, {
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
       autoConnect: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
     });
 
     socketInstance.on('connect', () => {
@@ -32,6 +38,10 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (user?.id) {
         socketInstance.emit('join:user', user.id);
       }
+    });
+
+    socketInstance.on('connect_error', () => {
+      setIsConnected(false);
     });
 
     socketInstance.on('disconnect', () => {
@@ -64,4 +74,3 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
 export const useSocket = () => useContext(SocketContext);
-

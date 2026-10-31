@@ -6,7 +6,7 @@ import { TicketAttachment } from '../models/TicketAttachment.js';
 import { Ticket } from '../models/Ticket.js';
 import { TicketActivity } from '../models/TicketActivity.js';
 import { tenantScope } from '../middleware/tenantIsolation.js';
-import { getUploadDirectory } from '../services/storageAdapter.js';
+import { getUploadDirectory, processUploadedFile } from '../services/storageAdapter.js';
 import { emitToTicket } from '../services/socket.js';
 
 export const getAttachmentsByTicket = async (req: Request, res: Response): Promise<void> => {
@@ -40,14 +40,14 @@ export const uploadAttachment = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const fileUrl = `/uploads/${file.filename}`;
+    const { fileUrl, fileName } = await processUploadedFile(file);
 
     const attachment = await TicketAttachment.create({
       organizationId: req.organizationId,
       ticketId: ticket._id,
       projectId: ticket.projectId,
       originalName: file.originalname,
-      fileName: file.filename,
+      fileName,
       fileUrl,
       mimeType: file.mimetype,
       sizeBytes: file.size,

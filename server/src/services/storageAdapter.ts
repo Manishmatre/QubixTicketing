@@ -2,11 +2,27 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
+import { v2 as cloudinary } from 'cloudinary';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), process.env.UPLOAD_DIR || 'uploads');
 
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+const isCloudinaryConfigured = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
+
+if (isCloudinaryConfigured) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  console.log('[StorageAdapter] Cloudinary object storage adapter initialized.');
 }
 
 // Allowed MIME types
@@ -32,7 +48,6 @@ const storage = multer.diskStorage({
     cb(null, UPLOAD_DIR);
   },
   filename: (_req, file, cb) => {
-    // Generate secure randomized filename to prevent directory traversal or collision
     const randomHex = crypto.randomBytes(16).toString('hex');
     const safeExt = path.extname(file.originalname).toLowerCase().replace(/[^a-z0-9.]/g, '');
     cb(null, `${Date.now()}-${randomHex}${safeExt}`);
@@ -42,7 +57,7 @@ const storage = multer.diskStorage({
 export const uploadMiddleware = multer({
   storage,
   limits: {
-    fileSize: (Number(process.env.MAX_FILE_SIZE_MB) || 15) * 1024 * 1024, // 15MB default
+    fileSize: (Number(process.env.MAX_FILE_SIZE_MB) || 15) * 1024 * 1024,
   },
   fileFilter: (_req, file, cb) => {
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
@@ -53,5 +68,32 @@ export const uploadMiddleware = multer({
   },
 });
 
-export const getUploadDirectory = (): string => UPLOAD_DIR;
+export const processUploadedFile = async (
+  file: Express.Multer.File
+): Promise<{ fileUrl: string; fileName: string }> => {
+  if (isCloudinaryConfigured) {
+    try {
+      const res = await cloudinary.uploader.upload(file.path, {
+        folder: 'qubix-attachments',
+        resource_type: 'auto',
+      });
+      // Optionally cleanup local temp file
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+      }
+      return {
+        fileUrl: res.secure_url,
+        fileName: file.filename,
+      };
+    } catch (err: any) {
+      console.warn(`[StorageAdapter] Cloudinary upload failed (${err.message}), falling back to local file.`);
+    }
+  }
 
+  return {
+    fileUrl: `/uploads/${file.filename}`,
+    fileName: file.filename,
+  };
+};
+
+export const getUploadDirectory = (): string => UPLOAD_DIR;

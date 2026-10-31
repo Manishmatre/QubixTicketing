@@ -4,13 +4,13 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 let mongod: MongoMemoryServer | null = null;
 
 export const connectDB = async (): Promise<void> => {
-  const uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
   try {
     if (uri && uri.trim() !== '') {
-      console.log(`[Database] Attempting connection to MongoDB at: ${uri}`);
+      console.log(`[Database] Connecting to MongoDB Atlas / Remote Cluster...`);
       await mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 3000,
+        serverSelectionTimeoutMS: 15000,
       });
       console.log('[Database] Connected to external MongoDB successfully.');
       return;
@@ -46,4 +46,3 @@ export const disconnectDB = async (): Promise<void> => {
     console.error('[Database] Error while disconnecting:', err);
   }
 };
-
