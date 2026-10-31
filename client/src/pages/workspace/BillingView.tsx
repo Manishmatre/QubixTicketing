@@ -279,9 +279,14 @@ export const BillingView: React.FC = () => {
                   </div>
                   <p className="text-[11px] text-slate-500 min-h-[32px] leading-snug">{p.description}</p>
 
-                  <div className="my-4 flex items-baseline">
-                    <span className="text-2xl font-extrabold text-slate-900">${price}</span>
-                    <span className="text-xs text-slate-400 ml-1">/ month</span>
+                  <div className="my-4">
+                    <div className="flex items-baseline">
+                      <span className="text-2xl font-extrabold text-slate-900">${price}</span>
+                      <span className="text-xs text-slate-500 font-semibold ml-1.5">/ user / mo</span>
+                    </div>
+                    <p className="text-[10px] text-blue-600 font-medium mt-1">
+                      Pay based on team size: ${price * (billingInfo.usage?.currentUsers || 1)}/mo for {billingInfo.usage?.currentUsers || 1} active {billingInfo.usage?.currentUsers === 1 ? 'seat' : 'seats'}
+                    </p>
                   </div>
 
                   <div className="space-y-1.5 text-xs border-t border-slate-100 pt-3">

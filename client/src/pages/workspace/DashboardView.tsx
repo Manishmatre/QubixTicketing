@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 import { Avatar } from '../../components/ui/Avatar';
 import { PriorityBadge, StatusBadge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -39,6 +40,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpenCreateTicket,
 }) => {
   const { user, organization } = useAuth();
+  const { socket } = useSocket();
   const [timeRange, setTimeRange] = useState<string>('week');
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -60,6 +62,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   useEffect(() => {
     fetchStats();
   }, [timeRange]);
+
+  // Real-time socket updates for dashboard metrics
+  useEffect(() => {
+    if (!socket) return;
+    const handleRefresh = () => {
+      fetchStats();
+    };
+
+    socket.on('ticket:created', handleRefresh);
+    socket.on('ticket:updated', handleRefresh);
+    socket.on('ticket:status_changed', handleRefresh);
+    socket.on('ticket:deleted', handleRefresh);
+
+    return () => {
+      socket.off('ticket:created', handleRefresh);
+      socket.off('ticket:updated', handleRefresh);
+      socket.off('ticket:status_changed', handleRefresh);
+      socket.off('ticket:deleted', handleRefresh);
+    };
+  }, [socket, timeRange]);
 
   if (isLoading || !data) {
     return (

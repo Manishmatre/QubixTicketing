@@ -5,100 +5,118 @@ import { Avatar } from '../ui/Avatar';
 import {
   Ticket as TicketIcon,
   BarChart3,
-  BookOpen,
   FolderKanban,
   Users,
   Layers,
   ChevronDown,
-  ChevronRight,
-  Plus,
-  HelpCircle,
-  MessageSquare,
-  UserPlus,
   LogOut,
-  ShieldCheck,
   Zap,
   CreditCard,
   Settings,
-  Hash,
-  Globe,
-  Smartphone,
-  Sparkles,
-  Link2,
   CheckCircle2,
-  SlidersHorizontal,
-  Building2,
   LayoutDashboard,
+  CalendarRange,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const { user, organization, memberships, switchOrganization, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Collapsible sidebar state (persisted in localStorage)
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem('qubix_sidebar_collapsed') === 'true';
+  });
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('qubix_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
+
   // Role-Based Access Control inside current organization
   const userRole = organization?.role || 'employee';
   const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
 
   return (
-    <aside className="w-64 bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800">
-      {/* 1. Organization Workspace Selector (Clean Minimalist Top, matching reference UI) */}
-      <div className="h-14 px-3 border-b border-[#EAECF0] bg-white flex items-center">
-        <div className="w-full bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
-          <div className="min-w-0 flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-              {organization?.name ? organization.name.charAt(0).toUpperCase() : 'W'}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-slate-900 truncate leading-tight">
-                {organization?.name || 'Workspace'}
-              </p>
-              <p className="text-[10px] text-blue-600 font-semibold capitalize truncate">
-                {organization?.subscriptionPlan || 'Free'} Plan
-              </p>
-            </div>
+    <aside
+      className={`${
+        isCollapsed ? 'w-16' : 'w-64'
+      } bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800 transition-all duration-300 ease-in-out`}
+    >
+      {/* 1. Organization Workspace Selector */}
+      <div className={`h-14 px-3 border-b border-[#EAECF0] bg-white flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
+        {isCollapsed ? (
+          <div
+            onClick={toggleCollapse}
+            title={`${organization?.name || 'Workspace'} (Click to expand)`}
+            className="w-9 h-9 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-black text-sm flex items-center justify-center cursor-pointer shadow-xs transition-colors"
+          >
+            {organization?.name ? organization.name.charAt(0).toUpperCase() : 'W'}
           </div>
+        ) : (
+          <div className="w-full bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
+            <div className="min-w-0 flex items-center gap-2">
+              <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                {organization?.name ? organization.name.charAt(0).toUpperCase() : 'W'}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-slate-900 truncate leading-tight">
+                  {organization?.name || 'Workspace'}
+                </p>
+                <p className="text-[10px] text-blue-600 font-semibold capitalize truncate">
+                  {organization?.subscriptionPlan || 'Free'} Plan
+                </p>
+              </div>
+            </div>
 
-          <div className="flex items-center text-slate-400 group-hover:text-slate-600 shrink-0 ml-1">
-            <ChevronDown className="w-3.5 h-3.5" />
+            <div className="flex items-center text-slate-400 group-hover:text-slate-600 shrink-0 ml-1">
+              <ChevronDown className="w-3.5 h-3.5" />
+            </div>
+
+            {memberships.length > 1 && (
+              <select
+                className="opacity-0 absolute inset-0 cursor-pointer w-full h-full"
+                value={organization?.id}
+                onChange={(e) => switchOrganization(e.target.value)}
+              >
+                {memberships.map((m: any) => (
+                  <option key={m.organization?.id} value={m.organization?.id}>
+                    {m.organization?.name} ({m.role})
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
-
-          {memberships.length > 1 && (
-            <select
-              className="opacity-0 absolute inset-0 cursor-pointer w-full h-full"
-              value={organization?.id}
-              onChange={(e) => switchOrganization(e.target.value)}
-            >
-              {memberships.map((m: any) => (
-                <option key={m.organization?.id} value={m.organization?.id}>
-                  {m.organization?.name} ({m.role})
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
+        )}
       </div>
 
       {/* 2. Primary Navigation Links */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4 text-xs">
+      <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4 text-xs">
         <div className="space-y-0.5">
           <NavLink
             to="/workspace/dashboard"
+            title="Dashboard"
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`
             }
           >
-            <LayoutDashboard className="w-4 h-4 text-slate-500" />
-            <span>Dashboard</span>
+            <LayoutDashboard className="w-4 h-4 text-slate-500 shrink-0" />
+            {!isCollapsed && <span>Dashboard</span>}
           </NavLink>
 
           <NavLink
             to="/workspace/kanban"
+            title="Kanban Board"
             className={({ isActive }) =>
-              `flex items-center justify-between px-3 py-2 rounded-lg font-medium transition-all ${
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
@@ -106,158 +124,206 @@ export const Sidebar: React.FC = () => {
             }
           >
             <div className="flex items-center gap-2.5">
-              <TicketIcon className="w-4 h-4 text-slate-500" />
-              <span>Kanban Board</span>
+              <TicketIcon className="w-4 h-4 text-slate-500 shrink-0" />
+              {!isCollapsed && <span>Kanban Board</span>}
             </div>
-            <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-2xs">
-              Live
-            </span>
+            {!isCollapsed && (
+              <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-2xs">
+                Live
+              </span>
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/workspace/gantt"
+            title="Timeline & Gantt View"
+            className={({ isActive }) =>
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
+                isActive
+                  ? 'bg-blue-50 text-blue-700 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              }`
+            }
+          >
+            <CalendarRange className="w-4 h-4 text-slate-500 shrink-0" />
+            {!isCollapsed && <span>Timeline (Gantt)</span>}
           </NavLink>
 
           <NavLink
             to="/workspace/tickets"
+            title="All Tickets"
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`
             }
           >
-            <Layers className="w-4 h-4 text-slate-500" />
-            <span>All Tickets</span>
+            <Layers className="w-4 h-4 text-slate-500 shrink-0" />
+            {!isCollapsed && <span>All Tickets</span>}
           </NavLink>
 
           <NavLink
             to="/workspace/my-tickets"
+            title="My Tickets"
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`
             }
           >
-            <CheckCircle2 className="w-4 h-4 text-slate-500" />
-            <span>My Tickets</span>
+            <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />
+            {!isCollapsed && <span>My Tickets</span>}
           </NavLink>
 
           <NavLink
             to="/workspace/projects"
+            title="Projects"
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`
             }
           >
-            <FolderKanban className="w-4 h-4 text-slate-500" />
-            <span>Projects</span>
+            <FolderKanban className="w-4 h-4 text-slate-500 shrink-0" />
+            {!isCollapsed && <span>Projects</span>}
           </NavLink>
 
           <NavLink
             to="/workspace/teams"
+            title="Teams & Members"
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`
             }
           >
-            <Users className="w-4 h-4 text-slate-500" />
-            <span>Teams</span>
+            <Users className="w-4 h-4 text-slate-500 shrink-0" />
+            {!isCollapsed && <span>Teams</span>}
           </NavLink>
 
           <NavLink
             to="/workspace/reports"
+            title="Analytics & SLA"
             className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+              `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50 text-blue-700 font-semibold'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`
             }
           >
-            <BarChart3 className="w-4 h-4 text-slate-500" />
-            <span>Analytics & SLA</span>
+            <BarChart3 className="w-4 h-4 text-slate-500 shrink-0" />
+            {!isCollapsed && <span>Analytics & SLA</span>}
           </NavLink>
 
-          {/* Administrative Automations - visible to Owner and Admins */}
+          {/* Administrative Automations */}
           {isOrgAdmin && (
             <NavLink
               to="/workspace/workflows"
+              title="Automations"
               className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+                `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                   isActive
                     ? 'bg-blue-50 text-blue-700 font-semibold'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                 }`
               }
             >
-              <Zap className="w-4 h-4 text-slate-500" />
-              <span>Automations</span>
+              <Zap className="w-4 h-4 text-slate-500 shrink-0" />
+              {!isCollapsed && <span>Automations</span>}
             </NavLink>
           )}
         </div>
       </div>
 
       {/* 3. Pinned Bottom Footer */}
-      <div className="p-3 border-t border-[#EAECF0] space-y-1 text-xs text-slate-600 bg-white">
+      <div className="p-2 border-t border-[#EAECF0] space-y-1 text-xs text-slate-600 bg-white">
         {/* Organization Admin Level Actions: Billing & Settings */}
         {isOrgAdmin && (
           <>
             <NavLink
               to="/workspace/billing"
+              title="Billing & Plan"
               className={({ isActive }) =>
-                `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors ${
+                `flex items-center ${isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-2.5 py-1.5'} rounded-lg hover:bg-slate-50 transition-colors ${
                   isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
                 }`
               }
             >
-              <CreditCard className="w-3.5 h-3.5 text-slate-400" />
-              <span>Billing & Plan</span>
+              <CreditCard className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              {!isCollapsed && <span>Billing & Plan</span>}
             </NavLink>
 
             <NavLink
               to="/workspace/settings"
+              title="Workspace Settings"
               className={({ isActive }) =>
-                `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors ${
+                `flex items-center ${isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-2.5 py-1.5'} rounded-lg hover:bg-slate-50 transition-colors ${
                   isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
                 }`
               }
             >
-              <Settings className="w-3.5 h-3.5 text-slate-400" />
-              <span>Settings</span>
+              <Settings className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              {!isCollapsed && <span>Settings</span>}
             </NavLink>
           </>
         )}
+
+        {/* Collapse / Expand Toggle Button */}
+        <button
+          onClick={toggleCollapse}
+          title={isCollapsed ? 'Expand sidebar' : 'Collapse to icon-only'}
+          className={`w-full flex items-center ${
+            isCollapsed ? 'justify-center p-2' : 'justify-between px-2.5 py-1.5'
+          } rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer text-xs font-medium`}
+        >
+          <div className="flex items-center gap-2">
+            {isCollapsed ? (
+              <PanelLeft className="w-4 h-4 text-blue-600" />
+            ) : (
+              <PanelLeftClose className="w-4 h-4 text-slate-400" />
+            )}
+            {!isCollapsed && <span>Collapse sidebar</span>}
+          </div>
+          {!isCollapsed && <span className="text-[10px] text-slate-400 font-mono">⌘B</span>}
+        </button>
 
         {/* User Card */}
         <div className="pt-2 mt-1 border-t border-[#EAECF0] flex items-center justify-between px-1">
           <Link
             to="/workspace/profile"
-            className="flex items-center gap-2.5 min-w-0 hover:opacity-85 transition-opacity"
-            title="View User Profile"
+            className={`flex items-center ${isCollapsed ? 'justify-center w-full' : 'gap-2.5 min-w-0'} hover:opacity-85 transition-opacity`}
+            title={`View Profile: ${user?.name || 'User'}`}
           >
             <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-slate-900 truncate leading-tight">
-                {user?.name || 'User'}
-              </p>
-              <p className="text-[10px] text-slate-400 truncate font-mono">
-                {user?.email || 'user@example.com'}
-              </p>
-            </div>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-slate-900 truncate leading-tight">
+                  {user?.name || 'User'}
+                </p>
+                <p className="text-[10px] text-slate-400 truncate font-mono">
+                  {user?.email || 'user@example.com'}
+                </p>
+              </div>
+            )}
           </Link>
-          <button
-            onClick={() => logout()}
-            title="Log Out"
-            className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-          </button>
+          {!isCollapsed && (
+            <button
+              onClick={() => logout()}
+              title="Log Out"
+              className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </aside>

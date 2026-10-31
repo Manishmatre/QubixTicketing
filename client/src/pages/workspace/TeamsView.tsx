@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 import { Avatar } from '../../components/ui/Avatar';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -18,6 +19,7 @@ import {
 
 export const TeamsView: React.FC = () => {
   const { user, organization } = useAuth();
+  const { onlineUserIds } = useSocket();
   const userRole = organization?.role || 'employee';
   const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
 
@@ -143,9 +145,26 @@ export const TeamsView: React.FC = () => {
                 <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-3">
-                      <Avatar name={m.user?.name} src={m.user?.avatarUrl} size="sm" />
+                      <div className="relative">
+                        <Avatar name={m.user?.name} src={m.user?.avatarUrl} size="sm" />
+                        <span
+                          className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                            onlineUserIds.includes(m.user?.id || m.userId || m.user?._id)
+                              ? 'bg-emerald-500 animate-pulse'
+                              : 'bg-slate-300'
+                          }`}
+                          title={onlineUserIds.includes(m.user?.id || m.userId || m.user?._id) ? 'Online now' : 'Offline'}
+                        />
+                      </div>
                       <div>
-                        <p className="font-semibold text-slate-900">{m.user?.name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-semibold text-slate-900">{m.user?.name}</p>
+                          {onlineUserIds.includes(m.user?.id || m.userId || m.user?._id) && (
+                            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
+                              LIVE
+                            </span>
+                          )}
+                        </div>
                         <p className="text-[11px] text-slate-400">{m.user?.email}</p>
                       </div>
                     </div>

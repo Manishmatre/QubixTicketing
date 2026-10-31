@@ -5,16 +5,19 @@ import { useAuth } from './AuthContext';
 interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
+  onlineUserIds: string[];
 }
 
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   isConnected: false,
+  onlineUserIds: [],
 });
 
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [onlineUserIds, setOnlineUserIds] = useState<string[]>([]);
   const { user, organization } = useAuth();
 
   useEffect(() => {
@@ -48,6 +51,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setIsConnected(false);
     });
 
+    socketInstance.on('presence:sync', (data: { onlineUserIds: string[] }) => {
+      if (Array.isArray(data?.onlineUserIds)) {
+        setOnlineUserIds(data.onlineUserIds);
+      }
+    });
+
     setSocket(socketInstance);
 
     return () => {
@@ -67,7 +76,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [organization?.id, user?.id, isConnected, socket]);
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider value={{ socket, isConnected, onlineUserIds }}>
       {children}
     </SocketContext.Provider>
   );

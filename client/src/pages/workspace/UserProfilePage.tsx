@@ -549,20 +549,6 @@ export const UserProfilePage: React.FC = () => {
               />
 
               <div className="md:col-span-2">
-                <label className="block font-semibold text-slate-700 mb-1.5 text-xs">Avatar Image URL</label>
-                <input
-                  type="url"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/... or direct image link"
-                  className="w-full bg-white border border-[#EAECF0] rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Paste a link to any public profile image or leave empty for automatic color initials.
-                </p>
-              </div>
-
-              <div className="md:col-span-2">
                 <label className="block font-semibold text-slate-700 mb-1.5 text-xs">Personal Bio</label>
                 <textarea
                   rows={3}

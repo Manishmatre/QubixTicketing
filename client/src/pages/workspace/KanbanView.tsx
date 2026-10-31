@@ -319,24 +319,19 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                         {t.title}
                       </h4>
 
-                      {/* Action Tags based on sources / categories (Colorful action tags like in screenshot) */}
-                      <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
-                        <span className="inline-flex items-center gap-1 bg-[#F4F0F7] text-[#4A154B] border border-[#E8DCEE] text-[10px] px-1.5 py-0.5 rounded font-medium">
-                          <Hash className="w-2.5 h-2.5" />
-                          Slack
-                        </span>
-                        <span className="inline-flex items-center gap-1 bg-sky-50 text-sky-700 border border-sky-100 text-[10px] px-1.5 py-0.5 rounded font-medium">
-                          <Globe className="w-2.5 h-2.5" />
-                          Web
-                        </span>
-                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] px-1.5 py-0.5 rounded font-medium">
-                          <Smartphone className="w-2.5 h-2.5" />
-                          Mobile
-                        </span>
-                        <span className="bg-purple-50 text-purple-700 border border-purple-100 text-[10px] px-1.5 py-0.5 rounded font-medium">
-                          Feature
-                        </span>
-                      </div>
+                      {/* Ticket Real Tags & Metadata */}
+                      {t.tags && t.tags.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                          {t.tags.map((tag: string) => (
+                            <span
+                              key={tag}
+                              className="bg-slate-100 text-slate-700 border border-slate-200/80 text-[10px] px-1.5 py-0.5 rounded font-medium"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
                       {/* Timestamp */}
                       <div className="text-[10px] text-slate-400 font-medium">

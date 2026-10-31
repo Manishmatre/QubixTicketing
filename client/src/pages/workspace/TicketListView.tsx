@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSocket } from '../../context/SocketContext';
 import { Ticket } from '../../types';
 import { apiClient } from '../../api/client';
 import { PriorityBadge, StatusBadge } from '../../components/ui/Badge';
@@ -71,9 +72,44 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
     }
   };
 
+  const { socket } = useSocket();
+
   useEffect(() => {
     fetchTickets();
   }, [page, statusFilter, priorityFilter, search, myTicketsOnly]);
+
+  // Real-time socket sync
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleCreated = (newTicket: Ticket) => {
+      setTickets((prev) => [newTicket, ...prev.filter((t) => t._id !== newTicket._id)]);
+      setTotalCount((c) => c + 1);
+    };
+
+    const handleUpdated = (updatedTicket: Ticket) => {
+      setTickets((prev) =>
+        prev.map((t) => (t._id === updatedTicket._id ? updatedTicket : t))
+      );
+    };
+
+    const handleDeleted = (data: { ticketId: string }) => {
+      setTickets((prev) => prev.filter((t) => t._id !== data.ticketId));
+      setTotalCount((c) => Math.max(0, c - 1));
+    };
+
+    socket.on('ticket:created', handleCreated);
+    socket.on('ticket:updated', handleUpdated);
+    socket.on('ticket:status_changed', handleUpdated);
+    socket.on('ticket:deleted', handleDeleted);
+
+    return () => {
+      socket.off('ticket:created', handleCreated);
+      socket.off('ticket:updated', handleUpdated);
+      socket.off('ticket:status_changed', handleUpdated);
+      socket.off('ticket:deleted', handleDeleted);
+    };
+  }, [socket]);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {

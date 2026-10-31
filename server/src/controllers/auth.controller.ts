@@ -51,9 +51,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     // Dispatch verification OTP email via SMTP
-    emailService.sendOtpVerificationEmail(user.email, user.name, otpCode).catch((err) => {
-      console.error('[Auth] Failed to send verification OTP email:', err);
-    });
+    await emailService.sendOtpVerificationEmail(user.email, user.name, otpCode, verificationToken);
 
     await logAuditEvent({
       userId: user._id as any,
@@ -118,7 +116,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       user.otpCode = otpCode;
       user.otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
       await user.save();
-      emailService.sendOtpVerificationEmail(user.email, user.name, otpCode).catch(() => {});
+      emailService.sendOtpVerificationEmail(user.email, user.name, otpCode, user.verificationToken).catch(() => {});
 
       res.status(403).json({
         success: false,
@@ -589,7 +587,7 @@ export const resendVerification = async (req: Request, res: Response): Promise<v
     user.otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    await emailService.sendOtpVerificationEmail(user.email, user.name, otpCode);
+    await emailService.sendOtpVerificationEmail(user.email, user.name, otpCode, verificationToken);
 
     res.json({ success: true, message: `A fresh 6-digit verification code has been sent to ${user.email}.` });
   } catch (err: any) {

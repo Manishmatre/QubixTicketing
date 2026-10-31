@@ -1455,9 +1455,12 @@ export const LandingPage: React.FC = () => {
                   )}
                 </div>
                 <p className="text-slate-500 text-[11px] h-8 leading-snug">{plan.desc}</p>
-                <div className="my-4 flex items-baseline">
-                  <span className="text-3xl font-extrabold text-slate-900">${plan.price}</span>
-                  <span className="text-slate-400 ml-1">/ month</span>
+                <div className="my-4">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-extrabold text-slate-900">${plan.price}</span>
+                    <span className="text-slate-500 font-semibold ml-1.5 text-xs">/ user / mo</span>
+                  </div>
+                  <p className="text-[10px] text-blue-600 font-medium mt-0.5">Pay only for active team seats</p>
                 </div>
                 <div className="space-y-2 border-t border-slate-100 pt-4">
                   {plan.features.map((f, i) => (

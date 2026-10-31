@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Layouts & Pages
 import { AppLayout } from './components/layout/AppLayout';
@@ -23,6 +24,7 @@ import {
 import { TicketDetailsPage } from './pages/workspace/TicketDetailsPage';
 import { ProjectDetailsPage } from './pages/workspace/ProjectDetailsPage';
 import { UserProfilePage } from './pages/workspace/UserProfilePage';
+import { GanttTimelineView } from './pages/workspace/GanttTimelineView';
 import { ProjectsView } from './pages/workspace/ProjectsView';
 import { TeamsView } from './pages/workspace/TeamsView';
 import { ReportsView } from './pages/workspace/ReportsView';
@@ -53,10 +55,11 @@ const SuperAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
 export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SocketProvider>
-          <BrowserRouter>
-            <Routes>
+      <ThemeProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <BrowserRouter>
+              <Routes>
               {/* Public SaaS Pages */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
@@ -76,6 +79,7 @@ export const App: React.FC = () => {
                 <Route index element={<Navigate to="/workspace/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="kanban" element={<KanbanPage />} />
+                <Route path="gantt" element={<GanttTimelineView />} />
                 <Route path="tickets" element={<AllTicketsPage />} />
                 <Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
                 <Route path="ticket/:ticketId" element={<TicketDetailsPage />} />
@@ -106,7 +110,8 @@ export const App: React.FC = () => {
           </BrowserRouter>
         </SocketProvider>
       </AuthProvider>
-    </QueryClientProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
   );
 };
 
