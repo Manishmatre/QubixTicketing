@@ -109,12 +109,15 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
       department: department || 'Leadership',
     });
 
-    // Update user's active org and phone number if provided
+    // Update user's active org, designation, and phone number
     const user = await User.findById(req.user._id);
     if (user) {
       user.activeOrganizationId = organization._id as any;
       if (phoneNumber) {
-        user.phoneNumber = phoneNumber;
+        user.phoneNumber = phoneNumber.trim();
+      }
+      if (jobTitle || req.body.designation) {
+        user.designation = (jobTitle || req.body.designation).trim();
       }
       await user.save();
     }

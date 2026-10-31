@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
@@ -20,50 +20,127 @@ import {
 
 export const VerifyEmailPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const location = useLocation();
   const navigate = useNavigate();
+  const { setAuthSession, reloadUser } = useAuth();
 
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-  const [message, setMessage] = useState<string>('');
-  const [resendEmail, setResendEmail] = useState<string>('');
+  const tokenFromUrl = searchParams.get('token');
+  const emailFromUrl = searchParams.get('email') || (location.state as any)?.email || '';
+  const nameFromState = (location.state as any)?.name || '';
+
+  const [email, setEmail] = useState<string>(emailFromUrl);
+  const [otp, setOtp] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [successMsg, setSuccessMsg] = useState<string>('');
+  
+  // Resend Countdown
+  const [resendCooldown, setResendCooldown] = useState<number>(60);
   const [resendLoading, setResendLoading] = useState<boolean>(false);
-  const [resendSent, setResendSent] = useState<boolean>(false);
+  const [resendMsg, setResendMsg] = useState<string>('');
 
+  // Handle countdown timer
   useEffect(() => {
-    if (!token) {
-      setStatus('error');
-      setMessage('No verification token provided. Please use the link sent to your email.');
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  // If token is present in URL (link clicked in email), verify automatically
+  useEffect(() => {
+    if (tokenFromUrl) {
+      const verifyToken = async () => {
+        setIsLoading(true);
+        setError('');
+        try {
+          const res = await apiClient.post('/auth/verify-email', { token: tokenFromUrl });
+          if (res.data.success) {
+            setSuccessMsg('Email verified successfully!');
+            const { user, accessToken } = res.data.data;
+            if (user && accessToken) {
+              setAuthSession(user, accessToken);
+              await reloadUser();
+            }
+            setTimeout(() => {
+              navigate('/onboarding', { replace: true });
+            }, 1200);
+          } else {
+            setError(res.data.error?.message || 'Verification link is invalid or expired.');
+          }
+        } catch (err: any) {
+          setError(err.response?.data?.error?.message || 'Verification link is invalid or expired.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      verifyToken();
+    }
+  }, [tokenFromUrl]);
+
+  // Handle 6-digit OTP verification submit
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setError('Please provide your registered work email address.');
+      return;
+    }
+    const cleanOtp = otp.trim().replace(/\s+/g, '');
+    if (cleanOtp.length !== 6) {
+      setError('Please enter the full 6-digit verification code.');
       return;
     }
 
-    const verify = async () => {
-      try {
-        const res = await apiClient.post('/auth/verify-email', { token });
-        if (res.data.success) {
-          setStatus('success');
-          setMessage(res.data.message || 'Your email has been verified successfully!');
-        } else {
-          setStatus('error');
-          setMessage(res.data.error?.message || 'Verification link is invalid or expired.');
-        }
-      } catch (err: any) {
-        setStatus('error');
-        setMessage(err.response?.data?.error?.message || 'Verification link is invalid or has expired.');
-      }
-    };
+    setIsLoading(true);
+    setError('');
+    setSuccessMsg('');
 
-    verify();
-  }, [token]);
-
-  const handleResend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!resendEmail) return;
-    setResendLoading(true);
     try {
-      await apiClient.post('/auth/resend-verification', { email: resendEmail.trim() });
-      setResendSent(true);
-    } catch (err) {
-      // ignore
+      const res = await apiClient.post('/auth/verify-email', {
+        email: email.trim().toLowerCase(),
+        otp: cleanOtp,
+      });
+
+      if (res.data.success) {
+        setSuccessMsg('Email verified! Launching your workspace setup...');
+        const { user, accessToken } = res.data.data;
+        if (user && accessToken) {
+          setAuthSession(user, accessToken);
+          await reloadUser();
+        }
+        setTimeout(() => {
+          navigate('/onboarding', { replace: true });
+        }, 1200);
+      } else {
+        setError(res.data.error?.message || 'Invalid or expired verification code.');
+      }
+    } catch (err: any) {
+      setError(
+        err.response?.data?.error?.message ||
+          'Invalid or expired verification code. Please check your inbox or resend code.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Resend Verification Code
+  const handleResend = async () => {
+    if (resendCooldown > 0 || !email.trim()) return;
+    setResendLoading(true);
+    setError('');
+    setResendMsg('');
+
+    try {
+      const res = await apiClient.post('/auth/resend-verification', {
+        email: email.trim().toLowerCase(),
+      });
+      setResendMsg(res.data.message || 'A fresh 6-digit code has been dispatched to your email.');
+      setResendCooldown(60);
+      setTimeout(() => setResendMsg(''), 5000);
+    } catch (err: any) {
+      setError(err.response?.data?.error?.message || 'Failed to resend code. Please try again.');
     } finally {
       setResendLoading(false);
     }
@@ -73,71 +150,129 @@ export const VerifyEmailPage: React.FC = () => {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center items-center p-6 text-slate-800 font-sans">
       <div className="w-full max-w-md bg-white border border-[#EAECF0] rounded-2xl shadow-subtle p-8 text-center space-y-6">
         <Link to="/" className="inline-block">
-          <img src="/logo.png" alt="QubixDesk" className="h-9 mx-auto object-contain" />
+          <img src="/logo.png" alt="QubixDesk" className="h-10 mx-auto object-contain" />
         </Link>
 
-        {status === 'verifying' && (
-          <div className="space-y-3 py-6">
-            <div className="w-10 h-10 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <h2 className="text-base font-bold text-slate-900">Verifying Email Address...</h2>
-            <p className="text-xs text-slate-500">Checking your secure cryptographic verification token.</p>
+        {/* Header Icon */}
+        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-2xs border border-blue-100">
+          <Mail className="w-8 h-8 text-blue-600" />
+        </div>
+
+        <div className="space-y-1.5">
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Check Your Email
+          </h2>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            {nameFromState ? `Welcome, ${nameFromState}! ` : ''}
+            We have sent a 6-digit security code to:
+          </p>
+          <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg text-xs font-mono font-bold text-slate-800 mt-1">
+            <Mail className="w-3.5 h-3.5 text-slate-400" />
+            <span>{email || 'your email'}</span>
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2 font-medium text-left">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
-        {status === 'success' && (
-          <div className="space-y-4 py-4">
-            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-2xs">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-            <h2 className="text-xl font-extrabold text-slate-900">Email Verified!</h2>
-            <p className="text-xs text-slate-600 leading-relaxed">{message}</p>
-            <div className="pt-2">
-              <Button
-                variant="primary"
-                className="w-full text-xs font-semibold"
-                onClick={() => navigate('/login')}
-              >
-                Proceed to Sign In &rarr;
-              </Button>
-            </div>
+        {/* Success Alert */}
+        {successMsg && (
+          <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2.5 font-bold text-left animate-pulse">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <span>{successMsg}</span>
           </div>
         )}
 
-        {status === 'error' && (
-          <div className="space-y-4 py-2">
-            <div className="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-2xs">
-              <AlertCircle className="w-8 h-8" />
-            </div>
-            <h2 className="text-lg font-bold text-slate-900">Verification Expired</h2>
-            <p className="text-xs text-slate-500 leading-relaxed">{message}</p>
-
-            {resendSent ? (
-              <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl font-medium">
-                New verification email sent! Check your inbox.
-              </div>
-            ) : (
-              <form onSubmit={handleResend} className="space-y-3 pt-2 text-left text-xs">
-                <Input
-                  label="Enter your email to receive a new link"
-                  type="email"
-                  value={resendEmail}
-                  onChange={(e) => setResendEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  required
-                />
-                <Button type="submit" variant="primary" className="w-full text-xs font-semibold" isLoading={resendLoading}>
-                  Resend Verification Email
-                </Button>
-              </form>
-            )}
-
-            <div className="pt-3 border-t border-slate-100">
-              <Link to="/login" className="text-xs font-semibold text-blue-600 hover:underline">
-                Back to Sign In
-              </Link>
-            </div>
+        {/* Resend Notice */}
+        {resendMsg && (
+          <div className="p-3 bg-blue-50 border border-blue-200 text-blue-700 text-xs rounded-xl flex items-center gap-2 font-medium text-left">
+            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+            <span>{resendMsg}</span>
           </div>
         )}
+
+        {/* OTP Input Form */}
+        <form onSubmit={handleVerifyOtp} className="space-y-5 text-left text-xs">
+          {!emailFromUrl && (
+            <Input
+              label="Work Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="alex@company.com"
+              required
+            />
+          )}
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="block font-semibold text-slate-700 text-xs">
+                Enter 6-Digit OTP Code
+              </label>
+              <span className="text-[11px] text-slate-400">Valid for 15 minutes</span>
+            </div>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, '');
+                setOtp(val);
+                if (val.length === 6) setError('');
+              }}
+              placeholder="••••••"
+              autoFocus
+              required
+              className="w-full bg-[#F8FAFC] border-2 border-slate-200 focus:border-blue-600 rounded-xl px-4 py-3 text-center text-2xl font-mono font-black tracking-[0.5em] text-slate-900 outline-none focus:ring-4 focus:ring-blue-100 transition-all placeholder:tracking-normal placeholder:font-sans placeholder:text-sm placeholder:text-slate-400"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full text-xs font-bold py-3 shadow-md shadow-blue-500/10"
+            isLoading={isLoading}
+          >
+            Verify Email & Continue &rarr;
+          </Button>
+        </form>
+
+        {/* Resend Action */}
+        <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-2 text-xs">
+          <p className="text-slate-500">
+            Didn't receive the email code?
+          </p>
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={resendCooldown > 0 || resendLoading}
+            className={`font-semibold transition-colors ${
+              resendCooldown > 0 || resendLoading
+                ? 'text-slate-400 cursor-not-allowed'
+                : 'text-blue-600 hover:text-blue-800 hover:underline cursor-pointer'
+            }`}
+          >
+            {resendLoading
+              ? 'Sending fresh code...'
+              : resendCooldown > 0
+              ? `Resend code in ${resendCooldown}s`
+              : 'Resend Verification Code'}
+          </button>
+        </div>
+
+        <div className="pt-1 text-center text-xs text-slate-400">
+          <Link to="/register" className="hover:text-slate-600 transition-colors">
+            ← Change email or return to sign up
+          </Link>
+        </div>
       </div>
     </div>
   );

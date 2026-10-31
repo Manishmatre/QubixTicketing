@@ -15,6 +15,7 @@ interface AuthContextType {
   updateUser: (updated: Partial<User>) => void;
   updateOrganization: (updated: Partial<Organization>) => void;
   reloadUser: () => Promise<void>;
+  setAuthSession: (user: User, token: string, org?: Organization | null, mems?: any[]) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -89,13 +90,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phoneNumber,
       });
       if (res.data.success) {
+        if (res.data.data?.requiresVerification) {
+          return { success: true };
+        }
         const { user, organization, accessToken } = res.data.data;
-        setUser(user);
-        setOrganization(organization);
-        setToken(accessToken);
-        localStorage.setItem('qubix_access_token', accessToken);
-        if (organization) {
-          localStorage.setItem('qubix_active_org_id', organization.id);
+        if (accessToken) {
+          setUser(user);
+          setOrganization(organization);
+          setToken(accessToken);
+          localStorage.setItem('qubix_access_token', accessToken);
+          if (organization) {
+            localStorage.setItem('qubix_active_org_id', organization.id);
+          }
         }
         return { success: true };
       }
@@ -103,6 +109,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err: any) {
       const msg = err.response?.data?.error?.message || 'Registration failed.';
       return { success: false, error: msg };
+    }
+  };
+
+  const setAuthSession = (sessionUser: User, sessionToken: string, sessionOrg?: Organization | null, sessionMems?: any[]) => {
+    setUser(sessionUser);
+    setToken(sessionToken);
+    localStorage.setItem('qubix_access_token', sessionToken);
+    if (sessionOrg) {
+      setOrganization(sessionOrg);
+      localStorage.setItem('qubix_active_org_id', sessionOrg.id);
+    }
+    if (sessionMems) {
+      setMemberships(sessionMems);
     }
   };
 
@@ -176,6 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateUser,
         updateOrganization,
         reloadUser,
+        setAuthSession,
       }}
     >
       {children}

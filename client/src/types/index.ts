@@ -47,9 +47,11 @@ export interface User {
   name: string;
   email: string;
   phoneNumber?: string;
+  designation?: string;
   avatarUrl?: string;
   documents?: UserDocument[];
   isSuperAdmin: boolean;
+  isVerified?: boolean;
   activeOrganizationId?: string;
   lastLoginAt?: string;
 }

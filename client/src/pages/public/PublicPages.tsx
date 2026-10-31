@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
@@ -38,6 +38,8 @@ import {
   Bell,
   Plus,
   Filter,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
@@ -53,20 +55,41 @@ export const LandingPage: React.FC = () => {
   const [isCursorClicking, setIsCursorClicking] = useState<boolean>(false);
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 380, y: 220 });
 
+  const demoContainerRef = useRef<HTMLDivElement>(null);
+  const ticketCardRef = useRef<HTMLDivElement>(null);
+  const drawerActionBtnRef = useRef<HTMLButtonElement>(null);
+  const resolvedCardRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     // Automated interactive workflow cycle
     const timer = setInterval(() => {
       setDemoStep((prev) => {
         const next = (prev + 1) % 5;
         if (next === 0) {
-          // Hover over QUB-000101
-          setCursorPos({ x: 420, y: 210 });
+          // Hover over QUB-000101 in Column 2
+          if (ticketCardRef.current && demoContainerRef.current) {
+            const cRect = demoContainerRef.current.getBoundingClientRect();
+            const tRect = ticketCardRef.current.getBoundingClientRect();
+            setCursorPos({
+              x: tRect.left - cRect.left + tRect.width * 0.45,
+              y: tRect.top - cRect.top + 35,
+            });
+          } else {
+            setCursorPos({ x: 380, y: 220 });
+          }
           setIsCursorClicking(false);
           setIsTaskResolved(false);
           setSelectedDemoTicket(null);
         } else if (next === 1) {
           // Click QUB-000101 -> Opens Details Drawer
-          setCursorPos({ x: 440, y: 230 });
+          if (ticketCardRef.current && demoContainerRef.current) {
+            const cRect = demoContainerRef.current.getBoundingClientRect();
+            const tRect = ticketCardRef.current.getBoundingClientRect();
+            setCursorPos({
+              x: tRect.left - cRect.left + tRect.width * 0.45,
+              y: tRect.top - cRect.top + 35,
+            });
+          }
           setIsCursorClicking(true);
           setTimeout(() => setIsCursorClicking(false), 500);
           setSelectedDemoTicket({
@@ -78,17 +101,48 @@ export const LandingPage: React.FC = () => {
             status: 'In Progress',
           });
         } else if (next === 2) {
-          // Cursor moves to "Mark as Resolved" button in Drawer
-          setCursorPos({ x: 740, y: 155 });
+          // Cursor glides directly onto the "Mark as Resolved" action button in the slide-over drawer
+          setTimeout(() => {
+            if (drawerActionBtnRef.current && demoContainerRef.current) {
+              const cRect = demoContainerRef.current.getBoundingClientRect();
+              const bRect = drawerActionBtnRef.current.getBoundingClientRect();
+              setCursorPos({
+                x: bRect.left - cRect.left + bRect.width * 0.5,
+                y: bRect.top - cRect.top + bRect.height * 0.5,
+              });
+            } else {
+              setCursorPos({ x: 920, y: 250 });
+            }
+          }, 150);
         } else if (next === 3) {
           // Click "Mark as Resolved" -> Triggers Celebration & Done Animation!
-          setCursorPos({ x: 750, y: 160 });
+          if (drawerActionBtnRef.current && demoContainerRef.current) {
+            const cRect = demoContainerRef.current.getBoundingClientRect();
+            const bRect = drawerActionBtnRef.current.getBoundingClientRect();
+            setCursorPos({
+              x: bRect.left - cRect.left + bRect.width * 0.5,
+              y: bRect.top - cRect.top + bRect.height * 0.5,
+            });
+          } else {
+            setCursorPos({ x: 920, y: 250 });
+          }
           setIsCursorClicking(true);
           setTimeout(() => setIsCursorClicking(false), 500);
           setIsTaskResolved(true);
         } else if (next === 4) {
-          // Cursor moves to celebrate in RESOLVED column
-          setCursorPos({ x: 880, y: 230 });
+          // Cursor glides over to celebrate in RESOLVED column
+          setTimeout(() => {
+            if (resolvedCardRef.current && demoContainerRef.current) {
+              const cRect = demoContainerRef.current.getBoundingClientRect();
+              const rRect = resolvedCardRef.current.getBoundingClientRect();
+              setCursorPos({
+                x: rRect.left - cRect.left + rRect.width * 0.5,
+                y: rRect.top - cRect.top + 40,
+              });
+            } else {
+              setCursorPos({ x: 720, y: 230 });
+            }
+          }, 150);
         }
         return next;
       });
@@ -227,7 +281,7 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-8 sm:pt-12 pb-14 px-4 sm:px-6 max-w-7xl mx-auto text-center space-y-6">
+      <section className="relative z-10 pt-3 sm:pt-6 pb-8 px-4 sm:px-6 max-w-7xl mx-auto text-center space-y-5">
         {/* Floating Live Interaction Badges */}
         <div className="hidden lg:block absolute left-8 top-28 pointer-events-none">
           <motion.div
@@ -349,13 +403,14 @@ export const LandingPage: React.FC = () => {
         {/* Interactive Full Workspace Showcase Frame */}
         <motion.div
           id="preview"
+          ref={demoContainerRef}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mt-14 rounded-2xl border border-slate-300/80 bg-white p-2 sm:p-3 shadow-2xl shadow-slate-300/50 max-w-6xl mx-auto text-left overflow-hidden hover:shadow-blue-500/10 transition-shadow relative"
         >
-          {/* Animated Interactive Cursor Simulation (Precision Figma/macOS Up-Left Pointer) */}
+          {/* Animated Interactive Cursor Simulation (Authentic Figma/macOS Pointer) */}
           <motion.div
             className="hidden lg:flex absolute z-50 pointer-events-none items-center gap-1.5 drop-shadow-xl"
             animate={{
@@ -370,15 +425,15 @@ export const LandingPage: React.FC = () => {
             <div className="relative">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="drop-shadow-md">
                 <path
-                  d="M3 3L10.07 20.97L13.58 13.58L20.97 10.07L3 3Z"
+                  d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.85a.5.5 0 0 0-.85.36Z"
                   fill="#2563EB"
                   stroke="#FFFFFF"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   strokeLinejoin="round"
                 />
               </svg>
               {isCursorClicking && (
-                <span className="absolute -top-1.5 -left-1.5 w-7 h-7 rounded-full border-2 border-blue-400 bg-blue-400/30 animate-ping" />
+                <span className="absolute top-0.5 left-1 w-6 h-6 rounded-full border-2 border-blue-400 bg-blue-400/30 animate-ping pointer-events-none" />
               )}
             </div>
             <div className="bg-slate-900/95 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-lg backdrop-blur-xs flex items-center gap-1.5 border border-slate-700 whitespace-nowrap">
@@ -534,21 +589,21 @@ export const LandingPage: React.FC = () => {
 
                   {/* Main Kanban Content Area */}
                   <div className="flex-1 flex flex-col min-w-0 relative overflow-hidden">
-                    {/* Live Task Resolution Celebration Toast */}
+                    {/* Live Task Resolution Celebration Toast - Positioned at bottom-left so it NEVER collides with drawer */}
                     <AnimatePresence>
                       {isTaskResolved && (
                         <motion.div
-                          initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                          initial={{ opacity: 0, y: 15, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                          className="absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-emerald-600 text-white px-5 py-2 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-bold border border-emerald-400 backdrop-blur-md"
+                          exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                          className="absolute bottom-4 left-6 z-40 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-bold border border-emerald-400 backdrop-blur-md max-w-sm"
                         >
-                          <span className="w-5 h-5 rounded-full bg-white text-emerald-600 flex items-center justify-center font-black text-xs shadow-xs">✓</span>
-                          <div>
-                            <p className="font-extrabold text-white text-xs">QUB-000101 Marked as Resolved</p>
-                            <p className="text-[10px] text-emerald-100 font-normal">SLA Met (14m ahead) • Real-time socket sync broadcasted</p>
+                          <span className="w-6 h-6 rounded-full bg-white text-emerald-600 flex items-center justify-center font-black text-xs shrink-0 shadow-xs">✓</span>
+                          <div className="min-w-0">
+                            <p className="font-extrabold text-white text-xs truncate">QUB-000101 Marked as Resolved</p>
+                            <p className="text-[10px] text-emerald-100 font-normal truncate">SLA Met (14m ahead) • Real-time socket sync broadcasted</p>
                           </div>
-                          <span className="bg-emerald-800 text-emerald-200 text-[9px] font-mono font-bold px-2 py-0.5 rounded uppercase ml-2">Live</span>
+                          <span className="bg-emerald-800 text-emerald-200 text-[9px] font-mono font-bold px-2 py-0.5 rounded uppercase shrink-0">Live</span>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -631,46 +686,43 @@ export const LandingPage: React.FC = () => {
                             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                             In Progress
                           </span>
-                          <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-0.2 text-[10px]">2</span>
+                          <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-0.2 text-[10px]">
+                            {isTaskResolved ? '1' : '2'}
+                          </span>
                         </div>
 
-                        {/* Interactive Clickable Ticket Card */}
-                        <div
-                          onClick={() => {
-                            setSelectedDemoTicket({
-                              code: 'QUB-000101',
-                              title: 'High latency on replica queries during peak reporting',
-                              priority: 'Critical',
-                              assignee: 'Alex Rivera',
-                              sla: '1h 45m left',
-                              status: 'In Progress',
-                            });
-                          }}
-                          className={`bg-white border-2 rounded-xl p-3 shadow-md space-y-2 cursor-pointer transition-all hover:scale-102 ${
-                            isTaskResolved
-                              ? 'border-emerald-500 ring-2 ring-emerald-500/20 opacity-80'
-                              : 'border-blue-500 ring-3 ring-blue-500/10'
-                          }`}
-                        >
-                          <div className="flex justify-between items-center">
-                            <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000101</span>
-                            <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold border ${isTaskResolved ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-                              {isTaskResolved ? 'Done' : 'Critical'}
-                            </span>
+                        {/* Interactive Clickable Ticket Card - In Column 2 while not resolved */}
+                        {!isTaskResolved && (
+                          <div
+                            onClick={() => {
+                              setSelectedDemoTicket({
+                                code: 'QUB-000101',
+                                title: 'High latency on replica queries during peak reporting',
+                                priority: 'Critical',
+                                assignee: 'Alex Rivera',
+                                sla: '1h 45m left',
+                                status: 'In Progress',
+                              });
+                            }}
+                            ref={ticketCardRef}
+                            className="bg-white border-2 border-blue-500 rounded-xl p-3 shadow-md space-y-2 ring-3 ring-blue-500/10 cursor-pointer transition-all hover:scale-102"
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000101</span>
+                              <span className="bg-red-50 text-red-700 px-1.5 py-0.2 rounded text-[10px] font-bold border border-red-200">
+                                Critical
+                              </span>
+                            </div>
+                            <p className="font-semibold text-slate-900 text-xs">High latency on replica queries during peak reporting</p>
+                            <div className="flex items-center gap-1.5 text-[10px] text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded border border-red-200 w-fit">
+                              <AlertTriangle className="w-3 h-3" /> SLA: 1h 45m left
+                            </div>
+                            <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                              <span className="text-slate-600 font-medium">Alex Rivera</span>
+                              <span>💬 7 • 📎 3</span>
+                            </div>
                           </div>
-                          <p className="font-semibold text-slate-900 text-xs">High latency on replica queries during peak reporting</p>
-                          <div className={`flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded border w-fit ${isTaskResolved ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-600 bg-red-50 border-red-200'}`}>
-                            {isTaskResolved ? (
-                              <><Check className="w-3 h-3 text-emerald-600" /> SLA Met (14m ahead)</>
-                            ) : (
-                              <><AlertTriangle className="w-3 h-3 text-red-600" /> SLA: 1h 45m left</>
-                            )}
-                          </div>
-                          <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
-                            <span className="text-slate-600 font-medium">Alex Rivera</span>
-                            <span>💬 7 • 📎 3</span>
-                          </div>
-                        </div>
+                        )}
 
                         <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
                           <div className="flex justify-between items-center">
@@ -736,6 +788,7 @@ export const LandingPage: React.FC = () => {
                                 status: 'Resolved',
                               });
                             }}
+                            ref={resolvedCardRef}
                             className="bg-emerald-50/70 border-2 border-emerald-500 rounded-xl p-3 shadow-md space-y-2 ring-3 ring-emerald-500/10 cursor-pointer"
                           >
                             <div className="flex justify-between items-center">
@@ -820,6 +873,7 @@ export const LandingPage: React.FC = () => {
                                 Workflow Action
                               </label>
                               <button
+                                ref={drawerActionBtnRef}
                                 onClick={() => setIsTaskResolved(!isTaskResolved)}
                                 className={`w-full py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all ${
                                   isTaskResolved
@@ -1721,6 +1775,7 @@ export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -1731,7 +1786,8 @@ export const RegisterPage: React.FC = () => {
     const res = await register(name, email, password, undefined, phoneNumber);
     setIsLoading(false);
     if (res.success) {
-      navigate('/onboarding');
+      // Promptly redirect to OTP email verification before workspace onboarding
+      navigate('/verify-email', { state: { email: email.toLowerCase().trim(), name } });
     } else {
       setError(res.error || 'Registration failed');
     }
@@ -1773,7 +1829,7 @@ export const RegisterPage: React.FC = () => {
             label="Your Full Name *"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Sarah Jenkins"
+            placeholder="e.g. Alex Rivera"
             required
           />
 
@@ -1782,7 +1838,7 @@ export const RegisterPage: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="sarah@company.com"
+            placeholder="alex@company.com"
             required
           />
 
@@ -1795,18 +1851,33 @@ export const RegisterPage: React.FC = () => {
             required
           />
 
-          <Input
-            label="Password (min 8 characters) *"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••••"
-            required
-            minLength={8}
-          />
+          <div className="space-y-1.5">
+            <label className="block font-semibold text-slate-700 text-xs">
+              Password (min 8 characters) *
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                required
+                minLength={8}
+                className="w-full bg-white border border-slate-200 rounded-lg pl-3 pr-10 py-2 text-xs outline-none focus:border-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
 
-          <Button type="submit" variant="primary" className="w-full text-xs font-bold" isLoading={isLoading}>
-            Continue to Workspace Setup &rarr;
+          <Button type="submit" variant="primary" className="w-full text-xs font-bold py-2.5" isLoading={isLoading}>
+            Verify Email & Continue &rarr;
           </Button>
         </form>
 

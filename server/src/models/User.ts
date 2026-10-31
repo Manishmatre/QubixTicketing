@@ -14,6 +14,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   phoneNumber?: string;
+  designation?: string;
   passwordHash: string;
   avatarUrl?: string;
   documents?: IUserDocument[];
@@ -21,6 +22,8 @@ export interface IUser extends Document {
   isVerified: boolean;
   verificationToken?: string;
   verificationTokenExpires?: Date;
+  otpCode?: string;
+  otpExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   activeOrganizationId?: mongoose.Types.ObjectId;
@@ -36,6 +39,7 @@ const UserSchema = new Schema<IUser>(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     phoneNumber: { type: String, default: '', trim: true },
+    designation: { type: String, default: '', trim: true },
     passwordHash: { type: String, required: true },
     avatarUrl: { type: String, default: '' },
     documents: [
@@ -52,6 +56,8 @@ const UserSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String, index: true },
     verificationTokenExpires: { type: Date },
+    otpCode: { type: String, index: true },
+    otpExpiresAt: { type: Date },
     resetPasswordToken: { type: String, index: true },
     resetPasswordExpires: { type: Date },
     activeOrganizationId: { type: Schema.Types.ObjectId, ref: 'Organization' },

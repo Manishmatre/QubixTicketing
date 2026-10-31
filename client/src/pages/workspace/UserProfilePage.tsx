@@ -90,8 +90,10 @@ export const UserProfilePage: React.FC = () => {
     if (user) {
       setName(user.name || '');
       setAvatarUrl(user.avatarUrl || '');
+      setPhone(user.phoneNumber || '');
+      setJobTitle(user.designation || (organization?.role === 'owner' ? 'Owner & Administrator' : 'Member'));
     }
-  }, [user]);
+  }, [user, organization]);
 
   // Fetch assigned tickets and documents
   useEffect(() => {
@@ -134,10 +136,13 @@ export const UserProfilePage: React.FC = () => {
       const res = await apiClient.patch('/auth/profile', {
         name: name.trim(),
         avatarUrl: avatarUrl.trim(),
+        phoneNumber: phone.trim(),
+        designation: jobTitle.trim(),
       });
 
       if (res.data.success) {
         updateUser(res.data.data);
+        await reloadUser();
         setProfileSuccessMsg('Profile details updated successfully!');
         setTimeout(() => setProfileSuccessMsg(''), 4000);
       }
@@ -336,13 +341,22 @@ export const UserProfilePage: React.FC = () => {
               <span>{user?.email || 'user@example.com'}</span>
             </p>
 
-            <p className="text-xs text-slate-600 font-medium flex items-center gap-2 pt-0.5">
+            <p className="text-xs text-slate-600 font-medium flex items-center gap-2 pt-0.5 flex-wrap">
               <Building className="w-3.5 h-3.5 text-slate-400" />
               <span>{organization?.name || 'Workspace'}</span>
-              {jobTitle && (
+              {(user?.designation || jobTitle) && (
                 <>
-                  <span>•</span>
-                  <span className="text-blue-600 font-semibold">{jobTitle}</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-blue-600 font-semibold">{user?.designation || jobTitle}</span>
+                </>
+              )}
+              {(user?.phoneNumber || phone) && (
+                <>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-500 font-mono flex items-center gap-1">
+                    <Phone className="w-3 h-3 text-slate-400" />
+                    {user?.phoneNumber || phone}
+                  </span>
                 </>
               )}
             </p>

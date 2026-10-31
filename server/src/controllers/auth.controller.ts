@@ -35,6 +35,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const passwordHash = await hashPassword(password);
     const verificationToken = crypto.randomBytes(32).toString('hex');
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
     const user = await User.create({
       name: name.trim(),
       email: normalizedEmail,
@@ -44,88 +46,31 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       isVerified: false,
       verificationToken,
       verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      otpCode,
+      otpExpiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes validity
     });
 
-    // Dispatch verification email via SMTP
-    emailService.sendVerificationEmail(user.email, user.name, verificationToken).catch((err) => {
-      console.error('[Auth] Failed to send verification email:', err);
-    });
-
-    let organization = null;
-    let membership = null;
-
-    // If organization details provided, create organization & owner membership
-    if (organizationName) {
-      const generatedSlug = (slug || organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-')).replace(/^-|-$/g, '');
-      const uniqueSlug = `${generatedSlug}-${Date.now().toString().slice(-4)}`;
-
-      organization = await Organization.create({
-        name: organizationName.trim(),
-        slug: uniqueSlug,
-        ownerId: user._id,
-        subscriptionPlan: 'starter',
-        subscriptionStatus: 'trialing',
-      });
-
-      membership = await OrganizationMembership.create({
-        organizationId: organization._id,
-        userId: user._id,
-        role: 'owner',
-        department: 'Executive',
-        jobTitle: 'Founder / Administrator',
-      });
-
-      user.activeOrganizationId = organization._id as any;
-      await user.save();
-    }
-
-    const accessToken = generateAccessToken({
-      userId: user._id.toString(),
-      email: user.email,
-      isSuperAdmin: user.isSuperAdmin,
-      activeOrganizationId: organization ? organization._id.toString() : undefined,
-    });
-
-    const refreshToken = generateRefreshToken({ userId: user._id.toString() });
-
-    res.cookie('qubix_refresh', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+    // Dispatch verification OTP email via SMTP
+    emailService.sendOtpVerificationEmail(user.email, user.name, otpCode).catch((err) => {
+      console.error('[Auth] Failed to send verification OTP email:', err);
     });
 
     await logAuditEvent({
       userId: user._id as any,
-      organizationId: organization ? (organization._id as any) : undefined,
       action: 'USER_REGISTERED',
       entity: 'User',
       entityId: user._id.toString(),
       req,
-      details: { email: user.email, hasOrg: !!organization },
+      details: { email: user.email },
     });
 
     res.status(201).json({
       success: true,
+      message: 'Account created! Please check your email for the 6-digit verification code.',
       data: {
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phoneNumber: user.phoneNumber || '',
-          avatarUrl: user.avatarUrl,
-          isSuperAdmin: user.isSuperAdmin,
-          activeOrganizationId: user.activeOrganizationId,
-        },
-        organization: organization
-          ? {
-              id: organization._id,
-              name: organization.name,
-              slug: organization.slug,
-              role: 'owner',
-            }
-          : null,
-        accessToken,
+        requiresVerification: true,
+        email: user.email,
+        name: user.name,
       },
     });
   } catch (err: any) {
@@ -163,6 +108,25 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(401).json({
         success: false,
         error: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' },
+      });
+      return;
+    }
+
+    if (!user.isVerified) {
+      // Send fresh OTP if needed
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      user.otpCode = otpCode;
+      user.otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+      await user.save();
+      emailService.sendOtpVerificationEmail(user.email, user.name, otpCode).catch(() => {});
+
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Please verify your email address. A 6-digit verification code has been sent to your email.',
+          email: user.email,
+        },
       });
       return;
     }
@@ -226,6 +190,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           name: user.name,
           email: user.email,
           phoneNumber: user.phoneNumber || '',
+          designation: user.designation || '',
           avatarUrl: user.avatarUrl,
           isSuperAdmin: user.isSuperAdmin,
           activeOrganizationId: user.activeOrganizationId,
@@ -357,6 +322,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
           name: user.name,
           email: user.email,
           phoneNumber: user.phoneNumber || '',
+          designation: user.designation || '',
           avatarUrl: user.avatarUrl,
           isSuperAdmin: user.isSuperAdmin,
           activeOrganizationId: user.activeOrganizationId,
@@ -450,7 +416,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { name, avatarUrl, currentPassword, newPassword } = req.body;
+    const { name, avatarUrl, phoneNumber, designation, currentPassword, newPassword } = req.body;
     const user = await User.findById(req.user._id);
     if (!user) {
       res.status(404).json({ success: false, error: { code: 'NOT_FOUND' } });
@@ -459,6 +425,8 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
     if (name) user.name = name.trim();
     if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber.trim();
+    if (designation !== undefined) user.designation = designation.trim();
 
     if (newPassword) {
       if (!currentPassword) {
@@ -486,6 +454,8 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         id: user._id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber || '',
+        designation: user.designation || '',
         avatarUrl: user.avatarUrl,
       },
     });
@@ -496,21 +466,43 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
 export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { token } = req.body;
-    if (!token) {
-      res.status(400).json({ success: false, error: { message: 'Verification token is required.' } });
-      return;
-    }
+    const { token, email, otp } = req.body;
 
-    const user = await User.findOne({
-      verificationToken: token,
-      verificationTokenExpires: { $gt: new Date() },
-    });
+    let user = null;
 
-    if (!user) {
+    if (otp && email) {
+      const cleanEmail = String(email).toLowerCase().trim();
+      const cleanOtp = String(otp).trim();
+      user = await User.findOne({
+        email: cleanEmail,
+        otpCode: cleanOtp,
+        otpExpiresAt: { $gt: new Date() },
+      });
+
+      if (!user) {
+        res.status(400).json({
+          success: false,
+          error: { message: 'Invalid or expired verification code. Please check your email or request a new code.' },
+        });
+        return;
+      }
+    } else if (token) {
+      user = await User.findOne({
+        verificationToken: token,
+        verificationTokenExpires: { $gt: new Date() },
+      });
+
+      if (!user) {
+        res.status(400).json({
+          success: false,
+          error: { message: 'Invalid or expired verification link. Please request a new verification code.' },
+        });
+        return;
+      }
+    } else {
       res.status(400).json({
         success: false,
-        error: { message: 'Invalid or expired verification link. Please request a new verification email.' },
+        error: { message: 'Email and 6-digit verification code are required.' },
       });
       return;
     }
@@ -518,6 +510,8 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     user.isVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpires = undefined;
+    user.otpCode = undefined;
+    user.otpExpiresAt = undefined;
     await user.save();
 
     await logAuditEvent({
@@ -528,7 +522,41 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
       req,
     });
 
-    res.json({ success: true, message: 'Email verified successfully! Your account is active.' });
+    // Auto-login after successful email verification so user seamlessly enters onboarding
+    const accessToken = generateAccessToken({
+      userId: user._id.toString(),
+      email: user.email,
+      isSuperAdmin: user.isSuperAdmin,
+      activeOrganizationId: user.activeOrganizationId ? user.activeOrganizationId.toString() : undefined,
+    });
+
+    const refreshToken = generateRefreshToken({ userId: user._id.toString() });
+
+    res.cookie('qubix_refresh', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully! Proceeding to workspace setup.',
+      data: {
+        accessToken,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phoneNumber: user.phoneNumber || '',
+          designation: user.designation || '',
+          avatarUrl: user.avatarUrl,
+          isSuperAdmin: user.isSuperAdmin,
+          isVerified: user.isVerified,
+          activeOrganizationId: user.activeOrganizationId,
+        },
+      },
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: { message: err.message } });
   }
@@ -544,7 +572,7 @@ export const resendVerification = async (req: Request, res: Response): Promise<v
 
     const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
-      res.json({ success: true, message: 'If an account exists with this email, a new verification link has been sent.' });
+      res.json({ success: true, message: 'If an account exists with this email, a new verification code has been sent.' });
       return;
     }
 
@@ -553,14 +581,17 @@ export const resendVerification = async (req: Request, res: Response): Promise<v
       return;
     }
 
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const verificationToken = crypto.randomBytes(32).toString('hex');
     user.verificationToken = verificationToken;
     user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    user.otpCode = otpCode;
+    user.otpExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    await emailService.sendVerificationEmail(user.email, user.name, verificationToken);
+    await emailService.sendOtpVerificationEmail(user.email, user.name, otpCode);
 
-    res.json({ success: true, message: 'A new verification email has been dispatched via SMTP.' });
+    res.json({ success: true, message: `A fresh 6-digit verification code has been sent to ${user.email}.` });
   } catch (err: any) {
     res.status(500).json({ success: false, error: { message: err.message } });
   }

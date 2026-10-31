@@ -59,6 +59,42 @@ export class EmailAdapter {
     }
   }
 
+  async sendOtpVerificationEmail(to: string, name: string, otp: string): Promise<boolean> {
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; border-radius: 16px;">
+        <div style="margin-bottom: 24px; text-align: center;">
+          <h1 style="color: #0F172A; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">QUBIXDESK</h1>
+          <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Next-Gen Enterprise Issue & Project Ticketing</p>
+        </div>
+        <div style="background: #F8FAFC; border: 1px solid #EAECF0; padding: 28px; border-radius: 12px; margin-bottom: 24px;">
+          <h2 style="font-size: 17px; font-weight: 700; color: #0F172A; margin: 0 0 12px 0;">Verify your email address</h2>
+          <p style="font-size: 14px; color: #334155; line-height: 1.5; margin: 0 0 20px 0;">
+            Hi <strong>${name || 'there'}</strong>,<br/>
+            Thank you for creating an account with QubixDesk. Please use the following 6-digit verification code to confirm your email and proceed with your workspace setup:
+          </p>
+          <div style="text-align: center; margin: 24px 0;">
+            <div style="display: inline-block; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #2563EB; background: #EFF6FF; padding: 14px 28px; border-radius: 10px; border: 2px dashed #93C5FD; font-family: monospace;">
+              ${otp}
+            </div>
+          </div>
+          <p style="font-size: 13px; color: #64748B; margin: 0; text-align: center;">
+            This one-time passcode is valid for <strong>15 minutes</strong>.
+          </p>
+        </div>
+        <p style="font-size: 11px; color: #94A3B8; text-align: center; margin: 0;">
+          If you didn't attempt to sign up for QubixDesk, please disregard this email.
+        </p>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to,
+      subject: `Your QubixDesk Verification Code: ${otp}`,
+      text: `Hi ${name},\nYour QubixDesk verification code is: ${otp}\nThis code expires in 15 minutes.`,
+      html,
+    });
+  }
+
   async sendVerificationEmail(to: string, name: string, token: string): Promise<boolean> {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const verifyUrl = `${frontendUrl}/verify-email?token=${token}`;

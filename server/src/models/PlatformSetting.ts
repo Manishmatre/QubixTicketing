@@ -34,3 +34,4 @@ const PlatformSettingSchema = new Schema<IPlatformSetting>(
 );
 
 export const PlatformSetting = mongoose.model<IPlatformSetting>('PlatformSetting', PlatformSettingSchema);
+
