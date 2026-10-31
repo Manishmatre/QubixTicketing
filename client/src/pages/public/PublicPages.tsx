@@ -138,37 +138,37 @@ export const LandingPage: React.FC = () => {
       </div>
 
       {/* Public Navbar */}
-      <header className="h-20 sm:h-24 bg-white/95 backdrop-blur-xl border-b border-slate-200/90 sticky top-0 z-40 px-6 sm:px-12 flex items-center justify-between shadow-xs transition-all">
-        <div className="flex items-center gap-10">
+      <header className="h-16 bg-white/95 backdrop-blur-xl border-b border-slate-200/90 sticky top-0 z-40 px-6 sm:px-10 flex items-center justify-between shadow-xs transition-all">
+        <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center group">
             <img
               src="/logo.png"
               alt="QubixDesk - Work Smarter. Track Better. Deliver Faster."
-              className="h-10 sm:h-12 w-auto object-contain group-hover:scale-102 transition-transform"
+              className="h-8 sm:h-9 w-auto object-contain group-hover:scale-102 transition-transform"
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8 text-[13px] font-semibold text-slate-600">
-            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Features</a>
-            <a href="#preview" onClick={(e) => scrollToSection(e, 'preview')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+          <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-600">
+            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-blue-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition-colors">Features</a>
+            <a href="#preview" onClick={(e) => scrollToSection(e, 'preview')} className="hover:text-blue-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
               <span>Live Preview</span>
               <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">Interactive</span>
             </a>
-            <a href="#solutions" onClick={(e) => scrollToSection(e, 'solutions')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Solutions</a>
-            <a href="#comparison" onClick={(e) => scrollToSection(e, 'comparison')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Comparison</a>
-            <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Pricing</a>
-            <a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">FAQ</a>
+            <a href="#solutions" onClick={(e) => scrollToSection(e, 'solutions')} className="hover:text-blue-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition-colors">Solutions</a>
+            <a href="#comparison" onClick={(e) => scrollToSection(e, 'comparison')} className="hover:text-blue-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition-colors">Comparison</a>
+            <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="hover:text-blue-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition-colors">Pricing</a>
+            <a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="hover:text-blue-600 hover:bg-slate-50 px-2.5 py-1.5 rounded-lg transition-colors">FAQ</a>
           </nav>
         </div>
 
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3">
           <Link to="/login">
-            <Button variant="ghost" size="md" className="text-slate-700 font-semibold text-xs hover:text-blue-600 hover:bg-slate-50 px-4 py-2">
+            <Button variant="ghost" size="sm" className="text-slate-700 font-semibold text-xs hover:text-blue-600 hover:bg-slate-50 px-3.5 py-1.5">
               Sign In
             </Button>
           </Link>
           <Link to="/register">
-            <Button size="md" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 text-xs font-bold px-5 py-2.5 rounded-xl transition-all hover:scale-102 active:scale-98">
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 text-xs font-bold px-4 py-1.5 rounded-lg transition-all hover:scale-102 active:scale-98">
               Start Free Trial
             </Button>
           </Link>
