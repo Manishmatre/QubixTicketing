@@ -22,31 +22,36 @@ QubixDesk is a production-grade, multi-tenant Software-as-a-Service (SaaS) platf
 
 ---
 
-## 🔐 Dedicated Authentication Portals & Demo Credentials
+## 🌐 Production Live Deployment (qubixdesk.toolio.tech)
 
-QubixDesk enforces a strict isolation between **Organization Workspace Users** and **Platform Super Administrators**.
-
-### 1. Organization Workspace Login
-- **URL**: [http://localhost:5173/login](http://localhost:5173/login)
-- **Scope**: Single unified login for all company team members (Owners, Admins, Engineers, Designers, Project Managers).
-- **Registration**: [http://localhost:5173/register](http://localhost:5173/register) with instant 14-day Full Access Free Trial.
-
-| Role | Email | Password | Access & Responsibilities |
-|---|---|---|---|
-| **Organization Owner** | `sarah.jenkins@acme.com` | `Password123!` | Full organization management, team invites, billing & subscription settings |
-| **Organization Admin** | `alex.rivera@acme.com` | `Password123!` | Administrative workspace management, team invites, workflow triggers & project settings |
-| **Team Member / Engineer** | `emma.watson@acme.com` | `Password123!` | UI/UX tickets, design attachments, Kanban board, public comments & task delivery |
+QubixDesk is configured and production-ready for live deployment:
+- **Live Subdomain**: [https://qubixdesk.toolio.tech](https://qubixdesk.toolio.tech)
+- **Production Server IP**: `2.25.126.135`
+- **DNS Record**: `qubixdesk` -> `A` record pointing to `2.25.126.135` (Active on `toolio.tech`)
 
 ---
 
-### 2. Platform Super Admin Security Console (Isolated)
-- **URL**: [http://localhost:5173/admin/login](http://localhost:5173/admin/login)
-- **Scope**: Completely isolated administration portal for SaaS platform operators and system owners. Normal company workspaces have zero navigation or links leading to this console.
+## 🔐 Dedicated Authentication Portals & Credentials
+
+QubixDesk enforces strict isolation between **Organization Workspace Users** and **Platform Super Administrators**.
+
+### 1. Platform Super Admin Security Console (Isolated)
+- **Production URL**: [https://qubixdesk.toolio.tech/admin/login](https://qubixdesk.toolio.tech/admin/login)
+- **Local Dev URL**: [http://localhost:5173/admin/login](http://localhost:5173/admin/login)
+- **Scope**: Completely isolated security console for SaaS platform operators and system owners. Normal workspace users have zero navigation or links leading to this console.
 - **Features**: Global MRR telemetry, platform subscription analytics, cross-tenant organization suspension/reactivation, platform user inspection, and global audit trails.
 
-| Role | Email | Password | Console URL |
+| Role | Email | Password | Console Access |
 |---|---|---|---|
-| **Platform Super Admin** | `admin@qubix.io` | `Password123!` | [http://localhost:5173/admin](http://localhost:5173/admin) |
+| **Platform Super Admin** | `admin@qubix.io` | `Password123!` | `/admin` |
+
+---
+
+### 2. Organization Workspace Registration & Login
+- **Production URL**: [https://qubixdesk.toolio.tech/login](https://qubixdesk.toolio.tech/login)
+- **Registration**: [https://qubixdesk.toolio.tech/register](https://qubixdesk.toolio.tech/register) with instant 14-day Full Access Free Trial.
+- **Scope**: Clean unified portal where any real business or organization creates their workspace and logs in with their own accounts.
+- **Demo Data Status**: All sample/mock organizations and demo tickets have been completely purged for a clean production start. New organizations onboard with real data, real email verification, and real team invites.
 
 ---
 
@@ -254,6 +259,49 @@ Qubix/
 │
 ├── package.json                # Monorepo workspaces
 └── README.md                   # Complete documentation
+```
+
+---
+
+## 🛠️ Production Server Deployment (qubixdesk.toolio.tech)
+
+To deploy or update QubixDesk on your server (`2.25.126.135`):
+
+### 1. SSH into your Server
+```bash
+ssh root@2.25.126.135
+```
+
+### 2. Clone / Pull Repository
+```bash
+cd /var/www/qubixdesk    # or your project directory
+git pull origin main
+```
+
+### 3. Install Dependencies & Build
+```bash
+npm install
+npm run build
+```
+
+### 4. Setup Nginx Reverse Proxy
+```bash
+sudo cp deploy/nginx-qubixdesk.conf /etc/nginx/sites-available/qubixdesk.toolio.tech
+sudo ln -sf /etc/nginx/sites-available/qubixdesk.toolio.tech /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### 5. Secure with Free HTTPS (Let's Encrypt / Certbot)
+```bash
+sudo certbot --nginx -d qubixdesk.toolio.tech
+```
+
+### 6. Start API with PM2 Process Manager
+```bash
+pm2 start ecosystem.config.cjs --env production
+pm2 save
+pm2 startup
 ```
 
 ---

@@ -13,8 +13,10 @@
     "build:server": "npm --workspace=server run build",
     "build:client": "npm --workspace=client run build",
     "build": "npm run build:server && npm run build:client",
+    "start": "node server/dist/index.js",
     "test:server": "npm --workspace=server run test",
-    "seed": "npm --workspace=server run seed"
+    "seed": "npm --workspace=server run seed",
+    "purge:demo": "npm --workspace=server run purge:demo"
   }
 }
 

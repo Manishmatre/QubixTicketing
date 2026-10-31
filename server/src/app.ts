@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
 
 // Routes
 import authRoutes from './routes/auth.routes.js';
@@ -30,9 +31,22 @@ export const createApp = (): Express => {
   );
 
   // CORS Configuration
+  const envFrontendOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const envClientOrigins = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
   const allowedOrigins = [
-    process.env.CLIENT_URL || 'http://localhost:5173',
-    process.env.FRONTEND_URL || 'http://localhost:5173',
+    ...envFrontendOrigins,
+    ...envClientOrigins,
+    'https://qubixdesk.toolio.tech',
+    'http://qubixdesk.toolio.tech',
+    'http://2.25.126.135',
+    'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
@@ -41,10 +55,16 @@ export const createApp = (): Express => {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
+        if (
+          !origin ||
+          allowedOrigins.includes(origin) ||
+          origin.endsWith('.toolio.tech') ||
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1')
+        ) {
           callback(null, true);
         } else {
-          callback(null, true); // Dev flexible
+          callback(null, true);
         }
       },
       credentials: true,
@@ -101,6 +121,29 @@ export const createApp = (): Express => {
   apiV1.use('/admin', adminRoutes);
 
   app.use('/api/v1', apiV1);
+
+  // Serve production client build if client/dist exists
+  const clientDistPath = path.resolve(process.cwd(), '../client/dist');
+  const localClientDist = path.resolve(process.cwd(), 'client-dist');
+  const targetDist = fs.existsSync(clientDistPath)
+    ? clientDistPath
+    : fs.existsSync(localClientDist)
+    ? localClientDist
+    : null;
+
+  if (targetDist) {
+    app.use(express.static(targetDist));
+    app.get('*', (req: Request, res: Response, next: NextFunction) => {
+      if (
+        req.originalUrl.startsWith('/api/') ||
+        req.originalUrl.startsWith('/uploads') ||
+        req.originalUrl.startsWith('/health')
+      ) {
+        return next();
+      }
+      res.sendFile(path.join(targetDist, 'index.html'));
+    });
+  }
 
   // 404 Handler
   app.use((req: Request, res: Response) => {

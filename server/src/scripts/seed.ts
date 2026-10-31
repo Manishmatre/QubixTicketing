@@ -105,13 +105,14 @@ export const seedDatabase = async (): Promise<void> => {
       });
     }
 
-    // 3. Seed Demo Organization
-    const demoSlug = 'acme-corp';
-    let org = await Organization.findOne({ slug: demoSlug });
+    // 3. Seed Demo Organization (ONLY if explicitly enabled via SEED_DEMO_DATA === 'true')
+    if (process.env.SEED_DEMO_DATA === 'true') {
+      const demoSlug = 'acme-corp';
+      let org = await Organization.findOne({ slug: demoSlug });
 
-    if (!org) {
-      console.log('[Seeder] Seeding comprehensive demo organization (Acme Technologies)...');
-      const ownerPass = await hashPassword('Password123!');
+      if (!org) {
+        console.log('[Seeder] SEED_DEMO_DATA=true: Seeding comprehensive demo organization (Acme Technologies)...');
+        const ownerPass = await hashPassword('Password123!');
 
       // Org Owner
       const owner = await User.create({
@@ -440,6 +441,9 @@ export const seedDatabase = async (): Promise<void> => {
     } else {
       console.log('[Seeder] Database already contains initialized data.');
     }
+  } else {
+    console.log('[Seeder] Production Clean Mode: Demo organization seeding is skipped.');
+  }
   } catch (err: any) {
     console.error('[Seeder] Seeding error:', err);
   }

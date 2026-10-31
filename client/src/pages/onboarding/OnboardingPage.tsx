@@ -273,7 +273,7 @@ export const OnboardingPage: React.FC = () => {
 
                 <Input
                   label="Company Website (optional)"
-                  placeholder="https://acme.com"
+                  placeholder="https://yourcompany.com"
                   type="url"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}

@@ -81,12 +81,9 @@ export const TicketDetailsPage: React.FC = () => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // Sub-tickets state
-  const [subTickets, setSubTickets] = useState([
-    { id: 'sub-1', title: 'Verify root cause in replica lag query analysis', done: false, num: 'QUB-01' },
-    { id: 'sub-2', title: 'Add compound Mongoose index on organizationId and createdAt', done: true, num: 'QUB-02' },
-    { id: 'sub-3', title: 'Deploy staging test build and execute query stress suite', done: true, num: 'QUB-03' },
-    { id: 'sub-4', title: 'Verify zero cross-tenant query regressions', done: false, num: 'QUB-04' },
-  ]);
+  const [subTickets, setSubTickets] = useState<
+    Array<{ id: string; title: string; done: boolean; num: string }>
+  >([]);
   const [newSubTicketText, setNewSubTicketText] = useState('');
   const [showAddSubTicket, setShowAddSubTicket] = useState(false);
 
@@ -601,21 +598,25 @@ export const TicketDetailsPage: React.FC = () => {
           </div>
 
           {/* QubixDesk AI Summary Card */}
-          <div className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50/60 to-indigo-50/40 p-4 space-y-2 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span>QubixDesk AI Summary</span>
-              <span className="bg-blue-100 text-blue-700 text-[10px] font-semibold px-2 py-0.2 rounded-full ml-auto">
-                98% Confidence
-              </span>
+          {ticket.description ? (
+            <div className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50/60 to-indigo-50/40 p-4 space-y-2 shadow-2xs">
+              <div className="flex items-center gap-2 text-xs font-bold text-blue-700">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                <span>QubixDesk AI Summary</span>
+                <span className="bg-blue-100 text-blue-700 text-[10px] font-semibold px-2 py-0.2 rounded-full ml-auto">
+                  98% Confidence
+                </span>
+              </div>
+              <p className="text-xs text-slate-700 leading-relaxed">
+                {ticket.description.length > 250
+                  ? ticket.description.slice(0, 250) + '...'
+                  : ticket.description}
+              </p>
+              <p className="text-[10px] text-slate-400 italic">
+                Generated automatically by QubixDesk AI Intelligence based on ticket context.
+              </p>
             </div>
-            <p className="text-xs text-slate-700 leading-relaxed">
-              Ticket reports critical optimization requirement in query aggregation pipeline. Recommend verifying compound index setup on tenant ID and adding query hint caching to achieve sub-50ms resolution.
-            </p>
-            <p className="text-[10px] text-slate-400 italic">
-              Generated automatically by QubixDesk AI Intelligence.
-            </p>
-          </div>
+          ) : null}
 
           {/* Sub-Tickets Checklist */}
           <div className="rounded-xl border border-[#EAECF0] p-4 space-y-3 bg-white shadow-2xs">
@@ -637,32 +638,38 @@ export const TicketDetailsPage: React.FC = () => {
             </div>
 
             {/* Checklist progress bar */}
-            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-              <div
-                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-                style={{ width: `${(completedSubTicketsCount / subTickets.length) * 100}%` }}
-              />
-            </div>
-
-            <div className="space-y-1 pt-1">
-              {subTickets.map((st) => (
+            {subTickets.length > 0 && (
+              <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div
-                  key={st.id}
-                  onClick={() => toggleSubTicket(st.id)}
-                  className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors text-xs"
-                >
-                  <span className="text-[10px] font-mono text-slate-400">{st.num}</span>
-                  {st.done ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  ) : (
-                    <Circle className="w-4 h-4 text-slate-300 group-hover:text-blue-500 shrink-0" />
-                  )}
-                  <span className={st.done ? 'text-slate-400 line-through' : 'text-slate-800 font-medium'}>
-                    {st.title}
-                  </span>
-                </div>
-              ))}
-            </div>
+                  className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${(completedSubTicketsCount / subTickets.length) * 100}%` }}
+                />
+              </div>
+            )}
+
+            {subTickets.length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-1">No checklist items or sub-tickets added yet.</p>
+            ) : (
+              <div className="space-y-1 pt-1">
+                {subTickets.map((st) => (
+                  <div
+                    key={st.id}
+                    onClick={() => toggleSubTicket(st.id)}
+                    className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors text-xs"
+                  >
+                    <span className="text-[10px] font-mono text-slate-400">{st.num}</span>
+                    {st.done ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    ) : (
+                      <Circle className="w-4 h-4 text-slate-300 group-hover:text-blue-500 shrink-0" />
+                    )}
+                    <span className={st.done ? 'text-slate-400 line-through' : 'text-slate-800 font-medium'}>
+                      {st.title}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {showAddSubTicket && (
               <form onSubmit={handleAddSubTicket} className="flex items-center gap-2 pt-2 border-t border-slate-100">

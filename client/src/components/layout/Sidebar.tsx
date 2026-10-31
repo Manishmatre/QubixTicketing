@@ -66,14 +66,14 @@ export const Sidebar: React.FC = () => {
         <div className="w-full bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
           <div className="min-w-0 flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-              {organization?.name ? organization.name.charAt(0).toUpperCase() : 'A'}
+              {organization?.name ? organization.name.charAt(0).toUpperCase() : 'W'}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold text-slate-900 truncate leading-tight">
-                {organization?.name || 'Acme Technologies Inc.'}
+                {organization?.name || 'Workspace'}
               </p>
               <p className="text-[10px] text-blue-600 font-semibold capitalize truncate">
-                {organization?.subscriptionPlan || 'Professional'} Plan
+                {organization?.subscriptionPlan || 'Free'} Plan
               </p>
             </div>
           </div>

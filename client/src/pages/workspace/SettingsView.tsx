@@ -58,15 +58,15 @@ export const SettingsView: React.FC = () => {
   const [slaNormalHours, setSlaNormalHours] = useState<number>(24);
 
   // Tab 3: Security & Access
-  const [domainRestriction, setDomainRestriction] = useState<string>('@acme.com');
+  const [domainRestriction, setDomainRestriction] = useState<string>('');
   const [enforce2FA, setEnforce2FA] = useState<boolean>(false);
   const [defaultInviteRole, setDefaultInviteRole] = useState<string>('employee');
   const [auditLogRetention, setAuditLogRetention] = useState<string>('365');
 
   // Tab 4: Webhooks & Integrations
-  const [slackWebhook, setSlackWebhook] = useState<string>('https://hooks.slack.com/services/T00/B00/XXXXX');
+  const [slackWebhook, setSlackWebhook] = useState<string>('');
   const [discordWebhook, setDiscordWebhook] = useState<string>('');
-  const [outboundWebhook, setOutboundWebhook] = useState<string>('https://api.company.com/webhooks/qubix');
+  const [outboundWebhook, setOutboundWebhook] = useState<string>('');
   const [isTestingWebhook, setIsTestingWebhook] = useState<boolean>(false);
   const [webhookTestStatus, setWebhookTestStatus] = useState<string>('');
 
@@ -289,7 +289,7 @@ export const SettingsView: React.FC = () => {
                 label="Organization Legal Name *"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Acme Technologies Inc."
+                placeholder="e.g. Acme Innovations Inc."
                 required
               />
 
@@ -297,14 +297,14 @@ export const SettingsView: React.FC = () => {
                 label="Workspace URL Slug *"
                 value={slug}
                 disabled
-                placeholder="acme"
+                placeholder="workspace-slug"
               />
 
               <Input
                 label="Company Website"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
-                placeholder="https://acme.com"
+                placeholder="https://company.com"
               />
 
               <div>

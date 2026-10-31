@@ -46,14 +46,12 @@ export const UserProfilePage: React.FC = () => {
 
   // Personal Info Form State
   const [name, setName] = useState<string>('');
-  const [jobTitle, setJobTitle] = useState<string>('Senior Software Architect');
+  const [jobTitle, setJobTitle] = useState<string>('');
   const [department, setDepartment] = useState<string>('Engineering');
-  const [phone, setPhone] = useState<string>('+1 (555) 019-2834');
-  const [location, setLocation] = useState<string>('San Francisco, CA (Remote)');
-  const [timezone, setTimezone] = useState<string>('America/Los_Angeles');
-  const [bio, setBio] = useState<string>(
-    'Leading architecture, multi-tenant isolation protocols, and real-time collaboration engines at QubixDesk.'
-  );
+  const [phone, setPhone] = useState<string>('');
+  const [location, setLocation] = useState<string>('');
+  const [timezone, setTimezone] = useState<string>('UTC');
+  const [bio, setBio] = useState<string>('');
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const [isSavingProfile, setIsSavingProfile] = useState<boolean>(false);
@@ -340,9 +338,13 @@ export const UserProfilePage: React.FC = () => {
 
             <p className="text-xs text-slate-600 font-medium flex items-center gap-2 pt-0.5">
               <Building className="w-3.5 h-3.5 text-slate-400" />
-              <span>{organization?.name || 'Acme Technologies Inc.'}</span>
-              <span>•</span>
-              <span className="text-blue-600 font-semibold">{jobTitle}</span>
+              <span>{organization?.name || 'Workspace'}</span>
+              {jobTitle && (
+                <>
+                  <span>•</span>
+                  <span className="text-blue-600 font-semibold">{jobTitle}</span>
+                </>
+              )}
             </p>
           </div>
         </div>

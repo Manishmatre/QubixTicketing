@@ -77,19 +77,11 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // Sub-tickets state
-  const [subTickets, setSubTickets] = useState([
-    { id: 'sub-1', title: 'Sort members in Assignee list → alphabetically', done: false, num: 'QUB-14' },
-    { id: 'sub-2', title: 'Show action buttons on ticket mirror post resolution', done: true, num: 'QUB-14' },
-    { id: 'sub-3', title: 'Approvers: Group by tickets table by approvers fields', done: true, num: 'QUB-14' },
-    { id: 'sub-4', title: 'All Gmails are in the same org/workspace', done: false, num: 'QUB-14' },
-  ]);
+  // Sub-tickets state
+  const [subTickets, setSubTickets] = useState<Array<{ id: string; title: string; done: boolean; num: string }>>([]);
 
   // Links state
-  const [links, setLinks] = useState([
-    { title: 'API Guidebook', url: 'https://developer.qubixdesk.io/documentation/api' },
-    { title: 'Phosphor Icons UI Spec', url: 'https://phosphoricons.com/' },
-    { title: 'Loom Video Reproduction', url: 'https://www.loom.com/share/50390d05b8564a43afe22731f86b4b8b' },
-  ]);
+  const [links, setLinks] = useState<Array<{ title: string; url: string }>>([]);
 
   const [subTicketsOpen, setSubTicketsOpen] = useState(true);
   const [linksOpen, setLinksOpen] = useState(true);
@@ -332,8 +324,7 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
                     {/* Description Text */}
                     <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
-                      {ticket.description ||
-                        "I think we should make the 'feedback' button simply an email, something like mailto:demo@qubixdesk.io that goes into our QubixDesk instance, creates a ticket in a customer-feedback specific queue and notifies a slack channel with the full comment from the customer."}
+                      {ticket.description || "No description provided for this ticket."}
                     </div>
 
                     {/* AI Summary Box matching screenshot */}
@@ -343,7 +334,11 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
                         <span>Summary</span>
                       </div>
                       <p className="text-xs text-slate-600 leading-relaxed">
-                        The ticket outlines an improvement for feedback routing into specific queues with automated notification triggers and customer verification loops.
+                        {ticket.description
+                          ? ticket.description.length > 200
+                            ? ticket.description.slice(0, 200) + '...'
+                            : ticket.description
+                          : 'Insight provided by QubixDesk AI based on ticket context.'}
                       </p>
                       <p className="text-[11px] text-slate-400 italic">
                         Insight provided by artificial intelligence.
@@ -371,27 +366,31 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
 
                       {subTicketsOpen && (
                         <div className="space-y-1.5 pl-2 text-xs">
-                          {subTickets.map((st) => (
-                            <div
-                              key={st.id}
-                              onClick={() => toggleSubTicket(st.id)}
-                              className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors"
-                            >
-                              <span className="text-[10px] font-mono text-slate-400">{st.num}</span>
-                              {st.done ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                              ) : (
-                                <Circle className="w-4 h-4 text-blue-500 shrink-0" />
-                              )}
-                              <span
-                                className={`text-xs ${
-                                  st.done ? 'text-slate-500 line-through' : 'text-slate-800 font-medium'
-                                }`}
+                          {subTickets.length === 0 ? (
+                            <p className="text-xs text-slate-400 italic py-1">No sub-tickets added yet.</p>
+                          ) : (
+                            subTickets.map((st) => (
+                              <div
+                                key={st.id}
+                                onClick={() => toggleSubTicket(st.id)}
+                                className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors"
                               >
-                                {st.title}
-                              </span>
-                            </div>
-                          ))}
+                                <span className="text-[10px] font-mono text-slate-400">{st.num}</span>
+                                {st.done ? (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                ) : (
+                                  <Circle className="w-4 h-4 text-blue-500 shrink-0" />
+                                )}
+                                <span
+                                  className={`text-xs ${
+                                    st.done ? 'text-slate-500 line-through' : 'text-slate-800 font-medium'
+                                  }`}
+                                >
+                                  {st.title}
+                                </span>
+                              </div>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>

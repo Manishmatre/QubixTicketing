@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx src/scripts/seed.ts",
+    "purge:demo": "tsx src/scripts/purgeDemoData.ts",
     "test": "vitest run"
   },
   "dependencies": {
