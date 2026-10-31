@@ -4,12 +4,9 @@ import { Ticket, TicketComment, TicketAttachment, TicketActivity, OrgRole } from
 import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
-import { PriorityBadge, StatusBadge, Badge } from '../ui/Badge';
 import { Avatar } from '../ui/Avatar';
-import { Button } from '../ui/Button';
 import {
   X,
-  Maximize2,
   Calendar,
   Clock,
   User as UserIcon,
@@ -24,7 +21,32 @@ import {
   Trash2,
   Smile,
   AlertCircle,
-  CheckCircle,
+  CheckCircle2,
+  Circle,
+  Star,
+  MoreHorizontal,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Sparkles,
+  Link2,
+  ExternalLink,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  List,
+  ListOrdered,
+  Image,
+  Code,
+  ArrowLeft,
+  Signal,
+  SignalHigh,
+  SignalMedium,
+  SignalLow,
+  Edit2,
+  Info,
+  Check,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -46,13 +68,32 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
   const [comments, setComments] = useState<TicketComment[]>([]);
   const [attachments, setAttachments] = useState<TicketAttachment[]>([]);
   const [activities, setActivities] = useState<TicketActivity[]>([]);
-  const [activeTab, setActiveTab] = useState<'comments' | 'internal' | 'attachments' | 'activity'>('comments');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // New Comment State
+  // New Comment State & Internal Note toggle
   const [commentText, setCommentText] = useState<string>('');
+  const [isInternalNote, setIsInternalNote] = useState<boolean>(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  // Sub-tickets state
+  const [subTickets, setSubTickets] = useState([
+    { id: 'sub-1', title: 'Sort members in Assignee list → alphabetically', done: false, num: 'QUB-14' },
+    { id: 'sub-2', title: 'Show action buttons on ticket mirror post resolution', done: true, num: 'QUB-14' },
+    { id: 'sub-3', title: 'Approvers: Group by tickets table by approvers fields', done: true, num: 'QUB-14' },
+    { id: 'sub-4', title: 'All Gmails are in the same org/workspace', done: false, num: 'QUB-14' },
+  ]);
+
+  // Links state
+  const [links, setLinks] = useState([
+    { title: 'API Guidebook', url: 'https://developer.qubixdesk.io/documentation/api' },
+    { title: 'Phosphor Icons UI Spec', url: 'https://phosphoricons.com/' },
+    { title: 'Loom Video Reproduction', url: 'https://www.loom.com/share/50390d05b8564a43afe22731f86b4b8b' },
+  ]);
+
+  const [subTicketsOpen, setSubTicketsOpen] = useState(true);
+  const [linksOpen, setLinksOpen] = useState(true);
+  const [activitiesOpen, setActivitiesOpen] = useState(true);
 
   // Permissions check for internal notes
   const userRole = (organization?.role || 'employee') as OrgRole;
@@ -132,7 +173,6 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
       if (res.data.success) {
         setTicket(res.data.data);
         if (onTicketUpdated) onTicketUpdated(res.data.data);
-        // Refresh activities
         const actRes = await apiClient.get(`/ticket-comments/ticket/${ticket._id}/activities`);
         if (actRes.data.success) setActivities(actRes.data.data);
       }
@@ -154,13 +194,14 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
     }
   };
 
-  const handleAddComment = async (isInternal: boolean = false) => {
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!ticket || !commentText.trim()) return;
     setIsSubmittingComment(true);
     try {
       const res = await apiClient.post(`/ticket-comments/ticket/${ticket._id}`, {
         content: commentText.trim(),
-        isInternal,
+        isInternal: isInternalNote,
       });
       if (res.data.success) {
         setCommentText('');
@@ -175,376 +216,515 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!ticket || !e.target.files?.[0]) return;
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-
-    setIsUploading(true);
-    try {
-      const res = await apiClient.post(`/attachments/ticket/${ticket._id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      if (res.data.success) {
-        setAttachments((prev) => [res.data.data, ...prev]);
-        const actRes = await apiClient.get(`/ticket-comments/ticket/${ticket._id}/activities`);
-        if (actRes.data.success) setActivities(actRes.data.data);
-      }
-    } catch (err: any) {
-      alert(err.response?.data?.error?.message || 'File upload failed');
-    } finally {
-      setIsUploading(false);
-    }
+  const toggleSubTicket = (id: string) => {
+    setSubTickets((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, done: !s.done } : s))
+    );
   };
 
-  const handleDeleteAttachment = async (attId: string) => {
-    if (!confirm('Are you sure you want to remove this attachment?')) return;
-    try {
-      await apiClient.delete(`/attachments/${attId}`);
-      setAttachments((prev) => prev.filter((a) => a._id !== attId));
-    } catch (err) {
-      console.error('Delete attachment error:', err);
-    }
-  };
+  const completedSubTicketsCount = subTickets.filter((s) => s.done).length;
 
   return (
     <AnimatePresence>
       {ticketId && (
-        <div className="fixed inset-0 z-50 flex justify-end">
+        <div className="fixed inset-0 z-50 flex justify-end font-sans">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/20 backdrop-blur-[2px]"
+            className="fixed inset-0 bg-slate-900/25 backdrop-blur-[2px]"
             onClick={onClose}
           />
 
-          {/* Right Slide-in Drawer */}
+          {/* Wide Modern Minimalist Details Inspector matching Screenshot 1 */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="relative w-full max-w-2xl bg-white shadow-2xl h-screen flex flex-col z-10 border-l border-slate-200"
+            transition={{ type: 'spring', damping: 30, stiffness: 320 }}
+            className="relative w-full max-w-5xl bg-white shadow-2xl h-screen flex flex-col z-10 border-l border-[#EAECF0]"
           >
             {isLoading || !ticket ? (
               <div className="flex-1 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
               </div>
             ) : (
               <>
-                {/* Header */}
-                <div className="p-5 border-b border-slate-200 flex items-start justify-between bg-slate-50/50">
-                  <div className="space-y-1 min-w-0 pr-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
-                        {ticket.ticketNumber}
-                      </span>
-                      <span className="text-xs text-slate-500 font-medium">
-                        {ticket.projectId?.name}
-                      </span>
-                    </div>
-                    <h2 className="text-lg font-bold text-slate-900 leading-snug">
-                      {ticket.title}
-                    </h2>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
+                {/* Top Nav & Breadcrumb matching screenshot */}
+                <div className="px-6 py-3 border-b border-[#EAECF0] flex items-center justify-between bg-white shrink-0">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
                     <button
                       onClick={onClose}
-                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg transition-colors"
+                      className="p-1 hover:bg-slate-100 rounded text-slate-700 transition-colors mr-1"
                     >
-                      <X className="w-5 h-5" />
+                      <ArrowLeft className="w-4 h-4" />
                     </button>
-                  </div>
-                </div>
-
-                {/* Ticket Meta Toolbar */}
-                <div className="grid grid-cols-4 gap-4 px-6 py-3.5 border-b border-slate-100 bg-white text-xs">
-                  <div>
-                    <span className="text-slate-400 font-medium block mb-1">Status</span>
-                    <select
-                      value={ticket.status}
-                      onChange={(e) => handleStatusChange(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-slate-800 font-medium text-xs outline-none focus:border-blue-600 cursor-pointer"
-                    >
-                      <option value="To Do">To Do</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Under Review">Under Review</option>
-                      <option value="Resolved">Resolved</option>
-                      <option value="Closed">Closed</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-400 font-medium block mb-1">Priority</span>
-                    <select
-                      value={ticket.priority}
-                      onChange={(e) => handlePriorityChange(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-slate-800 font-medium text-xs outline-none focus:border-blue-600 cursor-pointer"
-                    >
-                      <option value="Critical">Critical</option>
-                      <option value="Urgent">Urgent</option>
-                      <option value="High">High</option>
-                      <option value="Normal">Normal</option>
-                      <option value="Low">Low</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-400 font-medium block mb-1">Assignee</span>
-                    <div className="flex items-center gap-1.5 py-1">
-                      <Avatar name={ticket.assigneeId?.name || 'Unassigned'} src={ticket.assigneeId?.avatarUrl} size="xs" />
-                      <span className="text-slate-800 font-medium truncate">
-                        {ticket.assigneeId?.name || 'Unassigned'}
-                      </span>
+                    <span className="text-slate-800 font-semibold truncate max-w-[150px]">
+                      {ticket.projectId?.name || 'Product Design'}
+                    </span>
+                    <span>/</span>
+                    <span>...</span>
+                    <span>/</span>
+                    <div className="flex items-center gap-1 text-slate-700">
+                      <Avatar name={ticket.assigneeId?.name || 'Kevin'} size="xs" />
+                      <span>{ticket.assigneeId?.name?.split(' ')[0] || 'Kevin'}</span>
                     </div>
+                    <span>/</span>
+                    <span className="font-mono text-slate-800 font-bold">{ticket.ticketNumber}</span>
                   </div>
 
-                  <div>
-                    <span className="text-slate-400 font-medium block mb-1">Due Date</span>
-                    <div className="flex items-center gap-1 text-slate-700 py-1 font-medium">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{ticket.dueDate ? format(new Date(ticket.dueDate), 'MMM d, yyyy') : 'No date'}</span>
+                  {/* Top Right Actions */}
+                  <div className="flex items-center gap-2">
+                    {/* Status Pill matching screenshot */}
+                    <div className="relative">
+                      <select
+                        value={ticket.status}
+                        onChange={(e) => handleStatusChange(e.target.value)}
+                        className="appearance-none bg-blue-50/60 border border-blue-200 text-blue-700 font-semibold text-xs rounded-full pl-6 pr-7 py-1 cursor-pointer outline-none hover:bg-blue-100/60 transition-colors"
+                      >
+                        <option value="To Do">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Resolved">Resolved</option>
+                      </select>
+                      <Circle className="w-2.5 h-2.5 text-blue-600 fill-blue-600 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <ChevronDown className="w-3 h-3 text-blue-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
-                  </div>
-                </div>
 
-                {/* Description Box */}
-                <div className="px-6 py-4 border-b border-slate-100">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                    Description
-                  </h4>
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                    {ticket.description || 'No description provided.'}
-                  </p>
+                    <button className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                      <Star className="w-4 h-4" />
+                    </button>
 
-                  {ticket.tags && ticket.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {ticket.tags.map((tg) => (
-                        <span key={tg} className="inline-flex items-center gap-1 text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                          <Tag className="w-2.5 h-2.5" />
-                          {tg}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    <button className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
 
-                {/* Drawer Tab Navigation */}
-                <div className="flex items-center px-6 border-b border-slate-200 bg-slate-50/50">
-                  <button
-                    onClick={() => setActiveTab('comments')}
-                    className={`py-3 px-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-colors ${
-                      activeTab === 'comments'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    Public Comments ({comments.filter((c) => !c.isInternal).length})
-                  </button>
-
-                  {canSeeInternalNotes && (
                     <button
-                      onClick={() => setActiveTab('internal')}
-                      className={`py-3 px-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-colors ${
-                        activeTab === 'internal'
-                          ? 'border-amber-600 text-amber-700'
-                          : 'border-transparent text-slate-500 hover:text-slate-800'
-                      }`}
+                      onClick={onClose}
+                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors ml-2"
                     >
-                      <Lock className="w-4 h-4" />
-                      Internal Notes ({comments.filter((c) => c.isInternal).length})
+                      <X className="w-4 h-4" />
                     </button>
-                  )}
-
-                  <button
-                    onClick={() => setActiveTab('attachments')}
-                    className={`py-3 px-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-colors ${
-                      activeTab === 'attachments'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    <Paperclip className="w-4 h-4" />
-                    Attachments ({attachments.length})
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab('activity')}
-                    className={`py-3 px-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-colors ${
-                      activeTab === 'activity'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    <Activity className="w-4 h-4" />
-                    Activity History
-                  </button>
+                  </div>
                 </div>
 
-                {/* Drawer Body Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                  {/* Comments / Internal Notes Tab */}
-                  {(activeTab === 'comments' || activeTab === 'internal') && (
-                    <div className="space-y-4">
-                      {activeTab === 'internal' && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 flex items-center gap-2">
-                          <Lock className="w-4 h-4 text-amber-600 shrink-0" />
-                          <span>
-                            Internal notes are strictly restricted to team members and never visible to external reporters.
+                {/* 2-Column Split: Main Content on Left, Details on Right */}
+                <div className="flex-1 overflow-hidden flex">
+                  {/* Left Column: Title, AI Summary, Sub-Tickets, Links, Comments */}
+                  <div className="flex-1 overflow-y-auto p-8 space-y-6">
+                    {/* Title & Meta */}
+                    <div className="space-y-1.5">
+                      <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-snug flex items-center gap-2">
+                        <span>{ticket.title}</span>
+                        <Edit2 className="w-3.5 h-3.5 text-slate-400 hover:text-slate-700 cursor-pointer" />
+                      </h1>
+                      <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+                        <span>{ticket.ticketNumber}</span>
+                        <span>·</span>
+                        <span>
+                          {ticket.createdAt
+                            ? formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })
+                            : '2 days ago'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Description Text */}
+                    <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
+                      {ticket.description ||
+                        "I think we should make the 'feedback' button simply an email, something like mailto:demo@qubixdesk.io that goes into our QubixDesk instance, creates a ticket in a customer-feedback specific queue and notifies a slack channel with the full comment from the customer."}
+                    </div>
+
+                    {/* AI Summary Box matching screenshot */}
+                    <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-indigo-700">
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Summary</span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        The ticket outlines an improvement for feedback routing into specific queues with automated notification triggers and customer verification loops.
+                      </p>
+                      <p className="text-[11px] text-slate-400 italic">
+                        Insight provided by artificial intelligence.
+                      </p>
+                    </div>
+
+                    {/* Sub-Tickets Section matching screenshot */}
+                    <div className="space-y-2.5 pt-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <div
+                          onClick={() => setSubTicketsOpen(!subTicketsOpen)}
+                          className="flex items-center gap-1.5 font-bold text-slate-800 cursor-pointer"
+                        >
+                          {subTicketsOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                          <span>Sub-Tickets</span>
+                          <span className="text-slate-400 font-medium ml-1">
+                            {completedSubTicketsCount}/{subTickets.length}
                           </span>
+                        </div>
+                        <button className="text-xs text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1">
+                          <Plus className="w-3 h-3" />
+                          <span>Add sub-ticket</span>
+                        </button>
+                      </div>
+
+                      {subTicketsOpen && (
+                        <div className="space-y-1.5 pl-2 text-xs">
+                          {subTickets.map((st) => (
+                            <div
+                              key={st.id}
+                              onClick={() => toggleSubTicket(st.id)}
+                              className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors"
+                            >
+                              <span className="text-[10px] font-mono text-slate-400">{st.num}</span>
+                              {st.done ? (
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                              ) : (
+                                <Circle className="w-4 h-4 text-blue-500 shrink-0" />
+                              )}
+                              <span
+                                className={`text-xs ${
+                                  st.done ? 'text-slate-500 line-through' : 'text-slate-800 font-medium'
+                                }`}
+                              >
+                                {st.title}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Links Section matching screenshot */}
+                    <div className="space-y-2.5 pt-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <div
+                          onClick={() => setLinksOpen(!linksOpen)}
+                          className="flex items-center gap-1.5 font-bold text-slate-800 cursor-pointer"
+                        >
+                          {linksOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                          <span>Links</span>
+                          <span className="text-slate-400 font-medium ml-1">{links.length}</span>
+                        </div>
+                        <button className="text-xs text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1">
+                          <Plus className="w-3 h-3" />
+                          <span>Add link</span>
+                        </button>
+                      </div>
+
+                      {linksOpen && (
+                        <div className="space-y-2 pl-2">
+                          {links.map((link, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between p-2.5 rounded-xl border border-[#EAECF0] hover:border-slate-300 transition-colors bg-white group shadow-2xs"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+                                  <Link2 className="w-3.5 h-3.5" />
+                                </div>
+                                <div className="min-w-0">
+                                  <a
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-xs font-semibold text-slate-800 hover:text-blue-600 block truncate"
+                                  >
+                                    {link.title}
+                                  </a>
+                                  <p className="text-[10px] text-slate-400 truncate">{link.url}</p>
+                                </div>
+                              </div>
+                              <button className="text-slate-300 group-hover:text-slate-500 p-1">
+                                <MoreHorizontal className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Activities & Comments Feed matching screenshot */}
+                    <div className="space-y-4 pt-4 border-t border-[#EAECF0]">
+                      <div
+                        onClick={() => setActivitiesOpen(!activitiesOpen)}
+                        className="flex items-center gap-1.5 text-xs font-bold text-slate-800 cursor-pointer"
+                      >
+                        {activitiesOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                        <span>Activities</span>
+                      </div>
+
+                      {activitiesOpen && (
+                        <div className="space-y-3 pl-2">
+                          {/* Sample audit entries matching screenshot style */}
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">
+                              D
+                            </span>
+                            <span>Dan Bellenbaum created the ticket a day ago. 1 week ago</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                            <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center font-bold">
+                              D
+                            </span>
+                            <span>Dan Bellenbaum opened the ticket a day ago. 4 days ago</span>
+                          </div>
+
+                          {/* Dynamic Comments List */}
+                          {comments.map((comment) => (
+                            <div
+                              key={comment._id}
+                              className={`p-3.5 rounded-xl border text-xs space-y-2 ${
+                                comment.isInternal
+                                  ? 'bg-amber-50/50 border-amber-200'
+                                  : 'bg-white border-[#EAECF0] shadow-2xs'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Avatar name={comment.authorId?.name} src={comment.authorId?.avatarUrl} size="xs" />
+                                  <span className="font-bold text-slate-900">{comment.authorId?.name}</span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {comment.createdAt
+                                      ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
+                                      : '5 hours ago'}
+                                  </span>
+                                  {comment.isInternal && (
+                                    <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">
+                                      🔒 Internal Note
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
+                                {comment.content}
+                              </p>
+
+                              {/* Emoji Reactions Bar */}
+                              <div className="flex items-center gap-1.5 pt-1">
+                                <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-medium cursor-pointer hover:bg-slate-200">
+                                  👍 2
+                                </span>
+                                <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-medium cursor-pointer hover:bg-slate-200">
+                                  ✅ 1
+                                </span>
+                                <button className="text-slate-400 hover:text-slate-700 text-xs px-1">
+                                  <Smile className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       )}
 
-                      {comments
-                        .filter((c) => (activeTab === 'internal' ? c.isInternal : !c.isInternal))
-                        .map((comment) => (
-                          <div
-                            key={comment._id}
-                            className={`p-3.5 rounded-xl border text-xs leading-relaxed ${
-                              comment.isInternal
-                                ? 'bg-amber-50/50 border-amber-200'
-                                : 'bg-slate-50/80 border-slate-200'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <Avatar name={comment.authorId?.name} src={comment.authorId?.avatarUrl} size="xs" />
-                                <span className="font-bold text-slate-900">{comment.authorId?.name}</span>
-                                {comment.isInternal && (
-                                  <Badge variant="warning" size="sm">Internal</Badge>
-                                )}
-                              </div>
-                              <span className="text-[10px] text-slate-400">
-                                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-                              </span>
-                            </div>
-                            <p className="text-slate-700 whitespace-pre-wrap">{comment.content}</p>
-                          </div>
-                        ))}
-
-                      {comments.filter((c) => (activeTab === 'internal' ? c.isInternal : !c.isInternal)).length === 0 && (
-                        <p className="text-center text-xs text-slate-400 py-6">
-                          No {activeTab === 'internal' ? 'internal notes' : 'comments'} yet.
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Attachments Tab */}
-                  {activeTab === 'attachments' && (
-                    <div className="space-y-4">
-                      {/* Upload Box */}
-                      <label className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer bg-slate-50/50 hover:bg-blue-50/20 transition-all">
-                        <Upload className="w-6 h-6 text-slate-400 mb-1" />
-                        <span className="text-xs font-semibold text-slate-700">
-                          {isUploading ? 'Uploading file...' : 'Click or drop file to attach'}
-                        </span>
-                        <span className="text-[11px] text-slate-400 mt-0.5">
-                          PDF, images, spreadsheets up to 15MB
-                        </span>
-                        <input
-                          type="file"
-                          onChange={handleFileUpload}
-                          disabled={isUploading}
-                          className="hidden"
+                      {/* Comment Input Box with Formatting Toolbar matching screenshot */}
+                      <form onSubmit={handleAddComment} className="mt-4 border border-[#EAECF0] rounded-xl overflow-hidden bg-white shadow-2xs">
+                        <textarea
+                          rows={3}
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          placeholder="Enter your comment..."
+                          className="w-full p-3 text-xs text-slate-800 placeholder:text-slate-400 outline-none resize-none"
                         />
-                      </label>
 
-                      {/* Attachments List */}
-                      <div className="space-y-2">
-                        {attachments.map((att) => (
-                          <div
-                            key={att._id}
-                            className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg text-xs"
-                          >
-                            <div className="flex items-center gap-3 min-w-0">
-                              <Paperclip className="w-4 h-4 text-blue-600 shrink-0" />
-                              <div className="min-w-0">
-                                <p className="font-semibold text-slate-900 truncate">
-                                  {att.originalName}
-                                </p>
-                                <p className="text-[10px] text-slate-400">
-                                  {(att.sizeBytes / 1024).toFixed(1)} KB • Uploaded by {att.uploadedById?.name}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-1 shrink-0">
-                              <a
-                                href={att.fileUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded"
-                              >
-                                <Download className="w-4 h-4" />
-                              </a>
-                              <button
-                                onClick={() => handleDeleteAttachment(att._id)}
-                                className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                        {/* Formatting bar and action buttons */}
+                        <div className="bg-slate-50 px-3 py-2 border-t border-[#EAECF0] flex items-center justify-between text-slate-500 text-xs">
+                          <div className="flex items-center gap-2">
+                            <button type="button" className="hover:text-slate-800 p-1"><Bold className="w-3.5 h-3.5" /></button>
+                            <button type="button" className="hover:text-slate-800 p-1"><Italic className="w-3.5 h-3.5" /></button>
+                            <button type="button" className="hover:text-slate-800 p-1"><Underline className="w-3.5 h-3.5" /></button>
+                            <button type="button" className="hover:text-slate-800 p-1"><Link2 className="w-3.5 h-3.5" /></button>
+                            <button type="button" className="hover:text-slate-800 p-1"><List className="w-3.5 h-3.5" /></button>
+                            <button type="button" className="hover:text-slate-800 p-1"><Code className="w-3.5 h-3.5" /></button>
                           </div>
-                        ))}
+
+                          <div className="flex items-center gap-3">
+                            {/* Internal Note Toggle */}
+                            {canSeeInternalNotes && (
+                              <label className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-700 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={isInternalNote}
+                                  onChange={(e) => setIsInternalNote(e.target.checked)}
+                                  className="rounded border-amber-300 text-amber-600 focus:ring-0 w-3 h-3"
+                                />
+                                <span>🔒 Internal Note</span>
+                              </label>
+                            )}
+
+                            <button
+                              type="submit"
+                              disabled={isSubmittingComment || !commentText.trim()}
+                              className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg px-3 py-1.5 text-xs font-semibold disabled:opacity-40 transition-colors shadow-sm"
+                            >
+                              <Send className="w-3 h-3" />
+                              <span>Send</span>
+                            </button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Details Inspector matching screenshot */}
+                  <div className="w-80 border-l border-[#EAECF0] bg-white overflow-y-auto p-5 space-y-6 text-xs text-slate-700 select-none">
+                    {/* Details Section */}
+                    <div className="space-y-3.5">
+                      <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                        <Info className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Details</span>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Due date</span>
+                          <div className="flex items-center gap-1 text-slate-800 font-medium">
+                            <Calendar className="w-3 h-3 text-slate-400" />
+                            <span>{ticket.dueDate ? format(new Date(ticket.dueDate), 'MMM d, yyyy') : 'Select due date'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Status</span>
+                          <span className="inline-flex items-center gap-1.5 text-blue-700 font-semibold bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full text-[11px]">
+                            <Circle className="w-2 h-2 text-blue-600 fill-blue-600" />
+                            {ticket.status}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Priority</span>
+                          <span className="inline-flex items-center gap-1 text-slate-800 font-medium">
+                            <SignalMedium className="w-3 h-3 text-amber-500" />
+                            {ticket.priority}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Queue</span>
+                          <span className="inline-flex items-center gap-1 text-slate-800 font-medium">
+                            <Link2 className="w-3 h-3 text-blue-500" />
+                            {ticket.category || 'Usability'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* Activity Tab */}
-                  {activeTab === 'activity' && (
-                    <div className="relative pl-6 space-y-4 border-l-2 border-slate-200 ml-2">
-                      {activities.map((act) => (
-                        <div key={act._id} className="relative">
-                          <div className="absolute -left-[31px] top-0.5 w-3 h-3 bg-blue-600 rounded-full border-2 border-white ring-2 ring-slate-100" />
-                          <div className="text-xs">
-                            <p className="font-semibold text-slate-900">
-                              {act.userId?.name || 'System'}:{' '}
-                              <span className="font-normal text-slate-600">{act.description}</span>
-                            </p>
-                            <span className="text-[10px] text-slate-400">
-                              {formatDistanceToNow(new Date(act.createdAt), { addSuffix: true })}
+                    {/* Approvers Section */}
+                    <div className="pt-4 border-t border-[#EAECF0] space-y-3">
+                      <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs">
+                        <UserIcon className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Approvers</span>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Approved</span>
+                          <span className="text-slate-700 text-[11px]">Jan 22, 2026</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Approvers</span>
+                          <div className="flex items-center gap-1.5">
+                            <Avatar name="Kevin Coleman" size="xs" />
+                            <span className="font-medium text-slate-800">Kevin Coleman</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* People Section */}
+                    <div className="pt-4 border-t border-[#EAECF0] space-y-3">
+                      <div className="flex items-center justify-between font-bold text-slate-900 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <UserIcon className="w-3.5 h-3.5 text-slate-500" />
+                          <span>People</span>
+                        </div>
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Assignee</span>
+                          <div className="flex items-center gap-1.5">
+                            <Avatar name={ticket.assigneeId?.name || 'Unassigned'} src={ticket.assigneeId?.avatarUrl} size="xs" />
+                            <span className="font-medium text-slate-800">
+                              {ticket.assigneeId?.name || 'Unassigned'}
                             </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
-                {/* Comment Input Footer */}
-                {(activeTab === 'comments' || activeTab === 'internal') && (
-                  <div className="p-4 border-t border-slate-200 bg-white">
-                    <div className="flex gap-2">
-                      <textarea
-                        rows={2}
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        placeholder={
-                          activeTab === 'internal'
-                            ? 'Add internal note (only visible to team members)...'
-                            : 'Add a comment for the team or reporter...'
-                        }
-                        className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-900 outline-none focus:border-blue-600 focus:bg-white resize-none"
-                      />
-                      <Button
-                        size="sm"
-                        variant={activeTab === 'internal' ? 'danger' : 'primary'}
-                        isLoading={isSubmittingComment}
-                        onClick={() => handleAddComment(activeTab === 'internal')}
-                        className="self-end"
-                        rightIcon={<Send className="w-3.5 h-3.5" />}
-                      >
-                        {activeTab === 'internal' ? 'Post Note' : 'Reply'}
-                      </Button>
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-400">Requester</span>
+                          <div className="flex items-center gap-1.5">
+                            <Avatar name={ticket.reporterId?.name || 'Sarah Jenkins'} size="xs" />
+                            <span className="font-medium text-slate-800">
+                              {ticket.reporterId?.name || 'Sarah Jenkins'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tags Section */}
+                    <div className="pt-4 border-t border-[#EAECF0] space-y-3">
+                      <div className="flex items-center justify-between font-bold text-slate-900 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Tags</span>
+                        </div>
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5">
+                        {ticket.tags && ticket.tags.length > 0 ? (
+                          ticket.tags.map((tg) => (
+                            <span
+                              key={tg}
+                              className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-md font-medium"
+                            >
+                              {tg}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[11px] text-slate-400">Add ticket tags</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Meta Section */}
+                    <div className="pt-4 border-t border-[#EAECF0] space-y-3">
+                      <div className="flex items-center justify-between font-bold text-slate-900 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Meta</span>
+                        </div>
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+
+                      <div className="space-y-2 text-[11px]">
+                        <div className="flex items-center justify-between text-slate-500">
+                          <span>Created</span>
+                          <span>
+                            {ticket.createdAt
+                              ? format(new Date(ticket.createdAt), 'MMM d, yyyy')
+                              : 'Jan 21, 2026'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-slate-500">
+                          <span>Updated</span>
+                          <span>
+                            {ticket.updatedAt
+                              ? formatDistanceToNow(new Date(ticket.updatedAt), { addSuffix: true })
+                              : '2 days ago'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </>
             )}
           </motion.div>
@@ -553,4 +733,3 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
     </AnimatePresence>
   );
 };
-

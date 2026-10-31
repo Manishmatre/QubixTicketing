@@ -85,10 +85,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20">
+    <header className="h-14 bg-white border-b border-[#EAECF0] px-6 flex items-center justify-between sticky top-0 z-20">
       {/* Global Search Bar */}
       <div className="w-80 relative flex items-center">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
         <input
           type="text"
           placeholder="Search tickets, IDs, or projects..."
@@ -97,20 +97,19 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             setSearchVal(e.target.value);
             if (onSearchChange) onSearchChange(e.target.value);
           }}
-          className="w-full bg-slate-50 hover:bg-slate-100/80 focus:bg-white border border-slate-200 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-900 transition-all outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          className="w-full bg-[#F8FAFC] hover:bg-slate-100/70 focus:bg-white border border-[#EAECF0] rounded-lg pl-8 pr-4 py-1.5 text-xs text-slate-900 transition-all outline-none focus:border-slate-400"
         />
       </div>
 
       {/* Action Buttons & Notifications */}
       <div className="flex items-center gap-3">
-        <Button
-          size="sm"
-          variant="primary"
-          leftIcon={<Plus className="w-4 h-4" />}
+        <button
           onClick={onOpenCreateTicket}
+          className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm transition-all"
         >
-          New Ticket
-        </Button>
+          <Plus className="w-3.5 h-3.5" />
+          <span>New ticket</span>
+        </button>
 
         {/* Notifications Popover */}
         <div className="relative">
