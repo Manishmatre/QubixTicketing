@@ -107,9 +107,9 @@ export const BillingView: React.FC = () => {
   const ticketUsagePercent = Math.min(100, Math.round(((billingInfo.usage?.currentTickets || 0) / (limits.maxTickets || 500)) * 100));
 
   return (
-    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-white font-sans text-slate-800">
+    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* Header */}
-      <div className="pb-3 border-b border-[#EAECF0]">
+      <div className="p-4 bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs">
         <h2 className="text-lg font-bold text-slate-900 tracking-tight">
           Subscription & Resource Quotas
         </h2>

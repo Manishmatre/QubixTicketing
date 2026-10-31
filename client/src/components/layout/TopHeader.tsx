@@ -138,7 +138,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
   return (
     <>
-      <header className="h-14 bg-white border-b border-[#EAECF0] px-3 sm:px-5 flex items-center justify-between shrink-0 font-sans z-20">
+      <header className="h-14 bg-white border-b border-slate-200/90 px-3 sm:px-5 flex items-center justify-between shrink-0 font-sans z-20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
         {/* Left: Mobile Menu Toggle & Dynamic Breadcrumb */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
@@ -152,7 +152,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
               <HeaderIcon className="w-4 h-4" />
             </div>
             <h1 className="text-sm font-bold text-slate-900 tracking-tight truncate">
@@ -170,10 +170,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             title="Open Universal Search (⌘K / Ctrl+K)"
           >
             <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 absolute left-3 pointer-events-none transition-colors" />
-            <div className="w-full bg-[#F8FAFC] group-hover:bg-slate-100/80 border border-[#EAECF0] rounded-lg pl-8 pr-10 py-1.5 text-xs text-slate-400 transition-all select-none truncate">
+            <div className="w-full bg-slate-100/70 group-hover:bg-slate-100 border border-slate-200/90 rounded-lg pl-8 pr-10 py-1.5 text-xs text-slate-500 transition-all select-none truncate">
               Search tickets, projects, or pages...
             </div>
-            <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none bg-slate-100 px-1 py-0.5 rounded border border-slate-200/60">
+            <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none bg-white px-1 py-0.5 rounded border border-slate-200/60 shadow-2xs">
               ⌘K
             </span>
           </div>
@@ -193,17 +193,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-2.5">
           {/* Live Online Teammates Indicator */}
           <div
-            className="hidden lg:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-800"
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-300/80 text-[11px] font-bold text-emerald-700"
             title={`${Math.max(1, onlineUserIds.length)} teammate(s) currently online with live sync`}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>{Math.max(1, onlineUserIds.length)} Live</span>
           </div>
 
-          {/* + New Ticket Button */}
+          {/* + New Ticket Button (Action Gradient) */}
           <button
             onClick={onOpenCreateTicket}
-            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all active:scale-[0.98] cursor-pointer"
+            className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold shadow-sm shadow-blue-500/25 transition-all active:scale-[0.98] cursor-pointer"
             title="Create New Ticket"
           >
             <Plus className="w-3.5 h-3.5" />

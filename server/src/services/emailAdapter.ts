@@ -259,6 +259,75 @@ export class EmailAdapter {
       html,
     });
   }
+
+  async sendTeamInvitationWithTempPassword(
+    to: string,
+    orgName: string,
+    inviterName: string,
+    role: string,
+    tempPassword: string
+  ): Promise<boolean> {
+    const baseUrl = this.getBaseUrl();
+    const loginUrl = `${baseUrl}/login?email=${encodeURIComponent(to)}`;
+
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #ffffff; border: 1px solid #EAECF0; border-radius: 16px;">
+        <div style="margin-bottom: 24px; text-align: center;">
+          <h1 style="color: #0F172A; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">QUBIXDESK</h1>
+          <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Next-Gen Enterprise Issue & Project Ticketing</p>
+        </div>
+        <div style="background: #F8FAFC; border: 1px solid #EAECF0; padding: 28px; border-radius: 12px; margin-bottom: 24px;">
+          <div style="display: inline-block; background: #EFF6FF; color: #2563EB; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; text-transform: uppercase;">
+            Team Invitation & Login Credentials
+          </div>
+          <h2 style="font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 12px 0;">
+            You've been invited to join ${orgName}
+          </h2>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6; margin: 0 0 16px 0;">
+            Hi there,<br/>
+            <strong>${inviterName || 'A team administrator'}</strong> has invited you to collaborate in the <strong>${orgName}</strong> workspace as <strong>${role}</strong>.
+          </p>
+
+          <div style="background: #ffffff; border: 1.5px dashed #93C5FD; border-radius: 10px; padding: 18px; margin: 20px 0;">
+            <p style="font-size: 11px; font-weight: 700; color: #1D4ED8; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">
+              Your Temporary Login Credentials:
+            </p>
+            <p style="font-size: 13px; color: #1E293B; margin: 0 0 6px 0;">
+              <strong>Email:</strong> <span style="font-family: monospace; color: #0F172A;">${to}</span>
+            </p>
+            <p style="font-size: 13px; color: #1E293B; margin: 0;">
+              <strong>Temporary Password:</strong> <span style="font-family: monospace; font-size: 15px; font-weight: 800; color: #1D4ED8; background: #EFF6FF; padding: 2px 8px; border-radius: 4px;">${tempPassword}</span>
+            </p>
+          </div>
+
+          <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+            <p style="font-size: 12px; color: #92400E; margin: 0; line-height: 1.5;">
+              🔒 <strong>Security Requirement:</strong> For your security, you will be prompted to set your personal permanent password immediately when you sign in.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 24px 0 16px 0;">
+            <a href="${loginUrl}" style="background-color: #2563EB; color: #ffffff; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 700; display: inline-block;">
+              Sign In & Set Permanent Password &rarr;
+            </a>
+          </div>
+          <p style="font-size: 12px; color: #64748B; text-align: center; margin: 0;">
+            Direct login link: <a href="${loginUrl}" style="color: #2563EB; word-break: break-all;">${loginUrl}</a>
+          </p>
+        </div>
+        <p style="font-size: 11px; color: #94A3B8; text-align: center; margin: 0;">
+          QubixDesk Enterprise Multi-Tenant Ticketing • Secure & Isolated
+        </p>
+      </div>
+    `;
+
+    return this.sendEmail({
+      to,
+      subject: `You've been invited to join ${orgName} on QubixDesk (Temporary Credentials)`,
+      text: `Hi,\n\nYou have been invited to join ${orgName} as ${role}.\n\nYour Temporary Login Credentials:\nEmail: ${to}\nTemporary Password: ${tempPassword}\n\nSign in to set your permanent password at:\n${loginUrl}\n\nFor your security, you will be prompted to choose a permanent password upon first login.\n\n- The QubixDesk Team`,
+      html,
+    });
+  }
 }
 
 export const emailService = new EmailAdapter();

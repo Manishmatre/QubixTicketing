@@ -126,9 +126,9 @@ export const GanttTimelineView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-white font-sans text-slate-800 overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800 overflow-hidden">
       {/* Top Filter & Timeline Controls */}
-      <div className="h-14 px-6 border-b border-[#EAECF0] flex items-center justify-between gap-4 bg-white shrink-0">
+      <div className="h-14 px-6 border-b border-slate-200/90 flex items-center justify-between gap-4 bg-white shadow-2xs shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
             <CalendarRange className="w-4 h-4 text-blue-600" />

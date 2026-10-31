@@ -61,10 +61,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           : effectiveCollapsed
           ? 'w-16'
           : 'w-64'
-      } bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800 transition-all duration-300 ease-in-out`}
+      } bg-[#F8FAFC] border-r border-slate-200/90 flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800 transition-all duration-300 ease-in-out`}
     >
       {/* 1. Interactive Multi-Workspace Switcher */}
-      <div className={`h-14 px-2.5 border-b border-[#EAECF0] bg-white flex items-center justify-between ${effectiveCollapsed ? 'justify-center' : ''}`}>
+      <div className={`h-14 px-2.5 border-b border-slate-200/80 bg-[#F8FAFC] flex items-center justify-between ${effectiveCollapsed ? 'justify-center' : ''}`}>
         <div className="flex-1 min-w-0">
           <WorkspaceDropdown variant="sidebar" isCollapsed={effectiveCollapsed} />
         </div>
@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             type="button"
             onClick={onCloseMobile}
-            className="p-1.5 ml-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 ml-1 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg transition-colors cursor-pointer"
             title="Close menu"
           >
             <X className="w-4 h-4" />
@@ -81,16 +81,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* 2. Primary Navigation Links */}
-      <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4 text-xs">
-        <div className="space-y-0.5">
+      <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4 text-xs">
+        <div className="space-y-1">
           <NavLink
             to="/workspace/dashboard"
             title="Dashboard"
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -104,8 +104,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -114,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {!isCollapsed && <span>Kanban Board</span>}
             </div>
             {!isCollapsed && (
-              <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-2xs">
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-2xs">
                 Live
               </span>
             )}
@@ -126,8 +126,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -141,8 +141,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -156,8 +156,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -171,8 +171,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -186,8 +186,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -201,8 +201,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className={({ isActive }) =>
               `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                 isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                  : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
               }`
             }
           >
@@ -218,8 +218,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className={({ isActive }) =>
                 `flex items-center ${isCollapsed ? 'justify-center px-2' : 'gap-2.5 px-3'} py-2 rounded-lg font-medium transition-all ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700 font-semibold'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-blue-50 text-blue-700 font-bold border-l-2 border-blue-600 shadow-2xs'
+                    : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
                 }`
               }
             >
@@ -231,7 +231,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* 3. Pinned Bottom Footer */}
-      <div className="p-2 border-t border-[#EAECF0] space-y-1 text-xs text-slate-600 bg-white">
+      <div className="p-2 border-t border-slate-200/80 space-y-1 text-xs text-slate-600 bg-[#F8FAFC]">
         {/* Organization Admin Level Actions: Billing & Settings */}
         {isOrgAdmin && (
           <>
@@ -239,8 +239,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               to="/workspace/billing"
               title="Billing & Plan"
               className={({ isActive }) =>
-                `flex items-center ${isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-2.5 py-1.5'} rounded-lg hover:bg-slate-50 transition-colors ${
-                  isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
+                `flex items-center ${isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-2.5 py-1.5'} rounded-lg hover:bg-slate-200/60 transition-colors ${
+                  isActive ? 'text-blue-700 font-bold' : 'text-slate-600'
                 }`
               }
             >
@@ -252,8 +252,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               to="/workspace/settings"
               title="Workspace Settings"
               className={({ isActive }) =>
-                `flex items-center ${isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-2.5 py-1.5'} rounded-lg hover:bg-slate-50 transition-colors ${
-                  isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
+                `flex items-center ${isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-2.5 py-1.5'} rounded-lg hover:bg-slate-200/60 transition-colors ${
+                  isActive ? 'text-blue-700 font-bold' : 'text-slate-600'
                 }`
               }
             >
@@ -270,7 +270,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             title={effectiveCollapsed ? 'Expand sidebar' : 'Collapse to icon-only'}
             className={`w-full flex items-center ${
               effectiveCollapsed ? 'justify-center p-2' : 'justify-between px-2.5 py-1.5'
-            } rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer text-xs font-medium`}
+            } rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer text-xs font-medium`}
           >
             <div className="flex items-center gap-2">
               {effectiveCollapsed ? (
@@ -285,7 +285,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* User Card */}
-        <div className="pt-2 mt-1 border-t border-[#EAECF0] flex items-center justify-between px-1">
+        <div className="pt-2 mt-1 border-t border-slate-200/80 flex items-center justify-between px-1">
           <Link
             to="/workspace/profile"
             onClick={onCloseMobile}

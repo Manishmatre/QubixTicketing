@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
 import { CreateTicketModal } from '../ticket/CreateTicketModal';
+import { MustChangePasswordModal } from '../auth/MustChangePasswordModal';
 import { Ticket } from '../../types';
 
 export const AppLayout: React.FC = () => {
@@ -74,7 +75,7 @@ export const AppLayout: React.FC = () => {
           onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
         />
 
-        <main className="flex-1 flex overflow-hidden">
+        <main className="flex-1 flex overflow-hidden bg-[#F1F5F9] dark:bg-[#0B0F19]">
           <Outlet
             context={{
               onSelectTicket: (id: string) => navigate(`/workspace/tickets/${id}`),
@@ -90,6 +91,9 @@ export const AppLayout: React.FC = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
       />
+
+      {/* Forced Password Reset Modal for Invited Teammates */}
+      <MustChangePasswordModal />
     </div>
   );
 };

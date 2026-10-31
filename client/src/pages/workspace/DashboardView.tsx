@@ -102,9 +102,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   ];
 
   return (
-    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-white font-sans text-slate-800">
+    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* Welcome Banner & Time Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#EAECF0]">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white border border-slate-200/90 rounded-xl shadow-xs">
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Welcome back, {user?.name?.split(' ')[0]} 👋
@@ -115,14 +115,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-lg p-1 flex items-center text-xs font-medium">
+          <div className="bg-slate-100/80 border border-slate-200/80 rounded-lg p-1 flex items-center text-xs font-medium">
             {['today', 'week', 'month', 'all'].map((t) => (
               <button
                 key={t}
                 onClick={() => setTimeRange(t)}
-                className={`px-3 py-1 rounded capitalize transition-all ${
+                className={`px-3 py-1 rounded-md capitalize transition-all ${
                   timeRange === t
-                    ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -133,20 +133,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Top 4 Metrics Widgets - Compact, Minimalist & Balanced Style */}
+      {/* Top 4 Metrics Widgets - Distinct Border Accents & High Contrast */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+        <div className="bg-white border border-slate-200/90 border-t-2 border-t-blue-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-medium text-slate-600">
+            <span className="text-xs font-semibold text-slate-600">
               Total tickets
             </span>
-            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
               <FolderKanban className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-xl font-bold text-slate-900">{metrics.totalTickets}</span>
-            <span className="text-[11px] text-emerald-600 font-semibold flex items-center">
+            <span className="text-[11px] text-emerald-600 font-bold flex items-center">
               <TrendingUp className="w-3 h-3 mr-0.5" /> Active
             </span>
           </div>
@@ -157,18 +157,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+        <div className="bg-white border border-slate-200/90 border-t-2 border-t-emerald-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-medium text-slate-600">
+            <span className="text-xs font-semibold text-slate-600">
               Resolved tickets
             </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
               <CheckCircle2 className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-xl font-bold text-slate-900">{metrics.resolvedTickets}</span>
-            <span className="text-[11px] text-slate-500 font-medium">Completed</span>
+            <span className="text-[11px] text-emerald-600 font-bold">Completed</span>
           </div>
           <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
             {metrics.totalTickets > 0
@@ -177,42 +177,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+        <div className="bg-white border border-slate-200/90 border-t-2 border-t-rose-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-medium text-slate-600">
+            <span className="text-xs font-semibold text-slate-600">
               Urgent & critical
             </span>
-            <div className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
               <Flame className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-xl font-bold text-red-600">{metrics.urgentTickets}</span>
-            <span className="text-[11px] text-red-600 font-medium">Immediate priority</span>
+            <span className="text-xl font-bold text-rose-600">{metrics.urgentTickets}</span>
+            <span className="text-[11px] text-rose-600 font-bold">Immediate priority</span>
           </div>
           <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
             Prioritized by SLA rules
           </div>
         </div>
 
-        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+        <div className="bg-white border border-slate-200/90 border-t-2 border-t-purple-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
           <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-medium text-slate-600">
+            <span className="text-xs font-semibold text-slate-600">
               Assigned to me
             </span>
-            <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
               <Clock className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-xl font-bold text-slate-900">{metrics.myAssignedTickets}</span>
-            <span className="text-[11px] text-purple-600 font-medium">Active queue</span>
+            <span className="text-[11px] text-purple-600 font-bold">Active queue</span>
           </div>
           <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
             {metrics.overdueTickets > 0 ? (
-              <span className="text-red-600 font-semibold">{metrics.overdueTickets} overdue</span>
+              <span className="text-rose-600 font-bold">{metrics.overdueTickets} overdue</span>
             ) : (
-              <span className="text-emerald-600">Zero overdue items</span>
+              <span className="text-emerald-600 font-medium">Zero overdue items</span>
             )}
           </div>
         </div>

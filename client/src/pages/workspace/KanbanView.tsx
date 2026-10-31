@@ -193,16 +193,16 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-white font-sans text-slate-800">
-      {/* Sub-Toolbar: Clean Minimalist Filter Bar (No duplicate header) */}
-      <div className="px-5 py-2.5 border-b border-[#EAECF0] flex items-center justify-between gap-3 shrink-0 bg-white text-xs">
+    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
+      {/* Sub-Toolbar: Clean Minimalist Filter Bar */}
+      <div className="px-5 py-2.5 border-b border-slate-200/90 flex items-center justify-between gap-3 shrink-0 bg-white text-xs shadow-2xs">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="text-slate-400 font-medium text-[11px] uppercase tracking-wider">Priority:</span>
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 outline-none cursor-pointer hover:border-slate-300 transition-colors"
+              className="bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 outline-none cursor-pointer hover:border-slate-300 transition-colors"
             >
               <option value="all">All Priorities</option>
               <option value="Critical">Critical</option>
@@ -218,7 +218,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 outline-none cursor-pointer hover:border-slate-300 transition-colors"
+              className="bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 outline-none cursor-pointer hover:border-slate-300 transition-colors"
             >
               <option value="all">All Categories</option>
               <option value="Bug">Bug</option>
@@ -233,7 +233,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
         <div className="flex items-center gap-3 text-slate-500 font-medium">
           <span>{filteredTickets.length} tickets on board</span>
           <div className="h-3.5 w-[1px] bg-slate-200" />
-          <span className="inline-flex items-center gap-1.5 text-blue-600 font-semibold bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-full text-[11px]">
+          <span className="inline-flex items-center gap-1.5 text-blue-700 font-bold bg-blue-50 border border-blue-200/80 px-2.5 py-0.5 rounded-full text-[11px]">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
             Live Sync
           </span>
@@ -241,7 +241,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       </div>
 
       {/* Kanban Columns Container */}
-      <div className="flex-1 overflow-x-auto p-6 bg-[#FAFAFA]">
+      <div className="flex-1 overflow-x-auto p-5 bg-[#F1F5F9] dark:bg-[#0B0F19]">
         <div className="flex gap-5 min-h-full items-start">
           {COLUMNS.map((col) => {
             const columnTickets = filteredTickets.filter((t) => {
@@ -257,7 +257,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                 key={col.id}
                 onDragOver={handleDragOver}
                 onDrop={() => handleDrop(col.id)}
-                className="w-80 shrink-0 flex flex-col max-h-[calc(100vh-8.5rem)] select-none"
+                className="w-80 shrink-0 flex flex-col max-h-[calc(100vh-8.5rem)] select-none bg-slate-200/50 dark:bg-slate-900/60 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-800"
               >
                 {/* Column Header matching screenshot */}
                 <div className="flex items-center justify-between pb-2.5 px-1 mb-2">
@@ -266,11 +266,11 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     <h3 className="text-xs font-bold text-slate-800 tracking-tight">
                       {col.label}
                     </h3>
-                    <span className="text-xs text-slate-400 font-medium ml-0.5">
+                    <span className="text-xs text-slate-400 font-semibold ml-0.5 bg-white/70 dark:bg-slate-800 px-1.5 py-0.2 rounded-full">
                       {columnTickets.length}
                     </span>
                   </div>
-                  <button className="text-slate-400 hover:text-slate-600 p-0.5 rounded">
+                  <button className="text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer">
                     <Plus className="w-3.5 h-3.5" onClick={onOpenCreateTicket} />
                   </button>
                 </div>
@@ -283,7 +283,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                       draggable
                       onDragStart={() => handleDragStart(t._id)}
                       onClick={() => onSelectTicket(t._id)}
-                      className={`bg-white border border-[#E5E7EB] rounded-xl p-3.5 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all cursor-pointer group ${
+                      className={`bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl p-3.5 shadow-2xs hover:shadow-md hover:border-blue-400 transition-all cursor-pointer group ${
                         draggedTicketId === t._id ? 'opacity-40 scale-95' : 'opacity-100'
                       }`}
                     >

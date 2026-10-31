@@ -20,6 +20,7 @@ export interface IUser extends Document {
   documents?: IUserDocument[];
   isSuperAdmin: boolean;
   isVerified: boolean;
+  mustChangePassword?: boolean;
   verificationToken?: string;
   verificationTokenExpires?: Date;
   otpCode?: string;
@@ -54,6 +55,7 @@ const UserSchema = new Schema<IUser>(
     ],
     isSuperAdmin: { type: Boolean, default: false, index: true },
     isVerified: { type: Boolean, default: false },
+    mustChangePassword: { type: Boolean, default: false },
     verificationToken: { type: String, index: true },
     verificationTokenExpires: { type: Date },
     otpCode: { type: String, index: true },

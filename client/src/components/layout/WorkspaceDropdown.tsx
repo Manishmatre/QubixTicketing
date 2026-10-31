@@ -157,7 +157,7 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full bg-[#F8FAFC] border border-[#EAECF0] hover:border-slate-300 rounded-lg px-2.5 py-2 flex items-center justify-between transition-all cursor-pointer group text-left shadow-2xs"
+          className="w-full bg-white dark:bg-[#1E293B] border border-slate-200/90 dark:border-slate-700/80 hover:border-slate-300 rounded-lg px-2.5 py-2 flex items-center justify-between transition-all cursor-pointer group text-left shadow-2xs"
         >
           <div className="min-w-0 flex items-center gap-2">
             <div
@@ -195,7 +195,7 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
       {/* DROPDOWN MENU */}
       {isOpen && (
         <div
-          className={`absolute z-50 mt-1.5 w-72 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden animate-fadeIn text-xs ${
+          className={`absolute z-50 mt-1.5 w-72 bg-white dark:bg-[#111827] rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-fadeIn text-xs ${
             variant === 'header'
               ? 'left-0'
               : isCollapsed
@@ -204,7 +204,7 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
           }`}
         >
           {/* Header */}
-          <div className="px-3.5 py-2.5 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+          <div className="px-3.5 py-2.5 bg-slate-50/80 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Workspaces & Companies
@@ -295,14 +295,14 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
           </div>
 
           {/* Actions Footer */}
-          <div className="p-1.5 bg-slate-50 border-t border-slate-100 space-y-1">
+          <div className="p-1.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 space-y-1">
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
                 navigate('/onboarding');
               }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-700 hover:text-blue-700 hover:bg-white text-xs font-semibold transition-colors cursor-pointer border border-transparent hover:border-slate-200"
+              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:text-blue-700 hover:bg-white dark:hover:bg-slate-800 text-xs font-semibold transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             >
               <Plus className="w-3.5 h-3.5 text-blue-600" />
               <span>Create New Workspace</span>
@@ -314,7 +314,7 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
                 setIsOpen(false);
                 navigate('/workspace/teams');
               }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-white text-[11px] font-medium transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 text-[11px] font-medium transition-colors cursor-pointer"
             >
               <Users className="w-3.5 h-3.5 text-slate-400" />
               <span>Manage Team & Invitations</span>

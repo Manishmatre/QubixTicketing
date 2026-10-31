@@ -185,9 +185,9 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-white font-sans text-slate-800">
+    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* Top Filter & Toolbar */}
-      <div className="px-5 py-2.5 bg-white border-b border-[#EAECF0] flex flex-wrap items-center justify-between gap-3">
+      <div className="px-5 py-2.5 bg-white border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
         <div className="flex items-center gap-3">
           <div className="w-64">
             <Input
@@ -268,10 +268,10 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
 
       {/* Main Table with Guaranteed Horizontal Scrolling and Clean Light Borders */}
       <div className="flex-1 overflow-auto px-6 py-4">
-        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-2xs overflow-hidden">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden">
           <div className="w-full overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[1040px] border-collapse">
-              <thead className="bg-[#F8FAFC] border-b border-[#EAECF0] text-slate-500 font-bold uppercase tracking-wider">
+              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
                 <tr>
                   <th className="p-3.5 w-12 text-center border-r border-[#EAECF0]/60">
                     <input

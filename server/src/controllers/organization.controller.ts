@@ -9,6 +9,7 @@ import { User } from '../models/User.js';
 import { emailService } from '../services/emailAdapter.js';
 import { logAuditEvent } from '../services/auditService.js';
 import { checkUserLimit } from '../services/planService.js';
+import { hashPassword } from '../utils/password.js';
 import crypto from 'crypto';
 
 export const getMyOrganizations = async (req: Request, res: Response): Promise<void> => {
@@ -453,29 +454,41 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // Otherwise create new pending invitation
-    const invitation = await Invitation.create({
-      organizationId: req.organizationId,
+    // Generate temporary password for direct login with forced password change on first sign-in
+    const tempPassword = `Qubix#${crypto.randomBytes(3).toString('hex').toUpperCase()}!`;
+    const passwordHash = await hashPassword(tempPassword);
+
+    const newUser = await User.create({
+      name: email.split('@')[0].replace(/[._]/g, ' '),
       email: normalized,
+      passwordHash,
+      isVerified: true,
+      mustChangePassword: true,
+      activeOrganizationId: req.organizationId,
+    });
+
+    const membership = await OrganizationMembership.create({
+      organizationId: req.organizationId,
+      userId: newUser._id,
       role: (role as OrgRole) || 'employee',
-      token,
-      invitedBy: req.user?._id,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      jobTitle: jobTitle || '',
+      department: department || 'General',
+      status: 'active',
     });
 
     const org = await Organization.findById(req.organizationId);
-    await emailService.sendTeamInvitationEmail(
+    await emailService.sendTeamInvitationWithTempPassword(
       normalized,
       org?.name || 'Workspace',
       req.user?.name || 'Workspace Administrator',
       role || 'employee',
-      token
+      tempPassword
     );
 
     res.status(201).json({
       success: true,
-      message: 'Invitation sent successfully via email.',
-      data: invitation,
+      message: `Teammate added! Temporary login password has been dispatched to ${normalized}.`,
+      data: membership,
     });
   } catch (err: any) {
     res.status(500).json({ success: false, error: { message: err.message } });

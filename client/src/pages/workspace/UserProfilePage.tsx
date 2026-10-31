@@ -297,9 +297,9 @@ export const UserProfilePage: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto bg-white font-sans text-slate-800 p-5 space-y-4">
+    <div className="flex-1 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800 p-5 space-y-4">
       {/* 1. Profile Hero Overview Card - Compact, balanced padding */}
-      <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-2xs">
+      <div className="bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           {/* Avatar with Status Badge and Upload Button */}
           <div className="relative group">

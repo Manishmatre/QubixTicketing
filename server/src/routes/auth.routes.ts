@@ -17,6 +17,7 @@ import {
   uploadUserDocument,
   getUserDocuments,
   deleteUserDocument,
+  setPermanentPassword,
 } from '../controllers/auth.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 import { uploadMiddleware } from '../services/storageAdapter.js';
@@ -32,6 +33,7 @@ router.post('/verify-email', verifyEmail);
 router.post('/resend-verification', resendVerification);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
+router.post('/set-permanent-password', requireAuth, setPermanentPassword);
 
 router.get('/invitation/:token', getInvitationDetails);
 router.post('/accept-invitation', acceptInvitation);

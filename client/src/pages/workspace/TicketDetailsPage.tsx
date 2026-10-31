@@ -504,7 +504,7 @@ export const TicketDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-white font-sans text-slate-800">
+    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* 2-Column Responsive Body */}
       <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
         {/* Left Main Scroll Area (70%) */}

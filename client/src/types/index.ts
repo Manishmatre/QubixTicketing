@@ -52,6 +52,7 @@ export interface User {
   documents?: UserDocument[];
   isSuperAdmin: boolean;
   isVerified?: boolean;
+  mustChangePassword?: boolean;
   activeOrganizationId?: string;
   lastLoginAt?: string;
 }

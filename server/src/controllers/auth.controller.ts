@@ -191,6 +191,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           designation: user.designation || '',
           avatarUrl: user.avatarUrl,
           isSuperAdmin: user.isSuperAdmin,
+          mustChangePassword: user.mustChangePassword || false,
           activeOrganizationId: user.activeOrganizationId,
         },
         organization: activeOrg
@@ -323,6 +324,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
           designation: user.designation || '',
           avatarUrl: user.avatarUrl,
           isSuperAdmin: user.isSuperAdmin,
+          mustChangePassword: user.mustChangePassword || false,
           activeOrganizationId: user.activeOrganizationId,
         },
         organization: activeOrg
@@ -969,4 +971,44 @@ export const deleteUserDocument = async (req: Request, res: Response): Promise<v
     res.status(500).json({ success: false, error: { message: err.message } });
   }
 };
+
+export const setPermanentPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 8) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Password must be at least 8 characters long.' },
+      });
+      return;
+    }
+
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found.' } });
+      return;
+    }
+
+    user.passwordHash = await hashPassword(newPassword);
+    user.mustChangePassword = false;
+    await user.save();
+
+    await logAuditEvent({
+      userId: user._id as any,
+      organizationId: user.activeOrganizationId as any,
+      action: 'PASSWORD_UPDATED',
+      entity: 'User',
+      entityId: user._id.toString(),
+      req,
+    });
+
+    res.json({
+      success: true,
+      message: 'Permanent password set successfully! Welcome to your workspace.',
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
 

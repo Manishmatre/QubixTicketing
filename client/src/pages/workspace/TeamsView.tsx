@@ -103,9 +103,9 @@ export const TeamsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-white font-sans text-slate-800">
+    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#EAECF0]">
+      <div className="flex items-center justify-between p-4 bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs">
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight">Team Directory</h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -113,16 +113,16 @@ export const TeamsView: React.FC = () => {
           </p>
         </div>
         {isOrgAdmin && (
-          <Button size="sm" onClick={() => setIsInviteOpen(true)} leftIcon={<UserPlus className="w-3.5 h-3.5" />}>
+          <Button size="sm" variant="primary" onClick={() => setIsInviteOpen(true)} leftIcon={<UserPlus className="w-3.5 h-3.5" />}>
             Invite Member
           </Button>
         )}
       </div>
 
       {/* Members Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-subtle overflow-hidden">
+      <div className="bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+          <thead className="bg-slate-50/80 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
             <tr>
               <th className="py-3 px-4">Member</th>
               <th className="py-3 px-4">Job Title & Department</th>

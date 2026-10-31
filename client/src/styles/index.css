@@ -58,6 +58,14 @@
   background: #94A3B8;
 }
 
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
 /* Clean & advanced SaaS animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
@@ -106,12 +114,24 @@
 }
 
 /* ==========================================================================
-   THEME MODES: DARK & DARK-LIGHT COMBO
+   THEME MODES: FULL DARK & COMBO (DARK NAVIGATION + CRISP LIGHT WORKSPACE)
    ========================================================================== */
 
 /* DARK MODE */
+html.dark {
+  color-scheme: dark;
+}
+
 html.dark body {
-  background-color: #0B0F19;
+  background-color: #0B0F19 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark main,
+html.dark .bg-\[\#F1F5F9\],
+html.dark .bg-\[\#FAFAFA\],
+html.dark .bg-\[\#F8FAFC\] {
+  background-color: #0B0F19 !important;
   color: #F8FAFC;
 }
 
@@ -120,11 +140,11 @@ html.dark header,
 html.dark .bg-white {
   background-color: #111827 !important;
   color: #F8FAFC;
-  border-color: #1F2937 !important;
+  border-color: #1E293B !important;
 }
 
-html.dark .bg-\[\#F8FAFC\],
-html.dark .bg-slate-50 {
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
   background-color: #0F172A !important;
   border-color: #1E293B !important;
 }
@@ -143,10 +163,48 @@ html.dark .text-slate-500 {
   color: #94A3B8 !important;
 }
 
+html.dark .text-slate-400 {
+  color: #64748B !important;
+}
+
 html.dark .border-\[\#EAECF0\],
 html.dark .border-slate-200,
-html.dark .border-slate-100 {
+html.dark .border-slate-100,
+html.dark .border-slate-300 {
   border-color: #1E293B !important;
+}
+
+/* In dark mode, ensure active nav item and badges have rich contrast */
+html.dark aside a.active,
+html.dark .bg-blue-50 {
+  background-color: rgba(30, 58, 138, 0.35) !important;
+  color: #93C5FD !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .bg-emerald-50 {
+  background-color: rgba(6, 78, 59, 0.35) !important;
+  color: #6EE7B7 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.dark .bg-red-50,
+html.dark .bg-rose-50 {
+  background-color: rgba(136, 19, 55, 0.35) !important;
+  color: #FDA4AF !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+html.dark .bg-purple-50 {
+  background-color: rgba(88, 28, 135, 0.35) !important;
+  color: #D8B4FE !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+html.dark .bg-amber-50 {
+  background-color: rgba(120, 53, 15, 0.35) !important;
+  color: #FCD34D !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
 }
 
 html.dark input,
@@ -157,11 +215,31 @@ html.dark textarea {
   border-color: #334155 !important;
 }
 
-/* COMBO MODE: Dark Navigation + Crisp Light Workspace */
+html.dark table thead {
+  background-color: #0F172A !important;
+  color: #94A3B8 !important;
+  border-color: #1E293B !important;
+}
+
+html.dark tr:hover {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+/* ==========================================================================
+   COMBO MODE: DARK SIDEBAR & HEADER + CRISP LIGHT WORKSPACE CANVAS
+   ========================================================================== */
+
 html.combo aside {
   background-color: #0F172A !important;
   color: #F8FAFC !important;
   border-color: #1E293B !important;
+}
+
+html.combo aside .bg-white,
+html.combo aside .bg-\[\#F8FAFC\] {
+  background-color: #0F172A !important;
+  border-color: #1E293B !important;
+  color: #F8FAFC !important;
 }
 
 html.combo aside a {
@@ -176,21 +254,36 @@ html.combo aside a:hover {
 html.combo aside a.active {
   color: #60A5FA !important;
   background-color: #1E293B !important;
+  border-color: #3B82F6 !important;
 }
 
-html.combo aside .bg-\[\#F8FAFC\] {
-  background-color: #1E293B !important;
-  border-color: #334155 !important;
+html.combo aside button {
+  color: #94A3B8;
 }
 
-html.combo aside .text-slate-900 {
+html.combo aside button:hover {
+  color: #F8FAFC;
+  background-color: #1E293B;
+}
+
+html.combo aside .text-slate-900,
+html.combo aside .text-slate-800 {
   color: #F8FAFC !important;
 }
 
-html.combo aside .text-slate-600 {
-  color: #CBD5E1 !important;
+html.combo aside .text-slate-700,
+html.combo aside .text-slate-600,
+html.combo aside .text-slate-500 {
+  color: #94A3B8 !important;
 }
 
+html.combo aside .border-\[\#EAECF0\],
+html.combo aside .border-slate-200,
+html.combo aside .border-slate-100 {
+  border-color: #1E293B !important;
+}
+
+/* Header in Combo Mode */
 html.combo header {
   background-color: #0F172A !important;
   color: #F8FAFC !important;
@@ -202,9 +295,34 @@ html.combo header .text-slate-800 {
   color: #F8FAFC !important;
 }
 
+html.combo header .text-slate-600,
+html.combo header .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+html.combo header .bg-blue-50 {
+  background-color: #1E293B !important;
+  color: #60A5FA !important;
+}
+
+html.combo header .bg-\[\#F8FAFC\],
 html.combo header input {
   background-color: #1E293B !important;
   color: #F8FAFC !important;
   border-color: #334155 !important;
 }
 
+html.combo header button:hover {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+html.combo header .border-\[\#EAECF0\],
+html.combo header .border-slate-200 {
+  border-color: #1E293B !important;
+}
+
+/* In Combo mode, the main workspace remains crisp light */
+html.combo main {
+  background-color: #F1F5F9;
+}

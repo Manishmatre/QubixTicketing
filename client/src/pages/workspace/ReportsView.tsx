@@ -110,9 +110,9 @@ export const ReportsView: React.FC = () => {
   })) || [];
 
   return (
-    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-white font-sans text-slate-800">
+    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#EAECF0]">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs">
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Reports & SLA Analytics
@@ -123,14 +123,14 @@ export const ReportsView: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-white border border-slate-200 rounded-lg p-1 flex items-center text-xs font-medium">
+          <div className="bg-slate-100/80 border border-slate-200/80 rounded-lg p-1 flex items-center text-xs font-medium">
             {['today', 'week', 'month', 'all'].map((t) => (
               <button
                 key={t}
                 onClick={() => setTimeRange(t)}
-                className={`px-3 py-1 rounded capitalize transition-all ${
+                className={`px-3 py-1 rounded-md capitalize transition-all ${
                   timeRange === t
-                    ? 'bg-blue-600 text-white font-semibold'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >

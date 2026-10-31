@@ -255,11 +255,11 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-4 animate-fadeIn">
       <div
-        className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[75vh]"
+        className="w-full max-w-2xl bg-white dark:bg-[#111827] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[75vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="h-14 px-4 border-b border-slate-200 flex items-center gap-3 bg-white shrink-0">
+        <div className="h-14 px-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 bg-white dark:bg-[#111827] shrink-0">
           <Search className="w-5 h-5 text-slate-400 shrink-0" />
           <input
             ref={inputRef}
@@ -267,7 +267,7 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
             placeholder="Search tickets, IDs (DEV-...), projects, or pages..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none font-medium"
+            className="flex-1 bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none font-medium"
           />
           {query && (
             <button
@@ -277,13 +277,13 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
               <X className="w-4 h-4" />
             </button>
           )}
-          <span className="text-[11px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/80">
+          <span className="text-[11px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200/80 dark:border-slate-700">
             ESC to close
           </span>
         </div>
 
         {/* Results List */}
-        <div className="flex-1 overflow-y-auto p-2 divide-y divide-slate-100">
+        <div className="flex-1 overflow-y-auto p-2 divide-y divide-slate-100 dark:divide-slate-800">
           {isLoading ? (
             <div className="py-12 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
               <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -307,7 +307,9 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
                   }}
                   onMouseEnter={() => setSelectedIndex(index)}
                   className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
-                    isSelected ? 'bg-blue-50/80 text-blue-900' : 'hover:bg-slate-50 text-slate-700'
+                    isSelected
+                      ? 'bg-blue-50/80 dark:bg-blue-900/30 text-blue-900 dark:text-blue-300'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">

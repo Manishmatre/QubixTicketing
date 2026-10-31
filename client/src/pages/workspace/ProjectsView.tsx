@@ -80,16 +80,16 @@ export const ProjectsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-white font-sans text-slate-800">
+    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#EAECF0]">
+      <div className="flex items-center justify-between p-4 bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs">
         <div>
           <h2 className="text-lg font-bold text-slate-900 tracking-tight">Projects</h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Track roadmaps, milestones, and deliverables across team initiatives.
           </p>
         </div>
-        <Button size="sm" onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="w-3.5 h-3.5" />}>
+        <Button size="sm" variant="primary" onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="w-3.5 h-3.5" />}>
           New Project
         </Button>
       </div>
