@@ -121,3 +121,4 @@ echo "   • Web Frontend: HTTP $WEB_STATUS"
 echo ""
 echo "✨ QubixDesk is LIVE at: https://qubixdesk.toolio.tech"
 echo "=========================================================="
+

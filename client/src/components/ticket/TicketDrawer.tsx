@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Ticket, TicketComment, TicketAttachment, TicketActivity, OrgRole } from '../../types';
 import { apiClient } from '../../api/client';
@@ -76,7 +76,13 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
-  // Sub-tickets state
+  // Mentions autocomplete state
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [showMentionMenu, setShowMentionMenu] = useState<boolean>(false);
+  const [mentionQuery, setMentionQuery] = useState<string>('');
+  const [mentionCursorIndex, setMentionCursorIndex] = useState<number>(0);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+
   // Sub-tickets state
   const [subTickets, setSubTickets] = useState<Array<{ id: string; title: string; done: boolean; num: string }>>([]);
 
@@ -90,6 +96,79 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
   // Permissions check for internal notes
   const userRole = (organization?.role || 'employee') as OrgRole;
   const canSeeInternalNotes = ['owner', 'admin', 'project_manager', 'team_lead', 'employee'].includes(userRole) || user?.isSuperAdmin;
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const res = await apiClient.get('/organizations/members');
+        if (res.data.success) {
+          setTeamMembers(res.data.data || []);
+        }
+      } catch (err) {
+        // silent
+      }
+    };
+    fetchMembers();
+  }, []);
+
+  const filteredMembers = teamMembers.filter((m) =>
+    (m.user?.name || '').toLowerCase().includes(mentionQuery) ||
+    (m.user?.email || '').toLowerCase().includes(mentionQuery)
+  );
+
+  const handleCommentTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    const cursorPos = e.target.selectionStart;
+    setCommentText(val);
+
+    const textBeforeCursor = val.slice(0, cursorPos);
+    const match = textBeforeCursor.match(/@([a-zA-Z0-9_\s]*)$/);
+    if (match && match.index !== undefined) {
+      const query = match[1];
+      if (!query.includes('\n')) {
+        setMentionQuery(query.toLowerCase());
+        setMentionCursorIndex(match.index);
+        setShowMentionMenu(true);
+        return;
+      }
+    }
+    setShowMentionMenu(false);
+  };
+
+  const handleInsertMention = (memberName: string) => {
+    const before = commentText.slice(0, mentionCursorIndex);
+    const after = commentText.slice(commentInputRef.current?.selectionStart || mentionCursorIndex);
+    const updated = `${before}@${memberName} ${after}`;
+    setCommentText(updated);
+    setShowMentionMenu(false);
+    setTimeout(() => {
+      if (commentInputRef.current) {
+        commentInputRef.current.focus();
+        const nextPos = before.length + memberName.length + 2;
+        commentInputRef.current.setSelectionRange(nextPos, nextPos);
+      }
+    }, 40);
+  };
+
+  const renderContentWithMentions = (content: string) => {
+    if (!content) return null;
+    const parts = content.split(/(@[a-zA-Z0-9_\s.-]+?)(?=[,;:!?\s]|$)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith('@')) {
+        const name = part.slice(1);
+        return (
+          <span
+            key={idx}
+            className="inline-flex items-center text-blue-700 bg-blue-50 border border-blue-200/80 rounded px-1.5 py-0.5 font-semibold text-[11px] mx-0.5 shadow-2xs"
+          >
+            <span className="text-blue-500 mr-0.5 font-bold">@</span>
+            <span>{name}</span>
+          </span>
+        );
+      }
+      return <React.Fragment key={idx}>{part}</React.Fragment>;
+    });
+  };
 
   const fetchTicketDetails = async (id: string) => {
     setIsLoading(true);
@@ -499,7 +578,7 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
                               </div>
 
                               <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
-                                {comment.content}
+                                {renderContentWithMentions(comment.content)}
                               </p>
 
                               {/* Emoji Reactions Bar */}
@@ -519,19 +598,63 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
                         </div>
                       )}
 
-                      {/* Comment Input Box with Formatting Toolbar matching screenshot */}
-                      <form onSubmit={handleAddComment} className="mt-4 border border-[#EAECF0] rounded-xl overflow-hidden bg-white shadow-2xs">
+                      {/* Comment Input Box with Formatting Toolbar & Mentions */}
+                      <form onSubmit={handleAddComment} className="mt-4 border border-[#EAECF0] rounded-xl overflow-hidden bg-white shadow-2xs relative">
+                        {/* Mention autocomplete dropdown */}
+                        {showMentionMenu && filteredMembers.length > 0 && (
+                          <div className="absolute bottom-full left-2 mb-2 w-64 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 max-h-48 overflow-y-auto">
+                            <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                              Mention Team Member
+                            </div>
+                            {filteredMembers.map((member) => (
+                              <button
+                                key={member._id || member.user?._id}
+                                type="button"
+                                onClick={() => handleInsertMention(member.user?.name || '')}
+                                className="w-full px-3 py-1.5 flex items-center gap-2 hover:bg-blue-50 text-left transition-colors"
+                              >
+                                <Avatar name={member.user?.name} src={member.user?.avatarUrl} size="xs" />
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold text-slate-900 truncate">{member.user?.name}</p>
+                                  <p className="text-[10px] text-slate-400 truncate font-mono">{member.user?.email}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
                         <textarea
+                          ref={commentInputRef}
                           rows={3}
                           value={commentText}
-                          onChange={(e) => setCommentText(e.target.value)}
-                          placeholder="Enter your comment..."
+                          onChange={handleCommentTextChange}
+                          placeholder="Enter your comment... Type @ to tag a teammate"
                           className="w-full p-3 text-xs text-slate-800 placeholder:text-slate-400 outline-none resize-none"
                         />
 
                         {/* Formatting bar and action buttons */}
                         <div className="bg-slate-50 px-3 py-2 border-t border-[#EAECF0] flex items-center justify-between text-slate-500 text-xs">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const pos = commentInputRef.current?.selectionStart || commentText.length;
+                                const before = commentText.slice(0, pos);
+                                const after = commentText.slice(pos);
+                                setCommentText(`${before}@${after}`);
+                                setMentionQuery('');
+                                setMentionCursorIndex(pos);
+                                setShowMentionMenu(true);
+                                setTimeout(() => {
+                                  commentInputRef.current?.focus();
+                                  commentInputRef.current?.setSelectionRange(pos + 1, pos + 1);
+                                }, 20);
+                              }}
+                              className="hover:text-blue-600 hover:bg-blue-50 px-1.5 py-0.5 rounded font-bold text-xs text-blue-600 transition-colors"
+                              title="Mention teammate (@)"
+                            >
+                              @
+                            </button>
                             <button type="button" className="hover:text-slate-800 p-1"><Bold className="w-3.5 h-3.5" /></button>
                             <button type="button" className="hover:text-slate-800 p-1"><Italic className="w-3.5 h-3.5" /></button>
                             <button type="button" className="hover:text-slate-800 p-1"><Underline className="w-3.5 h-3.5" /></button>
