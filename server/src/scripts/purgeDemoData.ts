@@ -182,3 +182,4 @@ export const purgeDemoData = async (): Promise<void> => {
 if (process.argv[1]?.includes('purgeDemoData')) {
   purgeDemoData().then(() => process.exit(0));
 }
+

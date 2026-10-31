@@ -27,3 +27,4 @@ fi
 echo "========================================================"
 echo "✨ QubixDesk is running and live at: https://qubixdesk.toolio.tech"
 echo "========================================================"
+
