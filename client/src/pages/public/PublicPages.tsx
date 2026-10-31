@@ -1035,8 +1035,18 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg font-medium">
-            {error}
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg font-medium space-y-2">
+            <div>{error}</div>
+            {error.toLowerCase().includes('already exists') && (
+              <div className="flex items-center gap-3 pt-1 border-t border-red-200 text-[11px]">
+                <Link to="/login" className="text-blue-700 underline font-bold hover:text-blue-900">
+                  Log in to your account &rarr;
+                </Link>
+                <Link to="/forgot-password" className="text-slate-600 underline hover:text-slate-900">
+                  Forgot password?
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -1123,8 +1133,18 @@ export const RegisterPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg font-medium">
-            {error}
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg font-medium space-y-2">
+            <div>{error}</div>
+            {error.toLowerCase().includes('already exists') && (
+              <div className="flex items-center gap-3 pt-1 border-t border-red-200 text-[11px]">
+                <Link to="/login" className="text-blue-700 underline font-bold hover:text-blue-900">
+                  Log in to your account &rarr;
+                </Link>
+                <Link to="/forgot-password" className="text-slate-600 underline hover:text-slate-900">
+                  Forgot password?
+                </Link>
+              </div>
+            )}
           </div>
         )}
 

@@ -3,7 +3,7 @@ try {
   require('dotenv').config({ path: path.resolve(__dirname, 'server/.env') });
 } catch (e) {}
 
-const PORT = Number(process.env.PORT) || 4000;
+const PORT = Number(process.env.PORT) || 4050;
 
 module.exports = {
   apps: [
