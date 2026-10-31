@@ -29,14 +29,14 @@ async function bootstrap() {
     // 5. Start Listening
     server.listen(PORT, () => {
       console.log(`\n======================================================`);
-      console.log(`🚀 QUBIX Backend API is live on http://localhost:${PORT}`);
+      console.log(`🚀 QubixDesk Backend API is live on http://localhost:${PORT}`);
       console.log(`📡 WebSocket server listening for real-time events`);
       console.log(`🔒 Multi-tenant isolation active`);
       console.log(`======================================================\n`);
     });
 
     const shutdown = async (signal: string) => {
-      console.log(`\n[Server] Received ${signal}. Gracefully terminating QUBIX...`);
+      console.log(`\n[Server] Received ${signal}. Gracefully terminating QubixDesk...`);
       server.close(async () => {
         await disconnectDB();
         console.log('[Server] Successfully shut down.');
@@ -47,7 +47,7 @@ async function bootstrap() {
     process.on('SIGINT', () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
   } catch (err: any) {
-    console.error('Fatal startup error in QUBIX server:', err);
+    console.error('Fatal startup error in QubixDesk server:', err);
     process.exit(1);
   }
 }

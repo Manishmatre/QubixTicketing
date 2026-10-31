@@ -1,14 +1,14 @@
-# QUBIX — Enterprise Multi-Tenant Project & Issue Ticketing SaaS Platform
+# QubixDesk — Enterprise Multi-Tenant Project & Issue Ticketing SaaS Platform
 
-> **"One Workspace. Every Issue. Complete Control."**
+> **"Work Smarter. Track Better. Deliver Faster."**
 
-QUBIX is a production-grade, multi-tenant Software-as-a-Service (SaaS) platform built for high-velocity software engineering companies, IT service providers, digital agencies, and enterprise teams to manage projects, track issues, assign ownership, collaborate with real-time updates, and resolve tickets with full operational visibility.
+QubixDesk is a production-grade, multi-tenant Software-as-a-Service (SaaS) platform built for high-velocity software engineering companies, IT service providers, digital agencies, and enterprise teams to manage projects, track issues, assign ownership, collaborate with real-time updates, and resolve tickets with full operational visibility.
 
 ---
 
 ## 🔐 Dedicated Authentication Portals & Demo Credentials
 
-QUBIX enforces a strict separation between **Organization Workspace Users** and **Platform Super Administrators**.
+QubixDesk enforces a strict separation between **Organization Workspace Users** and **Platform Super Administrators**.
 
 ### 1. Organization Workspace Login
 - **URL**: [http://localhost:5173/login](http://localhost:5173/login)
@@ -137,7 +137,7 @@ Now open [http://localhost:5173](http://localhost:5173) in your browser!
 
 ## 🧪 Testing Multi-Tenant Isolation
 
-QUBIX includes an automated test suite verifying cross-tenant isolation and security:
+QubixDesk includes an automated test suite verifying cross-tenant isolation and security:
 
 ```bash
 npm run test:server
@@ -175,7 +175,7 @@ Qubix/
 │   │   │   ├── admin/          # SuperAdminLoginPage, SuperAdminView
 │   │   │   ├── auth/           # Workspace LoginPage, RegisterPage
 │   │   │   ├── onboarding/     # Multi-step Workspace Setup Wizard
-│   │   │   ├── public/         # Landing, Features, Pricing, Docs
+│   │   │   ├── public/         # Landing, Features, Solutions, Comparison, Pricing, Demo
 │   │   │   └── workspace/      # Dashboard, Kanban, Tickets, Teams, Reports
 │   │   ├── App.tsx             # Route definitions & guards
 │   │   └── main.tsx            # App bootstrap
@@ -201,4 +201,4 @@ Qubix/
 
 ## 📄 License
 
-MIT © [QUBIX Technologies](https://qubix.io)
+MIT © [QubixDesk Technologies](https://qubixdesk.io)

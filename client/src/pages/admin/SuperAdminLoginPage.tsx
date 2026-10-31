@@ -59,7 +59,7 @@ export const SuperAdminLoginPage: React.FC = () => {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-black text-white tracking-tight">
-            Platform Super Admin
+            QubixDesk Super Admin
           </h2>
           <p className="text-xs text-slate-400">
             Centralized SaaS Control Plane & Global Operations
@@ -147,3 +147,4 @@ export const SuperAdminLoginPage: React.FC = () => {
     </div>
   );
 };
+

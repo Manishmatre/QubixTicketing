@@ -45,10 +45,10 @@ export const Sidebar: React.FC = () => {
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="text-base font-extrabold text-slate-900 tracking-tight leading-none">
-              QUBIX
+              QubixDesk
             </h1>
-            <p className="text-[11px] font-semibold text-blue-600 tracking-wider uppercase mt-1">
-              Enterprise SaaS
+            <p className="text-[10px] font-semibold text-blue-600 tracking-wider uppercase mt-1">
+              Workspace Platform
             </p>
           </div>
         </div>

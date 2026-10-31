@@ -82,7 +82,7 @@ export const createApp = (): Express => {
       status: 'UP',
       uptime: Math.floor(process.uptime()),
       timestamp: new Date().toISOString(),
-      service: 'QUBIX Backend API v1.0',
+      service: 'QubixDesk Backend API v1.0',
     });
   });
 
@@ -108,7 +108,7 @@ export const createApp = (): Express => {
       success: false,
       error: {
         code: 'NOT_FOUND',
-        message: `Endpoint ${req.method} ${req.originalUrl} not found on QUBIX server.`,
+        message: `Endpoint ${req.method} ${req.originalUrl} not found on QubixDesk server.`,
       },
     });
   });

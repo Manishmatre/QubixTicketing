@@ -54,7 +54,7 @@ export const ReportsView: React.FC = () => {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'qubix-analytics-export.csv');
+      link.setAttribute('download', 'qubixdesk-analytics-export.csv');
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -66,7 +66,7 @@ export const ReportsView: React.FC = () => {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('QUBIX Organization Performance & SLA Report', 14, 20);
+    doc.text('QubixDesk Organization Performance & SLA Report', 14, 20);
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Timeframe: ${timeRange.toUpperCase()} • Generated on: ${new Date().toLocaleDateString()}`, 14, 28);
@@ -90,7 +90,7 @@ export const ReportsView: React.FC = () => {
       });
     }
 
-    doc.save('qubix-performance-report.pdf');
+    doc.save('qubixdesk-performance-report.pdf');
   };
 
   if (isLoading || !data) {

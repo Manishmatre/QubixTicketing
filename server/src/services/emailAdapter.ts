@@ -31,7 +31,7 @@ export class EmailAdapter {
   }
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
-    const from = process.env.SMTP_FROM || 'QUBIX Notification <noreply@qubix.io>';
+    const from = process.env.SMTP_FROM || 'QubixDesk Notification <noreply@qubixdesk.io>';
 
     if (this.isConfigured && this.transporter) {
       try {
@@ -50,7 +50,7 @@ export class EmailAdapter {
       }
     } else {
       // Mock mode logging
-      console.log(`\n================== [QUBIX OUTGOING EMAIL - TEST MODE] ==================`);
+      console.log(`\n================== [QUBIXDESK OUTGOING EMAIL - TEST MODE] ==================`);
       console.log(`To: ${options.to}`);
       console.log(`Subject: ${options.subject}`);
       console.log(`Content:\n${options.text}`);

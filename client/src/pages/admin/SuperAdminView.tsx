@@ -82,7 +82,7 @@ export const SuperAdminView: React.FC = () => {
             <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-extrabold tracking-tight">QUBIX Platform Super Admin</h1>
+            <h1 className="text-base font-extrabold tracking-tight">QubixDesk Platform Super Admin</h1>
             <p className="text-[11px] text-purple-400 font-semibold">Global SaaS Control Plane</p>
           </div>
         </div>

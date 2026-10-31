@@ -109,7 +109,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'qubix-tickets-export.csv');
+      link.setAttribute('download', 'qubixdesk-tickets-export.csv');
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -121,7 +121,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text('QUBIX Issue Tracking Report', 14, 18);
+    doc.text('QubixDesk Issue Tracking Report', 14, 18);
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Generated on ${new Date().toLocaleDateString()} • Total Tickets: ${tickets.length}`, 14, 25);
@@ -145,7 +145,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
       styles: { fontSize: 8 },
     });
 
-    doc.save('qubix-tickets-report.pdf');
+    doc.save('qubixdesk-tickets-report.pdf');
   };
 
   return (

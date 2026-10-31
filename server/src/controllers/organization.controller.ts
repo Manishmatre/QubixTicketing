@@ -128,8 +128,8 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
 
         await emailService.sendEmail({
           to: normalized,
-          subject: `You've been invited to join ${organization.name} on QUBIX`,
-          text: `You have been invited to collaborate with ${organization.name} on QUBIX SaaS.\nUse your invitation link to join: ${process.env.CLIENT_URL || 'http://localhost:5173'}/invite?token=${token}`,
+          subject: `You've been invited to join ${organization.name} on QubixDesk`,
+          text: `You have been invited to collaborate with ${organization.name} on QubixDesk SaaS.\nUse your invitation link to join: ${process.env.CLIENT_URL || 'http://localhost:5173'}/invite?token=${token}`,
         });
       }
     }
@@ -168,9 +168,9 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
       projectId: project._id,
       ticketNumber,
       sequenceNumber: ticketSeq,
-      title: firstTicketTitle || 'Welcome to QUBIX - Set up your team workflow',
+      title: firstTicketTitle || 'Welcome to QubixDesk - Set up your team workflow',
       description:
-        'Welcome to your new QUBIX issue tracking workspace! Here you can assign tasks, collaborate on bug fixes, drag cards across your Kanban board, and track progress effortlessly.',
+        'Welcome to your new QubixDesk issue tracking workspace! Here you can assign tasks, collaborate on bug fixes, drag cards across your Kanban board, and track progress effortlessly.',
       category: firstTicketCategory || 'General Request',
       priority: firstTicketPriority || 'Normal',
       status: 'To Do',
@@ -391,8 +391,8 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
 
     await emailService.sendEmail({
       to: normalized,
-      subject: `Invitation to join team workspace on QUBIX`,
-      text: `You have been invited to join the team workspace on QUBIX.\nAccept your invitation: ${process.env.CLIENT_URL || 'http://localhost:5173'}/register?inviteToken=${token}&email=${encodeURIComponent(normalized)}`,
+      subject: `Invitation to join team workspace on QubixDesk`,
+      text: `You have been invited to join the team workspace on QubixDesk.\nAccept your invitation: ${process.env.CLIENT_URL || 'http://localhost:5173'}/register?inviteToken=${token}&email=${encodeURIComponent(normalized)}`,
     });
 
     res.status(201).json({

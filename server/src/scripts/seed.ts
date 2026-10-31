@@ -18,7 +18,7 @@ import { hashPassword } from '../utils/password.js';
 
 export const seedDatabase = async (): Promise<void> => {
   try {
-    console.log('[Seeder] Checking database state for QUBIX platform...');
+    console.log('[Seeder] Checking database state for QubixDesk platform...');
 
     // 1. Seed Subscription Plans if missing
     const planCount = await Plan.countDocuments();
@@ -84,7 +84,7 @@ export const seedDatabase = async (): Promise<void> => {
       console.log('[Seeder] Creating Platform Super Admin (admin@qubix.io)...');
       const pass = await hashPassword('Password123!');
       superAdmin = await User.create({
-        name: 'QUBIX Platform Admin',
+        name: 'QubixDesk Platform Admin',
         email: adminEmail,
         passwordHash: pass,
         isSuperAdmin: true,
