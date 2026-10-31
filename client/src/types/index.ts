@@ -36,6 +36,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phoneNumber?: string;
   avatarUrl?: string;
   isSuperAdmin: boolean;
   activeOrganizationId?: string;
@@ -51,8 +52,8 @@ export interface Organization {
   industry?: string;
   size?: string;
   status: 'active' | 'suspended';
-  subscriptionPlan: 'starter' | 'professional' | 'business' | 'enterprise';
-  subscriptionStatus: 'active' | 'trialing' | 'past_due' | 'canceled';
+  subscriptionPlan: 'free' | 'starter' | 'professional' | 'business' | 'enterprise';
+  subscriptionStatus: 'active' | 'trialing' | 'past_due' | 'canceled' | 'expired';
   trialEndsAt?: string;
   settings?: {
     ticketPrefix: string;

@@ -4,6 +4,7 @@ import { Project } from '../models/Project.js';
 import { Ticket } from '../models/Ticket.js';
 import { tenantScope } from '../middleware/tenantIsolation.js';
 import { logAuditEvent } from '../services/auditService.js';
+import { checkProjectLimit } from '../services/planService.js';
 
 export const getProjects = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -36,6 +37,16 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
 
     if (!name || !key) {
       res.status(400).json({ success: false, error: { message: 'Project name and key are required.' } });
+      return;
+    }
+
+    // Check Plan & Trial Project Limits
+    const limitCheck = await checkProjectLimit(req.organizationId!);
+    if (!limitCheck.allowed) {
+      res.status(403).json({
+        success: false,
+        error: { code: 'PLAN_LIMIT_REACHED', message: limitCheck.message },
+      });
       return;
     }
 

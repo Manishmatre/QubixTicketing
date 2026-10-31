@@ -8,6 +8,7 @@ import { Ticket } from '../models/Ticket.js';
 import { User } from '../models/User.js';
 import { emailService } from '../services/emailAdapter.js';
 import { logAuditEvent } from '../services/auditService.js';
+import { checkUserLimit } from '../services/planService.js';
 import crypto from 'crypto';
 
 export const getMyOrganizations = async (req: Request, res: Response): Promise<void> => {
@@ -52,6 +53,10 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
       slug,
       industry,
       size,
+      website,
+      phoneNumber,
+      jobTitle,
+      department,
       subscriptionPlan,
       invitedEmails,
       projectName,
@@ -61,33 +66,33 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
       firstTicketPriority,
     } = req.body;
 
-    if (!organizationName || !slug) {
+    if (!organizationName) {
       res.status(400).json({
         success: false,
-        error: { message: 'Organization name and workspace slug are required.' },
+        error: { message: 'Organization name is required.' },
       });
       return;
     }
 
-    const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '').trim();
+    // Auto-generate clean slug if not manually provided
+    const baseSlug = (slug || organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-')).replace(/^-|-$/g, '').slice(0, 30);
+    let cleanSlug = baseSlug.replace(/[^a-z0-9-]/g, '').trim() || 'workspace';
     const existing = await Organization.findOne({ slug: cleanSlug });
     if (existing) {
-      res.status(409).json({
-        success: false,
-        error: { message: `Workspace URL "${cleanSlug}" is already taken. Please choose another.` },
-      });
-      return;
+      cleanSlug = `${cleanSlug}-${Date.now().toString().slice(-4)}`;
     }
 
-    // 1. Create Organization
+    // 1. Create Organization with 14-day Full Access Free Trial
     const organization = await Organization.create({
       name: organizationName.trim(),
       slug: cleanSlug,
       industry: industry || 'Technology',
       size: size || '1-10',
+      website: website || '',
       ownerId: req.user._id,
-      subscriptionPlan: subscriptionPlan || 'starter',
+      subscriptionPlan: 'starter',
       subscriptionStatus: 'trialing',
+      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       settings: {
         ticketPrefix: (projectKey || 'QUB').toUpperCase().slice(0, 5),
         timezone: 'UTC',
@@ -95,19 +100,22 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
       },
     });
 
-    // 2. Add User as Owner
+    // 2. Add User as Owner with Role and Job Title
     await OrganizationMembership.create({
       organizationId: organization._id,
       userId: req.user._id,
       role: 'owner',
-      jobTitle: 'Workspace Owner',
-      department: 'Executive',
+      jobTitle: jobTitle || 'Workspace Founder',
+      department: department || 'Leadership',
     });
 
-    // Update user's active org
+    // Update user's active org and phone number if provided
     const user = await User.findById(req.user._id);
     if (user) {
       user.activeOrganizationId = organization._id as any;
+      if (phoneNumber) {
+        user.phoneNumber = phoneNumber;
+      }
       await user.save();
     }
 
@@ -341,6 +349,16 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
 
     if (!email || !email.includes('@')) {
       res.status(400).json({ success: false, error: { message: 'Valid email required' } });
+      return;
+    }
+
+    // Enforce Plan & Trial limits on member count
+    const limitCheck = await checkUserLimit(req.organizationId!);
+    if (!limitCheck.allowed) {
+      res.status(403).json({
+        success: false,
+        error: { code: 'PLAN_LIMIT_REACHED', message: limitCheck.message },
+      });
       return;
     }
 

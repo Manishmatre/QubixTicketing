@@ -22,10 +22,22 @@ export const seedDatabase = async (): Promise<void> => {
 
     // 1. Seed Subscription Plans if missing
     const planCount = await Plan.countDocuments();
-    let starterPlan, proPlan, businessPlan, enterprisePlan;
+    let freePlan, starterPlan, proPlan, businessPlan, enterprisePlan;
 
     if (planCount === 0) {
       console.log('[Seeder] Creating standard subscription plans...');
+      freePlan = await Plan.create({
+        name: 'Free Plan',
+        code: 'free',
+        description: 'Basic issue tracking for micro-teams and individuals.',
+        priceMonthly: 0,
+        priceYearly: 0,
+        maxUsers: 3,
+        maxProjects: 2,
+        maxStorageMB: 1000,
+        features: ['Up to 3 team members', '2 active projects', 'Up to 50 tickets', 'Standard Kanban & List views', 'Community support'],
+      });
+
       starterPlan = await Plan.create({
         name: 'Starter',
         code: 'starter',
@@ -33,9 +45,9 @@ export const seedDatabase = async (): Promise<void> => {
         priceMonthly: 19,
         priceYearly: 190,
         maxUsers: 5,
-        maxProjects: 3,
+        maxProjects: 5,
         maxStorageMB: 5000,
-        features: ['Up to 5 team members', '3 active projects', 'Kanban & List views', 'Standard ticket workflows', 'Community support'],
+        features: ['Up to 5 team members', '5 active projects', '500 tickets', 'Kanban & List views', 'Standard ticket workflows', 'Community support'],
       });
 
       proPlan = await Plan.create({

@@ -3,8 +3,10 @@ import { Plan } from '../models/Plan.js';
 import { Subscription } from '../models/Subscription.js';
 import { Organization } from '../models/Organization.js';
 import { Project } from '../models/Project.js';
+import { Ticket } from '../models/Ticket.js';
 import { OrganizationMembership } from '../models/OrganizationMembership.js';
 import { logAuditEvent } from '../services/auditService.js';
+import { getEffectivePlanLimits } from '../services/planService.js';
 
 export const getPlans = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -25,9 +27,11 @@ export const getCurrentSubscription = async (req: Request, res: Response): Promi
 
     let sub = await Subscription.findOne({ organizationId: org._id }).populate('planId');
 
-    const [userCount, projectCount] = await Promise.all([
+    const [userCount, projectCount, ticketCount, effectiveLimits] = await Promise.all([
       OrganizationMembership.countDocuments({ organizationId: org._id, status: 'active' }),
       Project.countDocuments({ organizationId: org._id }),
+      Ticket.countDocuments({ organizationId: org._id }),
+      getEffectivePlanLimits(org._id),
     ]);
 
     res.json({
@@ -36,10 +40,12 @@ export const getCurrentSubscription = async (req: Request, res: Response): Promi
         planCode: org.subscriptionPlan,
         status: org.subscriptionStatus,
         trialEndsAt: org.trialEndsAt,
+        effectiveLimits,
         subscription: sub,
         usage: {
           currentUsers: userCount,
           currentProjects: projectCount,
+          currentTickets: ticketCount,
         },
       },
     });

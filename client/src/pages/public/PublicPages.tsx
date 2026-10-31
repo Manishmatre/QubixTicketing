@@ -1019,21 +1019,6 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const fillDemoOwner = () => {
-    setEmail('sarah.jenkins@acme.com');
-    setPassword('Password123!');
-  };
-
-  const fillTechLead = () => {
-    setEmail('alex.rivera@acme.com');
-    setPassword('Password123!');
-  };
-
-  const fillDesigner = () => {
-    setEmail('emma.watson@acme.com');
-    setPassword('Password123!');
-  };
-
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center items-center p-6">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-card p-8 space-y-6">
@@ -1045,35 +1030,8 @@ export const LoginPage: React.FC = () => {
               className="h-10 mx-auto object-contain"
             />
           </Link>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Sign In to QubixDesk</h2>
           <p className="text-xs text-slate-500">Access your organization issue tracking workspace</p>
-        </div>
-
-        {/* Demo Fast-fill Buttons for Organization Members */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 text-xs">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quick Fill Organization Accounts:</p>
-          <div className="grid grid-cols-3 gap-1.5">
-            <button
-              type="button"
-              onClick={fillDemoOwner}
-              className="bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-blue-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors truncate"
-            >
-              Acme Owner
-            </button>
-            <button
-              type="button"
-              onClick={fillTechLead}
-              className="bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-blue-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors truncate"
-            >
-              Tech Lead
-            </button>
-            <button
-              type="button"
-              onClick={fillDesigner}
-              className="bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-blue-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors truncate"
-            >
-              Designer
-            </button>
-          </div>
         </div>
 
         {error && (
@@ -1117,16 +1075,9 @@ export const LoginPage: React.FC = () => {
           <p>
             Don't have an organization workspace?{' '}
             <Link to="/register" className="text-blue-600 font-semibold hover:underline">
-              Start Free Trial
+              Start 14-Day Free Trial
             </Link>
           </p>
-
-          <Link
-            to="/admin/login"
-            className="text-purple-600 hover:text-purple-700 font-semibold hover:underline flex items-center gap-1 mt-1 text-[11px]"
-          >
-            Platform Administrator? Go to Super Admin Portal &rarr;
-          </Link>
         </div>
       </div>
     </div>
@@ -1138,8 +1089,8 @@ export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [orgName, setOrgName] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -1147,7 +1098,7 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    const res = await register(name, email, password, orgName);
+    const res = await register(name, email, password, undefined, phoneNumber);
     setIsLoading(false);
     if (res.success) {
       navigate('/onboarding');
@@ -1167,8 +1118,8 @@ export const RegisterPage: React.FC = () => {
               className="h-10 mx-auto object-contain"
             />
           </Link>
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Create your workspace</h2>
-          <p className="text-xs text-slate-500">14-day full feature trial • No credit card required</p>
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Create your account</h2>
+          <p className="text-xs text-slate-500">14-day full access free trial • No credit card required</p>
         </div>
 
         {error && (
@@ -1187,42 +1138,44 @@ export const RegisterPage: React.FC = () => {
           />
 
           <Input
-            label="Company / Team Name *"
-            value={orgName}
-            onChange={(e) => setOrgName(e.target.value)}
-            placeholder="Acme Technologies"
-            required
-          />
-
-          <Input
             label="Work Email *"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="sarah@acme.com"
+            placeholder="sarah@company.com"
             required
           />
 
           <Input
-            label="Password *"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="At least 8 characters"
+            label="Phone Number *"
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="+1 (555) 000-0000"
             required
           />
 
+          <Input
+            label="Password (min 8 characters) *"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••••••"
+            required
+            minLength={8}
+          />
+
           <Button type="submit" variant="primary" className="w-full text-xs font-bold" isLoading={isLoading}>
-            Create Company Workspace
+            Continue to Workspace Setup &rarr;
           </Button>
         </form>
 
-        <p className="text-center text-xs text-slate-500">
+        <div className="pt-2 border-t border-slate-100 text-center text-xs text-slate-500">
           Already have an account?{' '}
           <Link to="/login" className="text-blue-600 font-semibold hover:underline">
             Sign In
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

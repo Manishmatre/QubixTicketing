@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, organizationName, slug } = req.body;
+    const { name, email, password, organizationName, slug, phoneNumber } = req.body;
 
     if (!name || !email || !password) {
       res.status(400).json({
@@ -37,6 +37,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const user = await User.create({
       name: name.trim(),
       email: normalizedEmail,
+      phoneNumber: phoneNumber ? String(phoneNumber).trim() : '',
       passwordHash,
       isSuperAdmin: false,
       isVerified: false,

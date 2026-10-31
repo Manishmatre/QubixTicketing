@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Workflow } from '../models/Workflow.js';
 import { tenantScope } from '../middleware/tenantIsolation.js';
+import { checkWorkflowAccess } from '../services/planService.js';
 
 export const getWorkflows = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -22,6 +23,16 @@ export const createWorkflow = async (req: Request, res: Response): Promise<void>
       res.status(400).json({
         success: false,
         error: { message: 'Name, triggerEvent, and at least one action are required.' },
+      });
+      return;
+    }
+
+    // Check Plan & Trial Workflow Access
+    const accessCheck = await checkWorkflowAccess(req.organizationId!);
+    if (!accessCheck.allowed) {
+      res.status(403).json({
+        success: false,
+        error: { code: 'PLAN_UPGRADE_REQUIRED', message: accessCheck.message },
       });
       return;
     }

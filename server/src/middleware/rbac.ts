@@ -38,6 +38,7 @@ const rolePermissions: Record<OrgRole, Permission[]> = {
   ],
   admin: [
     'manageOrganization',
+    'manageBilling',
     'manageUsers',
     'createProjects',
     'editProjects',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WorkflowRule } from '../../types';
 import { apiClient } from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
@@ -15,9 +16,14 @@ import {
   Trash2,
   ToggleLeft,
   ToggleRight,
+  Lock,
 } from 'lucide-react';
 
 export const WorkflowsView: React.FC = () => {
+  const { organization } = useAuth();
+  const userRole = organization?.role || 'employee';
+  const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
+
   const [workflows, setWorkflows] = useState<WorkflowRule[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -104,6 +110,20 @@ export const WorkflowsView: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (!isOrgAdmin) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white text-center">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+          <Lock className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-slate-900">Administrator Access Required</h3>
+        <p className="text-xs text-slate-500 max-w-sm mt-1 mb-4">
+          Automated workflow triggers and incident rules can only be created and managed by workspace owners and administrators.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-white font-sans text-slate-800">

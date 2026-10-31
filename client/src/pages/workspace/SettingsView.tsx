@@ -31,6 +31,9 @@ import {
 export const SettingsView: React.FC = () => {
   const { organization, updateOrganization } = useAuth();
 
+  const userRole = organization?.role || 'employee';
+  const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
+
   const [activeTab, setActiveTab] = useState<'profile' | 'ticketing' | 'security' | 'integrations' | 'data'>('profile');
 
   // Tab 1: Organization Profile
@@ -148,6 +151,20 @@ export const SettingsView: React.FC = () => {
       alert('Failed to generate export backup');
     }
   };
+
+  if (!isOrgAdmin) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white text-center">
+        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+          <Lock className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-slate-900">Administrator Access Required</h3>
+        <p className="text-xs text-slate-500 max-w-sm mt-1 mb-4">
+          Workspace settings, security rules, and organization identity can only be managed by workspace owners and administrators.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 w-full overflow-y-auto bg-white font-sans text-slate-800 p-5 space-y-4">

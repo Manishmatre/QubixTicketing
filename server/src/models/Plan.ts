@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IPlan extends Document {
   name: string;
-  code: 'starter' | 'professional' | 'business' | 'enterprise';
+  code: 'free' | 'starter' | 'professional' | 'business' | 'enterprise';
   description: string;
   priceMonthly: number;
   priceYearly: number;
@@ -20,7 +20,7 @@ const PlanSchema = new Schema<IPlan>(
     name: { type: String, required: true },
     code: {
       type: String,
-      enum: ['starter', 'professional', 'business', 'enterprise'],
+      enum: ['free', 'starter', 'professional', 'business', 'enterprise'],
       required: true,
       unique: true,
       index: true,

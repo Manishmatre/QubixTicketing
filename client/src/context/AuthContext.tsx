@@ -9,7 +9,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, pass: string, orgName?: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, pass: string, orgName?: string, phoneNumber?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   switchOrganization: (orgId: string) => Promise<boolean>;
   updateUser: (updated: Partial<User>) => void;
@@ -79,13 +79,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, pass: string, orgName?: string) => {
+  const register = async (name: string, email: string, pass: string, orgName?: string, phoneNumber?: string) => {
     try {
       const res = await apiClient.post('/auth/register', {
         name,
         email,
         password: pass,
         organizationName: orgName,
+        phoneNumber,
       });
       if (res.data.success) {
         const { user, organization, accessToken } = res.data.data;

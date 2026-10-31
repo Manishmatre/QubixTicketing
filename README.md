@@ -24,29 +24,72 @@ QubixDesk is a production-grade, multi-tenant Software-as-a-Service (SaaS) platf
 
 ## 🔐 Dedicated Authentication Portals & Demo Credentials
 
-QubixDesk enforces a strict separation between **Organization Workspace Users** and **Platform Super Administrators**.
+QubixDesk enforces a strict isolation between **Organization Workspace Users** and **Platform Super Administrators**.
 
 ### 1. Organization Workspace Login
 - **URL**: [http://localhost:5173/login](http://localhost:5173/login)
-- **Scope**: Access your company's workspace (`acme-corp`), active projects, Kanban boards, ticket drawer, team member directories, workflow automations, and reports.
-- **Fast-Fill**: Includes one-click demo credentials buttons on the login interface.
+- **Scope**: Single unified login for all company team members (Owners, Admins, Engineers, Designers, Project Managers).
+- **Registration**: [http://localhost:5173/register](http://localhost:5173/register) with instant 14-day Full Access Free Trial.
 
 | Role | Email | Password | Access & Responsibilities |
 |---|---|---|---|
 | **Organization Owner** | `sarah.jenkins@acme.com` | `Password123!` | Full organization management, team invites, billing & subscription settings |
-| **Team Lead / Tech Lead** | `alex.rivera@acme.com` | `Password123!` | Project management, ticket assignment, workflow triggers & internal discussions |
-| **Product Designer** | `emma.watson@acme.com` | `Password123!` | UI/UX tickets, design attachments, public comments & task delivery |
+| **Organization Admin** | `alex.rivera@acme.com` | `Password123!` | Administrative workspace management, team invites, workflow triggers & project settings |
+| **Team Member / Engineer** | `emma.watson@acme.com` | `Password123!` | UI/UX tickets, design attachments, Kanban board, public comments & task delivery |
 
 ---
 
-### 2. Platform Super Admin Security Console
+### 2. Platform Super Admin Security Console (Isolated)
 - **URL**: [http://localhost:5173/admin/login](http://localhost:5173/admin/login)
-- **Scope**: Isolated, fortified administration portal for SaaS owners and system operators. Normal workspace users cannot access this portal.
+- **Scope**: Completely isolated administration portal for SaaS platform operators and system owners. Normal company workspaces have zero navigation or links leading to this console.
 - **Features**: Global MRR telemetry, platform subscription analytics, cross-tenant organization suspension/reactivation, platform user inspection, and global audit trails.
 
 | Role | Email | Password | Console URL |
 |---|---|---|---|
 | **Platform Super Admin** | `admin@qubix.io` | `Password123!` | [http://localhost:5173/admin](http://localhost:5173/admin) |
+
+---
+
+## 🚀 Streamlined 3-Step Organization Onboarding
+
+1. **Step 1: Administrator Profile Info**
+   - Full Name
+   - Contact Phone Number
+   - Job Title / Role
+   - Department
+
+2. **Step 2: Company Information**
+   - Company / Organization Name
+   - Industry & Organization Size
+   - Company Website (optional)
+   - *Workspace slug is automatically generated from the company name — no manual URL configuration step required.*
+   - *14-Day Free Trial with Full Platform Access is automatically activated — no plan selection step required.*
+
+3. **Step 3: Project & Team Launch**
+   - Primary Project Name & Key Prefix (e.g. `CORE`, `DEV`)
+   - Invite Colleague Emails (optional)
+   - One-click launch into the live workspace!
+
+---
+
+## 💳 Plan Quotas & Automatic Trial Fallback
+
+QubixDesk enforces dynamic resource quotas and feature gating across the lifecycle of each organization:
+
+- **14-Day Free Trial (Active)**:
+  - **Full Platform Access**: Up to 50 team members, 25 projects, 10,000 tickets, automated workflows, custom SLA policies, and 1-click analytics exports.
+  - Zero upfront credit card required.
+
+- **Automatic Free Plan Fallback (Trial Expired)**:
+  - When the 14-day trial concludes without an upgraded subscription, the workspace automatically falls back to the **Free Tier**.
+  - **Resource Quotas**: Max 3 team members, 2 active projects, 50 tickets, and standard Kanban views.
+  - Advanced workflows and custom SLA rules are locked until an upgrade is selected.
+
+- **Paid Scale Tiers**:
+  - **Starter** (\$19/mo): 5 team members, 5 active projects, 500 tickets, standard automations.
+  - **Professional** (\$49/mo): 25 team members, 20 active projects, 5,000 tickets, full automations, custom SLA.
+  - **Business** (\$129/mo): 100 team members, 100 active projects, 50,000 tickets, audit logs, 99.9% uptime SLA.
+  - **Enterprise** (\$399/mo): Unlimited members, unlimited projects, unlimited tickets, dedicated support.
 
 ---
 

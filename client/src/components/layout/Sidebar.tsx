@@ -38,6 +38,10 @@ export const Sidebar: React.FC = () => {
   const [viewsOpen, setViewsOpen] = useState(true);
   const [queuesOpen, setQueuesOpen] = useState(true);
 
+  // Role-Based Access Control inside current organization
+  const userRole = organization?.role || 'employee';
+  const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
+
   // Teammates list with status dots
   const teamMembers = [
     { name: 'Sarah Jenkins', dot: 'bg-emerald-500', count: 4 },
@@ -186,19 +190,22 @@ export const Sidebar: React.FC = () => {
             <span>Analytics & SLA</span>
           </NavLink>
 
-          <NavLink
-            to="/workspace/workflows"
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
-                isActive
-                  ? 'bg-blue-50 text-blue-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              }`
-            }
-          >
-            <Zap className="w-4 h-4 text-slate-500" />
-            <span>Automations</span>
-          </NavLink>
+          {/* Administrative Automations - visible to Owner and Admins */}
+          {isOrgAdmin && (
+            <NavLink
+              to="/workspace/workflows"
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+                  isActive
+                    ? 'bg-blue-50 text-blue-700 font-semibold'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                }`
+              }
+            >
+              <Zap className="w-4 h-4 text-slate-500" />
+              <span>Automations</span>
+            </NavLink>
+          )}
         </div>
 
         {/* Collapsible Views: Team Member presence */}
@@ -266,52 +273,38 @@ export const Sidebar: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* Super Admin Console Link (if user has privileges) */}
-        {user?.isSuperAdmin && (
-          <div className="pt-2 border-t border-[#EAECF0]">
-            <NavLink
-              to="/admin"
-              className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
-                  isActive
-                    ? 'bg-purple-50 text-purple-700 font-semibold'
-                    : 'text-purple-600 hover:bg-purple-50/60'
-                }`
-              }
-            >
-              <ShieldCheck className="w-4 h-4 text-purple-600" />
-              <span>Platform Super Admin</span>
-            </NavLink>
-          </div>
-        )}
       </div>
 
       {/* 3. Pinned Bottom Footer */}
       <div className="p-3 border-t border-[#EAECF0] space-y-1 text-xs text-slate-600 bg-white">
-        <NavLink
-          to="/workspace/billing"
-          className={({ isActive }) =>
-            `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors ${
-              isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
-            }`
-          }
-        >
-          <CreditCard className="w-3.5 h-3.5 text-slate-400" />
-          <span>Billing & Plan</span>
-        </NavLink>
+        {/* Organization Admin Level Actions: Billing & Settings */}
+        {isOrgAdmin && (
+          <>
+            <NavLink
+              to="/workspace/billing"
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors ${
+                  isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
+                }`
+              }
+            >
+              <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+              <span>Billing & Plan</span>
+            </NavLink>
 
-        <NavLink
-          to="/workspace/settings"
-          className={({ isActive }) =>
-            `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors ${
-              isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
-            }`
-          }
-        >
-          <Settings className="w-3.5 h-3.5 text-slate-400" />
-          <span>Settings</span>
-        </NavLink>
+            <NavLink
+              to="/workspace/settings"
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 transition-colors ${
+                  isActive ? 'text-blue-700 font-semibold' : 'text-slate-600'
+                }`
+              }
+            >
+              <Settings className="w-3.5 h-3.5 text-slate-400" />
+              <span>Settings</span>
+            </NavLink>
+          </>
+        )}
 
         {/* User Card */}
         <div className="pt-2 mt-1 border-t border-[#EAECF0] flex items-center justify-between px-1">

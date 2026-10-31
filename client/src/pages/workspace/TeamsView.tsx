@@ -18,6 +18,9 @@ import {
 
 export const TeamsView: React.FC = () => {
   const { user, organization } = useAuth();
+  const userRole = organization?.role || 'employee';
+  const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
+
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isInviteOpen, setIsInviteOpen] = useState<boolean>(false);
@@ -107,9 +110,11 @@ export const TeamsView: React.FC = () => {
             Manage organization members, job titles, department assignments, and permissions.
           </p>
         </div>
-        <Button size="sm" onClick={() => setIsInviteOpen(true)} leftIcon={<UserPlus className="w-3.5 h-3.5" />}>
-          Invite Member
-        </Button>
+        {isOrgAdmin && (
+          <Button size="sm" onClick={() => setIsInviteOpen(true)} leftIcon={<UserPlus className="w-3.5 h-3.5" />}>
+            Invite Member
+          </Button>
+        )}
       </div>
 
       {/* Members Table */}
@@ -155,7 +160,7 @@ export const TeamsView: React.FC = () => {
                     <select
                       value={m.role}
                       onChange={(e) => handleRoleChange(m.id, e.target.value)}
-                      disabled={m.role === 'owner'}
+                      disabled={!isOrgAdmin || m.role === 'owner'}
                       className="bg-slate-50 border border-slate-200 rounded px-2.5 py-1 text-slate-800 font-medium text-xs outline-none focus:border-blue-600 cursor-pointer disabled:bg-transparent disabled:border-transparent"
                     >
                       <option value="owner">Owner</option>
@@ -181,7 +186,7 @@ export const TeamsView: React.FC = () => {
                   </td>
 
                   <td className="py-3.5 px-4 text-right">
-                    {m.role !== 'owner' && (
+                    {isOrgAdmin && m.role !== 'owner' && (
                       <button
                         onClick={() => handleRemoveMember(m.id)}
                         className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"

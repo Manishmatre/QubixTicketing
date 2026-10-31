@@ -9,6 +9,7 @@ import { tenantScope } from '../middleware/tenantIsolation.js';
 import { emitToOrg, emitToTicket, emitToUser } from '../services/socket.js';
 import { WorkflowEngine } from '../services/workflowEngine.js';
 import { logAuditEvent } from '../services/auditService.js';
+import { checkTicketLimit } from '../services/planService.js';
 
 export const getTickets = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -102,6 +103,16 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
 
     if (!projectId || !title) {
       res.status(400).json({ success: false, error: { message: 'Project and Title are required.' } });
+      return;
+    }
+
+    // Check Plan & Trial Ticket Limit
+    const limitCheck = await checkTicketLimit(req.organizationId!);
+    if (!limitCheck.allowed) {
+      res.status(403).json({
+        success: false,
+        error: { code: 'PLAN_LIMIT_REACHED', message: limitCheck.message },
+      });
       return;
     }
 

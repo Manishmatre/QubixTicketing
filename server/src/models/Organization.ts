@@ -9,8 +9,8 @@ export interface IOrganization extends Document {
   size?: string;
   status: 'active' | 'suspended';
   ownerId: mongoose.Types.ObjectId;
-  subscriptionPlan: 'starter' | 'professional' | 'business' | 'enterprise';
-  subscriptionStatus: 'active' | 'trialing' | 'past_due' | 'canceled';
+  subscriptionPlan: 'free' | 'starter' | 'professional' | 'business' | 'enterprise';
+  subscriptionStatus: 'active' | 'trialing' | 'past_due' | 'canceled' | 'expired';
   trialEndsAt: Date;
   settings: {
     ticketPrefix: string;
@@ -36,13 +36,13 @@ const OrganizationSchema = new Schema<IOrganization>(
     ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     subscriptionPlan: {
       type: String,
-      enum: ['starter', 'professional', 'business', 'enterprise'],
-      default: 'starter',
+      enum: ['free', 'starter', 'professional', 'business', 'enterprise'],
+      default: 'free',
       index: true,
     },
     subscriptionStatus: {
       type: String,
-      enum: ['active', 'trialing', 'past_due', 'canceled'],
+      enum: ['active', 'trialing', 'past_due', 'canceled', 'expired'],
       default: 'trialing',
       index: true,
     },
