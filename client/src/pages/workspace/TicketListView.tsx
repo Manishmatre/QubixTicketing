@@ -227,107 +227,111 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
           >
             PDF Report
           </Button>
-
-          <Button size="sm" onClick={onOpenCreateTicket} leftIcon={<Plus className="w-4 h-4" />}>
-            New Ticket
-          </Button>
         </div>
       </div>
 
-      {/* Main Table */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
-        <div className="bg-white border border-slate-200 rounded-xl shadow-subtle overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-              <tr>
-                <th className="p-4 w-10 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.length === tickets.length && tickets.length > 0}
-                    onChange={handleSelectAll}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                </th>
-                <th className="py-3 px-4">Ticket</th>
-                <th className="py-3 px-4">Title</th>
-                <th className="py-3 px-4">Project</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Priority</th>
-                <th className="py-3 px-4">Assignee</th>
-                <th className="py-3 px-4">Due Date</th>
-                <th className="py-3 px-4">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {isLoading ? (
+      {/* Main Table with Guaranteed Horizontal Scrolling and Clean Light Borders */}
+      <div className="flex-1 overflow-auto px-6 py-4">
+        <div className="bg-white border border-[#EAECF0] rounded-xl shadow-2xs overflow-hidden">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[1040px] border-collapse">
+              <thead className="bg-[#F8FAFC] border-b border-[#EAECF0] text-slate-500 font-bold uppercase tracking-wider">
                 <tr>
-                  <td colSpan={9} className="text-center py-12 text-slate-400">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2" />
-                    <p>Loading tickets...</p>
-                  </td>
+                  <th className="p-3.5 w-12 text-center border-r border-[#EAECF0]/60">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.length === tickets.length && tickets.length > 0}
+                      onChange={handleSelectAll}
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                  </th>
+                  <th className="py-3 px-4 w-28 border-r border-[#EAECF0]/60">Ticket ID</th>
+                  <th className="py-3 px-4 min-w-[260px] border-r border-[#EAECF0]/60">Title & Category</th>
+                  <th className="py-3 px-4 w-40 border-r border-[#EAECF0]/60">Project</th>
+                  <th className="py-3 px-4 w-32 border-r border-[#EAECF0]/60">Status</th>
+                  <th className="py-3 px-4 w-28 border-r border-[#EAECF0]/60">Priority</th>
+                  <th className="py-3 px-4 w-40 border-r border-[#EAECF0]/60">Assignee</th>
+                  <th className="py-3 px-4 w-32 border-r border-[#EAECF0]/60">Due Date</th>
+                  <th className="py-3 px-4 w-32">Created</th>
                 </tr>
-              ) : tickets.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="text-center py-12 text-slate-400">
-                    No tickets found matching the criteria.
-                  </td>
-                </tr>
-              ) : (
-                tickets.map((t) => (
-                  <tr
-                    key={t._id}
-                    onClick={() => onSelectTicket(t._id)}
-                    className="hover:bg-blue-50/30 transition-colors cursor-pointer group"
-                  >
-                    <td className="p-4 text-center" onClick={(e) => handleSelectOne(t._id, e)}>
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(t._id)}
-                        onChange={() => {}}
-                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                      />
-                    </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-blue-600">
-                      {t.ticketNumber}
-                    </td>
-                    <td className="py-3.5 px-4 max-w-md">
-                      <p className="font-semibold text-slate-900 group-hover:text-blue-600 truncate transition-colors">
-                        {t.title}
-                      </p>
-                      <p className="text-[11px] text-slate-400 truncate mt-0.5">{t.category}</p>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-600 font-medium whitespace-nowrap">
-                      {t.projectId?.name}
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <StatusBadge status={t.status} size="sm" />
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <PriorityBadge priority={t.priority} size="sm" />
-                    </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <Avatar
-                          name={t.assigneeId?.name || 'Unassigned'}
-                          src={t.assigneeId?.avatarUrl}
-                          size="xs"
-                        />
-                        <span className="text-slate-700 font-medium">
-                          {t.assigneeId?.name || 'Unassigned'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
-                      {t.dueDate ? format(new Date(t.dueDate), 'MMM d, yyyy') : '-'}
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
-                      {format(new Date(t.createdAt), 'MMM d, yyyy')}
+              </thead>
+              <tbody className="divide-y divide-[#EAECF0] bg-white">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={9} className="text-center py-16 text-slate-400">
+                      <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2" />
+                      <p className="font-medium text-xs">Loading tickets...</p>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : tickets.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="text-center py-16 text-slate-400">
+                      <p className="font-semibold text-slate-600 text-sm">No tickets found</p>
+                      <p className="text-xs text-slate-400 mt-1">Try adjusting your filters or create a new ticket.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  tickets.map((t) => (
+                    <tr
+                      key={t._id}
+                      onClick={() => onSelectTicket(t._id)}
+                      className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
+                    >
+                      <td className="p-3.5 text-center border-r border-[#EAECF0]/40" onClick={(e) => handleSelectOne(t._id, e)}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(t._id)}
+                          onChange={() => {}}
+                          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </td>
+                      <td className="py-3 px-4 font-mono font-bold text-blue-600 border-r border-[#EAECF0]/40 whitespace-nowrap">
+                        <span className="bg-blue-50/80 px-2 py-0.5 rounded border border-blue-200/50">
+                          {t.ticketNumber}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 max-w-md border-r border-[#EAECF0]/40">
+                        <p className="font-semibold text-slate-900 group-hover:text-blue-600 truncate transition-colors text-xs">
+                          {t.title}
+                        </p>
+                        <p className="text-[11px] text-slate-400 truncate mt-0.5 flex items-center gap-1.5">
+                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-300" />
+                          <span>{t.category || 'General'}</span>
+                        </p>
+                      </td>
+                      <td className="py-3 px-4 text-slate-600 font-medium whitespace-nowrap border-r border-[#EAECF0]/40">
+                        {t.projectId?.name || 'General Project'}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap border-r border-[#EAECF0]/40">
+                        <StatusBadge status={t.status} size="sm" />
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap border-r border-[#EAECF0]/40">
+                        <PriorityBadge priority={t.priority} size="sm" />
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap border-r border-[#EAECF0]/40">
+                        <div className="flex items-center gap-2">
+                          <Avatar
+                            name={t.assigneeId?.name || 'Unassigned'}
+                            src={t.assigneeId?.avatarUrl}
+                            size="xs"
+                          />
+                          <span className="text-slate-700 font-medium text-xs">
+                            {t.assigneeId?.name || 'Unassigned'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-slate-600 whitespace-nowrap border-r border-[#EAECF0]/40">
+                        {t.dueDate ? format(new Date(t.dueDate), 'MMM d, yyyy') : '-'}
+                      </td>
+                      <td className="py-3 px-4 text-slate-400 whitespace-nowrap text-[11px]">
+                        {format(new Date(t.createdAt), 'MMM d, yyyy')}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination Footer */}
           <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600">

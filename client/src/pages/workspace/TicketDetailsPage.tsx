@@ -318,60 +318,25 @@ export const TicketDetailsPage: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-white font-sans text-slate-800">
-      {/* Top Breadcrumb Navigation Bar */}
-      <div className="px-6 py-2.5 border-b border-[#EAECF0] bg-white flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <button
-            onClick={() => navigate('/workspace/kanban')}
-            className="flex items-center gap-1.5 text-slate-600 hover:text-blue-600 font-medium transition-colors p-1 rounded hover:bg-slate-50 mr-2"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Board</span>
-          </button>
-          <span>/</span>
-          <span className="text-slate-700 font-semibold">{ticket.projectId?.name || 'Project'}</span>
-          <span>/</span>
-          <span className="font-mono text-blue-600 font-bold bg-blue-50 border border-blue-200/60 px-1.5 py-0.2 rounded">
-            {ticket.ticketNumber}
-          </span>
-        </div>
-
-        {/* Top Right Action Controls in QubixDesk Theme */}
-        <div className="flex items-center gap-2">
-          {/* Status Dropdown Pill */}
-          <div className="relative">
-            <select
-              value={ticket.status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="appearance-none bg-blue-50/80 border border-blue-200 text-blue-700 font-semibold text-xs rounded-full pl-6 pr-7 py-1 cursor-pointer outline-none hover:bg-blue-100 transition-colors"
-            >
-              <option value="To Do">Open</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Under Review">Under Review</option>
-              <option value="Resolved">Resolved</option>
-              <option value="Closed">Closed</option>
-            </select>
-            <Circle className="w-2.5 h-2.5 text-blue-600 fill-blue-600 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3 h-3 text-blue-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              alert('Ticket URL copied to clipboard!');
-            }}
-            title="Copy ticket link"
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
       {/* 2-Column Responsive Body */}
       <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
         {/* Left Main Scroll Area (70%) */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+          {/* Minimal Inline Back Navigation */}
+          <div className="flex items-center justify-between pb-1">
+            <button
+              onClick={() => navigate('/workspace/kanban')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors group"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Back to Board</span>
+            </button>
+
+            <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-md">
+              {ticket.ticketNumber}
+            </span>
+          </div>
+
           {/* Title Area */}
           <div className="space-y-2">
             {isEditingTitle ? (
@@ -752,7 +717,42 @@ export const TicketDetailsPage: React.FC = () => {
 
         {/* Right Details Sidebar (30%) */}
         <div className="w-full md:w-80 border-t md:border-t-0 md:border-l border-[#EAECF0] bg-white overflow-y-auto p-6 space-y-6 text-xs text-slate-700 shrink-0">
-          {/* Status & Priority Card */}
+          {/* Status & Share Header Bar */}
+          <div className="pb-4 border-b border-[#EAECF0] space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Current Status</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert('Ticket URL copied to clipboard!');
+                }}
+                title="Share ticket link"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-blue-200"
+              >
+                <Share2 className="w-3.5 h-3.5 text-blue-600" />
+                <span>Share</span>
+              </button>
+            </div>
+
+            {/* Status Selector Pill in QubixDesk Theme */}
+            <div className="relative">
+              <select
+                value={ticket.status}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className="w-full appearance-none bg-blue-50/80 hover:bg-blue-100/70 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl pl-8 pr-7 py-2 cursor-pointer outline-none transition-colors"
+              >
+                <option value="To Do">Open / To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Under Review">Customer in Review</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+              </select>
+              <Circle className="w-2.5 h-2.5 text-blue-600 fill-blue-600 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-blue-600 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Attributes Card */}
           <div className="space-y-4">
             <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
               <Info className="w-3.5 h-3.5 text-blue-600" />
@@ -761,26 +761,11 @@ export const TicketDetailsPage: React.FC = () => {
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Status</span>
-                <select
-                  value={ticket.status}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                  className="bg-blue-50 text-blue-700 font-semibold text-xs border border-blue-200 rounded-lg px-2.5 py-1 outline-none cursor-pointer"
-                >
-                  <option value="To Do">To Do</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Under Review">Under Review</option>
-                  <option value="Resolved">Resolved</option>
-                  <option value="Closed">Closed</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between">
                 <span className="text-slate-400">Priority</span>
                 <select
                   value={ticket.priority}
                   onChange={(e) => handlePriorityChange(e.target.value)}
-                  className="bg-slate-50 text-slate-800 font-semibold text-xs border border-slate-200 rounded-lg px-2.5 py-1 outline-none cursor-pointer"
+                  className="bg-slate-50 text-slate-800 font-semibold text-xs border border-slate-200 rounded-lg px-2.5 py-1 outline-none cursor-pointer hover:border-slate-300"
                 >
                   <option value="Critical">Critical</option>
                   <option value="Urgent">Urgent</option>

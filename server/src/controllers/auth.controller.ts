@@ -434,7 +434,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { name, avatarUrl } = req.body;
+    const { name, avatarUrl, currentPassword, newPassword } = req.body;
     const user = await User.findById(req.user._id);
     if (!user) {
       res.status(404).json({ success: false, error: { code: 'NOT_FOUND' } });
@@ -443,10 +443,29 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
     if (name) user.name = name.trim();
     if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+
+    if (newPassword) {
+      if (!currentPassword) {
+        res.status(400).json({ success: false, error: { message: 'Current password is required.' } });
+        return;
+      }
+      const isMatch = await comparePassword(currentPassword, user.passwordHash);
+      if (!isMatch) {
+        res.status(400).json({ success: false, error: { message: 'Current password is incorrect.' } });
+        return;
+      }
+      if (newPassword.length < 6) {
+        res.status(400).json({ success: false, error: { message: 'New password must be at least 6 characters.' } });
+        return;
+      }
+      user.passwordHash = await hashPassword(newPassword);
+    }
+
     await user.save();
 
     res.json({
       success: true,
+      message: newPassword ? 'Profile and password updated successfully!' : 'Profile updated successfully!',
       data: {
         id: user._id,
         name: user.name,

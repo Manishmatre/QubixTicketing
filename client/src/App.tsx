@@ -15,6 +15,8 @@ import {
   MyTicketsPage,
 } from './pages/workspace/WorkspacePages';
 import { TicketDetailsPage } from './pages/workspace/TicketDetailsPage';
+import { ProjectDetailsPage } from './pages/workspace/ProjectDetailsPage';
+import { UserProfilePage } from './pages/workspace/UserProfilePage';
 import { ProjectsView } from './pages/workspace/ProjectsView';
 import { TeamsView } from './pages/workspace/TeamsView';
 import { ReportsView } from './pages/workspace/ReportsView';
@@ -68,11 +70,13 @@ export const App: React.FC = () => {
                 <Route path="ticket/:ticketId" element={<TicketDetailsPage />} />
                 <Route path="my-tickets" element={<MyTicketsPage />} />
                 <Route path="projects" element={<ProjectsView />} />
+                <Route path="projects/:projectId" element={<ProjectDetailsPage />} />
                 <Route path="teams" element={<TeamsView />} />
                 <Route path="reports" element={<ReportsView />} />
                 <Route path="workflows" element={<WorkflowsView />} />
                 <Route path="billing" element={<BillingView />} />
                 <Route path="settings" element={<SettingsView />} />
+                <Route path="profile" element={<UserProfilePage />} />
               </Route>
 
               {/* Platform Super Admin Console */}

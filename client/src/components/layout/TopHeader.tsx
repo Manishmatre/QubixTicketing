@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 import { apiClient } from '../../api/client';
@@ -89,27 +89,25 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   const getPageTitle = () => {
     const p = location.pathname;
     if (p.includes('/workspace/kanban')) return 'Kanban Board';
-    if (p.includes('/workspace/tickets/')) return 'Ticket Inspector';
+    if (p.includes('/workspace/tickets/')) return 'Ticket Details';
     if (p.includes('/workspace/tickets')) return 'All Tickets';
     if (p.includes('/workspace/my-tickets')) return 'Assigned to Me';
     if (p.includes('/workspace/dashboard')) return 'Overview Dashboard';
+    if (p.includes('/workspace/projects/')) return 'Project Details';
     if (p.includes('/workspace/projects')) return 'Projects Directory';
     if (p.includes('/workspace/teams')) return 'Team Members';
     if (p.includes('/workspace/reports')) return 'Analytics & Reports';
     if (p.includes('/workspace/workflows')) return 'Workflow Automations';
     if (p.includes('/workspace/billing')) return 'Subscription & Billing';
     if (p.includes('/workspace/settings')) return 'Workspace Settings';
+    if (p.includes('/workspace/profile')) return 'My Profile';
     return 'Workspace';
   };
 
   return (
     <header className="h-14 bg-white border-b border-[#EAECF0] px-6 flex items-center justify-between sticky top-0 z-20 shrink-0 font-sans">
-      {/* Left: Dynamic Breadcrumb / Page Title */}
-      <div className="flex items-center gap-2 text-xs">
-        <span className="font-semibold text-slate-400">
-          {organization?.name || 'Workspace'}
-        </span>
-        <span className="text-slate-300">/</span>
+      {/* Left: Clean Minimal Page Title */}
+      <div className="flex items-center gap-2">
         <h1 className="text-sm font-bold text-slate-900 tracking-tight">
           {getPageTitle()}
         </h1>
@@ -216,8 +214,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           )}
         </div>
 
-        {/* User Avatar */}
-        <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
+        {/* User Profile Link */}
+        <Link
+          to="/workspace/profile"
+          className="flex items-center rounded-full hover:ring-2 hover:ring-blue-500/20 transition-all cursor-pointer"
+          title="View My Profile"
+        >
+          <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
+        </Link>
       </div>
     </header>
   );

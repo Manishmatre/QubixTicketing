@@ -57,20 +57,11 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className="w-64 bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800">
-      {/* 1. Official QubixDesk Brand Header */}
-      <div className="p-4 border-b border-[#EAECF0] bg-white">
-        <Link to="/workspace/dashboard" className="block focus:outline-none">
-          <img
-            src="/logo.png"
-            alt="QubixDesk"
-            className="h-8 max-w-[190px] object-contain"
-          />
-        </Link>
-
-        {/* Organization Switcher Card */}
-        <div className="mt-3 bg-[#F8FAFC] border border-[#EAECF0] rounded-xl p-2.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
-          <div className="min-w-0 flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0 shadow-2xs">
+      {/* 1. Organization Workspace Selector (Clean Minimalist Top, matching reference UI) */}
+      <div className="p-3 border-b border-[#EAECF0] bg-white">
+        <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-xl p-2.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
+          <div className="min-w-0 flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
               {organization?.name ? organization.name.charAt(0).toUpperCase() : 'A'}
             </div>
             <div className="min-w-0">
@@ -81,6 +72,10 @@ export const Sidebar: React.FC = () => {
                 {organization?.subscriptionPlan || 'Professional'} Plan
               </p>
             </div>
+          </div>
+
+          <div className="flex items-center text-slate-400 group-hover:text-slate-600">
+            <ChevronDown className="w-3.5 h-3.5" />
           </div>
 
           {memberships.length > 1 && (
@@ -320,7 +315,11 @@ export const Sidebar: React.FC = () => {
 
         {/* User Card */}
         <div className="pt-2 mt-1 border-t border-[#EAECF0] flex items-center justify-between px-1">
-          <div className="flex items-center gap-2.5 min-w-0">
+          <Link
+            to="/workspace/profile"
+            className="flex items-center gap-2.5 min-w-0 hover:opacity-85 transition-opacity"
+            title="View User Profile"
+          >
             <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
             <div className="min-w-0">
               <p className="text-xs font-bold text-slate-900 truncate leading-tight">
@@ -330,7 +329,7 @@ export const Sidebar: React.FC = () => {
                 {user?.email || 'user@example.com'}
               </p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={() => logout()}
             title="Log Out"

@@ -84,6 +84,7 @@ export interface Project {
   milestones?: Array<{
     _id: string;
     title: string;
+    description?: string;
     dueDate: string;
     completed: boolean;
   }>;

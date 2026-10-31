@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Project } from '../../types';
 import { apiClient } from '../../api/client';
 import { Avatar } from '../../components/ui/Avatar';
@@ -19,6 +20,7 @@ import {
 import { format } from 'date-fns';
 
 export const ProjectsView: React.FC = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -115,19 +117,27 @@ export const ProjectsView: React.FC = () => {
             return (
               <div
                 key={proj._id}
-                className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle hover:shadow-card transition-all flex flex-col justify-between"
+                onClick={() => navigate(`/workspace/projects/${proj._id}`)}
+                className="bg-white border border-[#EAECF0] rounded-xl p-5 shadow-2xs hover:shadow-md hover:border-blue-400 transition-all flex flex-col justify-between cursor-pointer group"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
-                      {proj.key}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded">
+                        {proj.key}
+                      </span>
+                      <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                        {proj.category || 'General'}
+                      </span>
+                    </div>
                     <Badge variant={proj.status === 'active' ? 'success' : 'default'} size="sm">
                       {proj.status}
                     </Badge>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900 truncate">{proj.name}</h3>
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                    {proj.name}
+                  </h3>
                   <p className="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
                     {proj.description || 'No description provided.'}
                   </p>
