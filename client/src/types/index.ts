@@ -32,12 +32,23 @@ export type TicketStatus =
   | 'Closed'
   | 'Reopened';
 
+export interface UserDocument {
+  _id: string;
+  title: string;
+  fileUrl: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploadedAt: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   phoneNumber?: string;
   avatarUrl?: string;
+  documents?: UserDocument[];
   isSuperAdmin: boolean;
   activeOrganizationId?: string;
   lastLoginAt?: string;
@@ -100,6 +111,14 @@ export interface Project {
   updatedAt: string;
 }
 
+export interface TicketLink {
+  _id: string;
+  title: string;
+  url: string;
+  type?: string;
+  createdAt?: string;
+}
+
 export interface Ticket {
   _id: string;
   organizationId: string;
@@ -115,6 +134,7 @@ export interface Ticket {
   assigneeId?: User;
   watchers: User[];
   tags: string[];
+  links?: TicketLink[];
   dueDate?: string;
   relatedTicketIds?: any[];
   order: number;

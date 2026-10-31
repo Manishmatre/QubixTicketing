@@ -25,6 +25,14 @@ export type TicketStatus =
   | 'Closed'
   | 'Reopened';
 
+export interface ITicketLink {
+  _id?: string;
+  title: string;
+  url: string;
+  type?: string;
+  createdAt?: Date;
+}
+
 export interface ITicket extends Document {
   organizationId: mongoose.Types.ObjectId;
   projectId: mongoose.Types.ObjectId;
@@ -39,6 +47,7 @@ export interface ITicket extends Document {
   assigneeId?: mongoose.Types.ObjectId;
   watchers: mongoose.Types.ObjectId[];
   tags: string[];
+  links: ITicketLink[];
   dueDate?: Date;
   relatedTicketIds: mongoose.Types.ObjectId[];
   order: number;
@@ -103,6 +112,14 @@ const TicketSchema = new Schema<ITicket>(
     assigneeId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     watchers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     tags: [{ type: String, trim: true }],
+    links: [
+      {
+        title: { type: String, required: true },
+        url: { type: String, required: true },
+        type: { type: String, default: 'web' },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
     dueDate: { type: Date, index: true },
     relatedTicketIds: [{ type: Schema.Types.ObjectId, ref: 'Ticket' }],
     order: { type: Number, default: 0 },

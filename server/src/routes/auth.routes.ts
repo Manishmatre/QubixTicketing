@@ -13,8 +13,13 @@ import {
   resetPassword,
   getInvitationDetails,
   acceptInvitation,
+  uploadAvatar,
+  uploadUserDocument,
+  getUserDocuments,
+  deleteUserDocument,
 } from '../controllers/auth.controller.js';
 import { requireAuth } from '../middleware/auth.js';
+import { uploadMiddleware } from '../services/storageAdapter.js';
 
 const router = Router();
 
@@ -33,6 +38,10 @@ router.post('/accept-invitation', acceptInvitation);
 
 router.get('/me', requireAuth, getCurrentUser);
 router.patch('/profile', requireAuth, updateProfile);
+router.post('/avatar', requireAuth, uploadMiddleware.single('avatar'), uploadAvatar);
+router.get('/documents', requireAuth, getUserDocuments);
+router.post('/documents', requireAuth, uploadMiddleware.single('document'), uploadUserDocument);
+router.delete('/documents/:documentId', requireAuth, deleteUserDocument);
 router.post('/switch-org', requireAuth, switchOrganization);
 
 export default router;

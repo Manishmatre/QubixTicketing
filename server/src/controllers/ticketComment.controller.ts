@@ -4,6 +4,7 @@ import { TicketComment } from '../models/TicketComment.js';
 import { Ticket } from '../models/Ticket.js';
 import { TicketActivity } from '../models/TicketActivity.js';
 import { Notification } from '../models/Notification.js';
+import { User } from '../models/User.js';
 import { tenantScope } from '../middleware/tenantIsolation.js';
 import { hasPermission } from '../middleware/rbac.js';
 import { emitToTicket, emitToUser } from '../services/socket.js';
@@ -100,6 +101,39 @@ export const createComment = async (req: Request, res: Response): Promise<void> 
       // Only notify reporter if this is not an internal note
       if (!isInternal) {
         notifyRecipients.add(ticket.reporterId.toString());
+      }
+    }
+
+    // Process @teammember mentions
+    const mentionRegex = /@([a-zA-Z0-9_\s.-]+?)(?=[,;:!?\s]|$)/g;
+    const matches: string[] = [];
+    let match: RegExpExecArray | null;
+    while ((match = mentionRegex.exec(content)) !== null) {
+      if (match[1] && match[1].trim()) {
+        matches.push(match[1].trim());
+      }
+    }
+    if (matches.length > 0) {
+      const mentionedUsers = await User.find({
+        name: { $in: matches.map((m) => new RegExp(`^${m}$`, 'i')) },
+      });
+
+      for (const mUser of mentionedUsers) {
+        if (mUser._id.toString() !== req.user?._id.toString()) {
+          notifyRecipients.delete(mUser._id.toString());
+          const mentionNotif = await Notification.create({
+            organizationId: req.organizationId,
+            recipientId: mUser._id,
+            senderId: req.user?._id,
+            type: 'mention',
+            title: `Mentioned in ${ticket.ticketNumber}`,
+            message: `${req.user?.name} tagged you in a comment on ${ticket.ticketNumber}: "${content.slice(0, 100)}${content.length > 100 ? '...' : ''}"`,
+            link: `/workspace/tickets/${ticket._id}`,
+            relatedEntityId: ticket._id,
+            relatedEntityType: 'ticket',
+          });
+          emitToUser(mUser._id.toString(), 'notification:new', mentionNotif);
+        }
       }
     }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Ticket, TicketComment, TicketAttachment, TicketActivity, OrgRole } from '../../types';
 import { apiClient } from '../../api/client';
@@ -47,6 +47,11 @@ import {
   Shield,
   FileText,
   Share2,
+  AtSign,
+  Globe,
+  Video,
+  Layers,
+  BookOpen,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -84,6 +89,22 @@ export const TicketDetailsPage: React.FC = () => {
   ]);
   const [newSubTicketText, setNewSubTicketText] = useState('');
   const [showAddSubTicket, setShowAddSubTicket] = useState(false);
+
+  // Links State
+  const [showAddLink, setShowAddLink] = useState(false);
+  const [newLinkTitle, setNewLinkTitle] = useState('');
+  const [newLinkUrl, setNewLinkUrl] = useState('');
+  const [newLinkType, setNewLinkType] = useState('web');
+  const [isAddingLink, setIsAddingLink] = useState(false);
+
+  // Mentions & Team Members State
+  const [teamMembers, setTeamMembers] = useState<
+    Array<{ id: string; user: { id: string; name: string; email: string; avatarUrl?: string }; role: string }>
+  >([]);
+  const [showMentionMenu, setShowMentionMenu] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionCursorIndex, setMentionCursorIndex] = useState(0);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Permissions check for internal notes
   const userRole = (organization?.role || 'employee') as OrgRole;
@@ -292,6 +313,175 @@ export const TicketDetailsPage: React.FC = () => {
 
   const completedSubTicketsCount = subTickets.filter((s) => s.done).length;
 
+  // Load team members for @mention autocomplete
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const res = await apiClient.get('/organizations/members');
+        if (res.data.success) {
+          setTeamMembers(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load team members for mentions:', err);
+      }
+    };
+    fetchTeamMembers();
+  }, []);
+
+  const handleAddLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ticket || !newLinkUrl.trim()) return;
+    setIsAddingLink(true);
+    try {
+      const res = await apiClient.post(`/tickets/${ticket._id}/links`, {
+        title: newLinkTitle.trim() || newLinkUrl.trim(),
+        url: newLinkUrl.trim(),
+        type: newLinkType,
+      });
+      if (res.data.success) {
+        setTicket((prev) => (prev ? { ...prev, links: res.data.data } : null));
+        setNewLinkTitle('');
+        setNewLinkUrl('');
+        setShowAddLink(false);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to add link');
+    } finally {
+      setIsAddingLink(false);
+    }
+  };
+
+  const handleDeleteLink = async (linkId: string) => {
+    if (!ticket) return;
+    if (!confirm('Are you sure you want to remove this link?')) return;
+    try {
+      const res = await apiClient.delete(`/tickets/${ticket._id}/links/${linkId}`);
+      if (res.data.success) {
+        setTicket((prev) => (prev ? { ...prev, links: res.data.data } : null));
+      }
+    } catch (err) {
+      console.error('Delete link error:', err);
+    }
+  };
+
+  const filteredMembers = teamMembers.filter((m) =>
+    (m.user?.name || '').toLowerCase().includes(mentionQuery) ||
+    (m.user?.email || '').toLowerCase().includes(mentionQuery)
+  );
+
+  const handleCommentTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    const cursorPos = e.target.selectionStart;
+    setCommentText(val);
+
+    const textBeforeCursor = val.slice(0, cursorPos);
+    const match = textBeforeCursor.match(/@([a-zA-Z0-9_\s]*)$/);
+    if (match && match.index !== undefined) {
+      const query = match[1];
+      if (!query.includes('\n')) {
+        setMentionQuery(query.toLowerCase());
+        setMentionCursorIndex(match.index);
+        setShowMentionMenu(true);
+        return;
+      }
+    }
+    setShowMentionMenu(false);
+  };
+
+  const handleInsertMention = (memberName: string) => {
+    const before = commentText.slice(0, mentionCursorIndex);
+    const after = commentText.slice(commentInputRef.current?.selectionStart || mentionCursorIndex);
+    const updated = `${before}@${memberName} ${after}`;
+    setCommentText(updated);
+    setShowMentionMenu(false);
+    setTimeout(() => {
+      if (commentInputRef.current) {
+        commentInputRef.current.focus();
+        const nextPos = before.length + memberName.length + 2;
+        commentInputRef.current.setSelectionRange(nextPos, nextPos);
+      }
+    }, 40);
+  };
+
+  const handleToolbarMentionClick = () => {
+    const pos = commentInputRef.current?.selectionStart || commentText.length;
+    const before = commentText.slice(0, pos);
+    const after = commentText.slice(pos);
+    setCommentText(`${before}@${after}`);
+    setMentionQuery('');
+    setMentionCursorIndex(pos);
+    setShowMentionMenu(true);
+    setTimeout(() => {
+      if (commentInputRef.current) {
+        commentInputRef.current.focus();
+        commentInputRef.current.setSelectionRange(pos + 1, pos + 1);
+      }
+    }, 40);
+  };
+
+  const renderContentWithMentions = (content: string) => {
+    if (!content) return null;
+    const parts = content.split(/(@[a-zA-Z0-9_\s.-]+?)(?=[,;:!?\s]|$)/g);
+    return parts.map((part, idx) => {
+      if (part.startsWith('@')) {
+        const name = part.slice(1);
+        return (
+          <span
+            key={idx}
+            className="inline-flex items-center text-blue-700 bg-blue-50 border border-blue-200/80 rounded px-1.5 py-0.5 font-semibold text-[11px] mx-0.5 shadow-2xs"
+          >
+            <span className="text-blue-500 mr-0.5 font-bold">@</span>
+            <span>{name}</span>
+          </span>
+        );
+      }
+      return <React.Fragment key={idx}>{part}</React.Fragment>;
+    });
+  };
+
+  const getLinkIcon = (url: string, title?: string) => {
+    const lower = `${url} ${title || ''}`.toLowerCase();
+    if (lower.includes('github.com') || lower.includes('git')) {
+      return <Code className="w-4 h-4 text-slate-800" />;
+    }
+    if (lower.includes('figma.com')) {
+      return <Layers className="w-4 h-4 text-purple-600" />;
+    }
+    if (lower.includes('loom.com') || lower.includes('youtube.com') || lower.includes('video')) {
+      return <Video className="w-4 h-4 text-indigo-600" />;
+    }
+    if (lower.includes('apple.com') || lower.includes('phosphor') || lower.includes('icon')) {
+      return <Sparkles className="w-4 h-4 text-emerald-600" />;
+    }
+    if (lower.includes('docs') || lower.includes('notion') || lower.includes('wiki')) {
+      return <BookOpen className="w-4 h-4 text-blue-600" />;
+    }
+    return <Globe className="w-4 h-4 text-blue-600" />;
+  };
+
+  const getDocTypeBadge = (fileName: string) => {
+    const ext = (fileName.split('.').pop() || '').toLowerCase();
+    if (['pdf'].includes(ext)) {
+      return { label: 'PDF', bg: 'bg-red-50 text-red-700 border-red-200' };
+    }
+    if (['xls', 'xlsx', 'csv'].includes(ext)) {
+      return { label: ext.toUpperCase(), bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+    }
+    if (['doc', 'docx'].includes(ext)) {
+      return { label: 'DOC', bg: 'bg-blue-50 text-blue-700 border-blue-200' };
+    }
+    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
+      return { label: 'ZIP', bg: 'bg-amber-50 text-amber-700 border-amber-200' };
+    }
+    if (['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext)) {
+      return { label: 'IMG', bg: 'bg-sky-50 text-sky-700 border-sky-200' };
+    }
+    if (['ts', 'tsx', 'js', 'json', 'py', 'html', 'css'].includes(ext)) {
+      return { label: 'CODE', bg: 'bg-purple-50 text-purple-700 border-purple-200' };
+    }
+    return { label: 'FILE', bg: 'bg-slate-100 text-slate-700 border-slate-200' };
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[calc(100vh-3.5rem)] bg-white">
@@ -490,64 +680,181 @@ export const TicketDetailsPage: React.FC = () => {
             )}
           </div>
 
+          {/* Links Section */}
+          <div className="rounded-xl border border-[#EAECF0] p-4 space-y-3 bg-white shadow-2xs">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 font-bold text-slate-800">
+                <Link2 className="w-4 h-4 text-blue-600" />
+                <span>Links</span>
+                <span className="text-slate-400 font-normal">({ticket.links?.length || 0})</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddLink(!showAddLink)}
+                className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add link</span>
+              </button>
+            </div>
+
+            {/* Add link form */}
+            {showAddLink && (
+              <form onSubmit={handleAddLink} className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2.5 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Title</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. API Guidebook, Phosphor Icons, Loom..."
+                      value={newLinkTitle}
+                      onChange={(e) => setNewLinkTitle(e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">URL *</label>
+                    <input
+                      type="url"
+                      placeholder="https://..."
+                      value={newLinkUrl}
+                      onChange={(e) => setNewLinkUrl(e.target.value)}
+                      className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <Button size="sm" variant="ghost" type="button" onClick={() => setShowAddLink(false)}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" type="submit" isLoading={isAddingLink}>
+                    Save Link
+                  </Button>
+                </div>
+              </form>
+            )}
+
+            {/* Links List */}
+            {!ticket.links || ticket.links.length === 0 ? (
+              <p className="text-xs text-slate-400 italic">No external links attached yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {ticket.links.map((link) => (
+                  <div
+                    key={link._id}
+                    className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 transition-colors group text-xs"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
+                        {getLinkIcon(link.url, link.title)}
+                      </div>
+                      <div className="min-w-0">
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-bold text-slate-800 hover:text-blue-600 flex items-center gap-1.5 truncate text-xs"
+                        >
+                          <span>{link.title || link.url}</span>
+                          <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-blue-500 shrink-0" />
+                        </a>
+                        <p className="text-[11px] text-slate-400 truncate max-w-md font-mono mt-0.5">
+                          {link.url}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteLink(link._id)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Delete link"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Attachments Section */}
           <div className="rounded-xl border border-[#EAECF0] p-4 space-y-3 bg-white shadow-2xs">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 font-bold text-slate-800">
                 <Paperclip className="w-4 h-4 text-blue-600" />
-                <span>Attachments & Cloud Files</span>
+                <span>Attachments & Documents</span>
                 <span className="text-slate-400 font-normal">({attachments.length})</span>
               </div>
               <label className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 cursor-pointer">
                 <Upload className="w-3.5 h-3.5" />
-                <span>Upload File</span>
-                <input type="file" onChange={handleFileUpload} className="hidden" disabled={isUploading} />
+                <span>Upload Document</span>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.rar,.json,.png,.jpg,.jpeg,.svg,.webp"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  disabled={isUploading}
+                />
               </label>
             </div>
 
             {isUploading && (
               <div className="text-xs text-blue-600 flex items-center gap-2 bg-blue-50 p-2.5 rounded-lg border border-blue-200">
                 <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <span>Uploading file to Cloudinary storage...</span>
+                <span>Uploading document to secure storage...</span>
               </div>
             )}
 
             {attachments.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">No files attached yet.</p>
+              <p className="text-xs text-slate-400 italic">No documents or files attached yet.</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {attachments.map((att) => (
-                  <div
-                    key={att._id}
-                    className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100/80 transition-colors text-xs"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <FileText className="w-4 h-4 text-blue-600 shrink-0" />
-                      <div className="min-w-0">
-                        <p className="font-semibold text-slate-800 truncate text-[11px]">{att.originalName || att.fileName}</p>
-                        <p className="text-[10px] text-slate-400">{((att.sizeBytes || 0) / 1024).toFixed(1)} KB</p>
+                {attachments.map((att) => {
+                  const badge = getDocTypeBadge(att.originalName || att.fileName);
+                  return (
+                    <div
+                      key={att._id}
+                      className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50/80 hover:bg-slate-100/90 transition-colors text-xs"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className={`w-7 h-7 rounded flex items-center justify-center font-bold text-[9px] border shrink-0 ${badge.bg}`}
+                        >
+                          {badge.label}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-800 truncate text-[11px]">
+                            {att.originalName || att.fileName}
+                          </p>
+                          <p className="text-[10px] text-slate-400">{((att.sizeBytes || 0) / 1024).toFixed(1)} KB</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <a
+                          href={att.fileUrl}
+                          download={att.originalName || att.fileName}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1 text-slate-500 hover:text-blue-600 rounded transition-colors"
+                          title="Download document"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteAttachment(att._id)}
+                          className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+                          title="Delete file"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <a
-                        href={att.fileUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-1 text-slate-500 hover:text-blue-600 rounded"
-                        title="Open file"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </a>
-                      <button
-                        onClick={() => handleDeleteAttachment(att._id)}
-                        className="p-1 text-slate-400 hover:text-red-600 rounded"
-                        title="Delete file"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -637,7 +944,7 @@ export const TicketDetailsPage: React.FC = () => {
                       </div>
 
                       <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
-                        {comment.content}
+                        {renderContentWithMentions(comment.content)}
                       </p>
                     </div>
                   ))}
@@ -666,24 +973,59 @@ export const TicketDetailsPage: React.FC = () => {
 
             {/* Comment Composer */}
             {activeTab !== 'activity' && (
-              <form onSubmit={handleAddComment} className="border border-[#EAECF0] rounded-xl overflow-hidden bg-white shadow-2xs">
+              <form onSubmit={handleAddComment} className="relative border border-[#EAECF0] rounded-xl overflow-visible bg-white shadow-2xs">
+                {/* Floating Mention Autocomplete Menu */}
+                {showMentionMenu && filteredMembers.length > 0 && (
+                  <div className="absolute bottom-full left-3 mb-2 w-64 bg-white border border-[#EAECF0] rounded-xl shadow-xl z-30 overflow-hidden py-1">
+                    <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
+                      <span>Mention teammate</span>
+                      <span className="font-mono text-[9px] text-blue-600">Click to tag</span>
+                    </div>
+                    <div className="max-h-48 overflow-y-auto">
+                      {filteredMembers.map((member) => (
+                        <div
+                          key={member.id}
+                          onClick={() => handleInsertMention(member.user.name)}
+                          className="px-3 py-2 flex items-center gap-2 hover:bg-blue-50 cursor-pointer transition-colors text-xs"
+                        >
+                          <Avatar name={member.user.name} src={member.user.avatarUrl} size="xs" />
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 truncate leading-tight">{member.user.name}</p>
+                            <p className="text-[10px] text-slate-400 truncate capitalize">{member.role}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <textarea
+                  ref={commentInputRef}
                   rows={3}
                   value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
+                  onChange={handleCommentTextChange}
                   placeholder={
                     activeTab === 'internal' || isInternalNote
-                      ? 'Add an internal note (hidden from clients)...'
-                      : 'Leave a reply for team and reporters...'
+                      ? 'Add an internal note (type @ to tag teammates)...'
+                      : 'Leave a reply for team and reporters (type @ to tag teammates)...'
                   }
-                  className="w-full p-3 text-xs text-slate-800 placeholder:text-slate-400 outline-none resize-none"
+                  className="w-full p-3 text-xs text-slate-800 placeholder:text-slate-400 outline-none resize-none rounded-t-xl"
                 />
 
-                <div className="bg-[#F8FAFC] px-3 py-2 border-t border-[#EAECF0] flex items-center justify-between text-slate-500 text-xs">
+                <div className="bg-[#F8FAFC] px-3 py-2 border-t border-[#EAECF0] rounded-b-xl flex items-center justify-between text-slate-500 text-xs">
                   <div className="flex items-center gap-2">
                     <button type="button" className="hover:text-slate-800 p-1"><Bold className="w-3.5 h-3.5" /></button>
                     <button type="button" className="hover:text-slate-800 p-1"><Italic className="w-3.5 h-3.5" /></button>
                     <button type="button" className="hover:text-slate-800 p-1"><Code className="w-3.5 h-3.5" /></button>
+                    <button
+                      type="button"
+                      onClick={handleToolbarMentionClick}
+                      title="Mention teammate (@)"
+                      className="hover:text-blue-600 hover:bg-blue-50 p-1 rounded flex items-center gap-0.5 text-slate-600 font-semibold"
+                    >
+                      <AtSign className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="text-[11px]">Tag</span>
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-3">

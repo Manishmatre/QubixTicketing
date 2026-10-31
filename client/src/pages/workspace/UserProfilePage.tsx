@@ -6,7 +6,7 @@ import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { StatusBadge, PriorityBadge } from '../../components/ui/Badge';
-import { Ticket } from '../../types';
+import { Ticket, UserDocument } from '../../types';
 import {
   User as UserIcon,
   Shield,
@@ -30,6 +30,11 @@ import {
   EyeOff,
   Sparkles,
   Camera,
+  FileText,
+  Download,
+  Trash2,
+  Upload,
+  Paperclip,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -50,6 +55,7 @@ export const UserProfilePage: React.FC = () => {
     'Leading architecture, multi-tenant isolation protocols, and real-time collaboration engines at QubixDesk.'
   );
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const [isSavingProfile, setIsSavingProfile] = useState<boolean>(false);
   const [profileSuccessMsg, setProfileSuccessMsg] = useState<string>('');
   const [profileErrorMsg, setProfileErrorMsg] = useState<string>('');
@@ -78,6 +84,10 @@ export const UserProfilePage: React.FC = () => {
   const [myTickets, setMyTickets] = useState<Ticket[]>([]);
   const [isLoadingTickets, setIsLoadingTickets] = useState<boolean>(false);
 
+  // User Documents State
+  const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
+  const [isUploadingDoc, setIsUploadingDoc] = useState<boolean>(false);
+
   useEffect(() => {
     if (user) {
       setName(user.name || '');
@@ -85,7 +95,7 @@ export const UserProfilePage: React.FC = () => {
     }
   }, [user]);
 
-  // Fetch assigned tickets
+  // Fetch assigned tickets and documents
   useEffect(() => {
     const fetchUserTickets = async () => {
       setIsLoadingTickets(true);
@@ -100,7 +110,20 @@ export const UserProfilePage: React.FC = () => {
         setIsLoadingTickets(false);
       }
     };
+
+    const fetchDocuments = async () => {
+      try {
+        const res = await apiClient.get('/auth/documents');
+        if (res.data.success) {
+          setUserDocuments(res.data.data);
+        }
+      } catch (err) {
+        console.error('Fetch user documents error:', err);
+      }
+    };
+
     fetchUserTickets();
+    fetchDocuments();
   }, []);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -124,6 +147,77 @@ export const UserProfilePage: React.FC = () => {
       setProfileErrorMsg(err.response?.data?.error?.message || 'Failed to update profile.');
     } finally {
       setIsSavingProfile(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    setProfileSuccessMsg('');
+    setProfileErrorMsg('');
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const res = await apiClient.post('/auth/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (res.data.success) {
+        const newUrl = res.data.data.avatarUrl;
+        setAvatarUrl(newUrl);
+        updateUser({ avatarUrl: newUrl });
+        setProfileSuccessMsg('Profile photo uploaded and saved successfully!');
+        setTimeout(() => setProfileSuccessMsg(''), 4000);
+      }
+    } catch (err: any) {
+      setProfileErrorMsg(err.response?.data?.error?.message || 'Failed to upload photo.');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleUserDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingDoc(true);
+    setProfileSuccessMsg('');
+    setProfileErrorMsg('');
+
+    try {
+      const formData = new FormData();
+      formData.append('document', file);
+      formData.append('title', file.name.replace(/\.[^/.]+$/, ''));
+
+      const res = await apiClient.post('/auth/documents', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (res.data.success) {
+        setUserDocuments(res.data.data);
+        setProfileSuccessMsg('Document uploaded successfully!');
+        setTimeout(() => setProfileSuccessMsg(''), 4000);
+      }
+    } catch (err: any) {
+      setProfileErrorMsg(err.response?.data?.error?.message || 'Failed to upload document.');
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
+  const handleDeleteUserDoc = async (docId: string) => {
+    if (!confirm('Are you sure you want to remove this document?')) return;
+    try {
+      const res = await apiClient.delete(`/auth/documents/${docId}`);
+      if (res.data.success) {
+        setUserDocuments(res.data.data);
+      }
+    } catch (err) {
+      console.error('Delete document error:', err);
     }
   };
 
@@ -204,13 +298,24 @@ export const UserProfilePage: React.FC = () => {
       {/* 1. Profile Hero Overview Card - Compact, balanced padding */}
       <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-2xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          {/* Avatar with Status Badge */}
+          {/* Avatar with Status Badge and Upload Button */}
           <div className="relative group">
             <Avatar name={user?.name} src={avatarUrl || user?.avatarUrl} size="lg" className="w-16 h-16 text-lg ring-4 ring-white shadow-2xs" />
             <span
-              className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"
+              className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white z-10"
               title="Online"
             />
+            <label className="absolute inset-0 bg-slate-900/60 text-white rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              <Camera className="w-5 h-5" />
+              <span className="text-[9px] font-bold mt-0.5">{isUploadingAvatar ? '...' : 'Upload'}</span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleAvatarUpload}
+                disabled={isUploadingAvatar}
+                className="hidden"
+              />
+            </label>
           </div>
 
           <div className="space-y-0.5">
@@ -337,6 +442,40 @@ export const UserProfilePage: React.FC = () => {
               <span>General Information</span>
             </h3>
 
+            {/* Avatar Photo Upload Row */}
+            <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
+              <Avatar name={user?.name} src={avatarUrl || user?.avatarUrl} size="md" className="w-14 h-14 ring-2 ring-slate-100" />
+              <div>
+                <p className="text-xs font-bold text-slate-800">Profile Photo</p>
+                <p className="text-[11px] text-slate-400">JPG, PNG, GIF or WebP. Max 15MB.</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{isUploadingAvatar ? 'Uploading...' : 'Upload new photo'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      disabled={isUploadingAvatar}
+                      className="hidden"
+                    />
+                  </label>
+                  {avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAvatarUrl('');
+                        updateUser({ avatarUrl: '' });
+                      }}
+                      className="text-xs text-slate-500 hover:text-red-600 font-medium px-2 py-1 rounded"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
               <Input
                 label="Full Name *"
@@ -424,6 +563,86 @@ export const UserProfilePage: React.FC = () => {
                 Save Profile
               </Button>
             </div>
+          </div>
+
+          {/* User Verification Documents / Credentials */}
+          <div className="bg-white border border-[#EAECF0] rounded-xl p-6 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-600" />
+                <h3 className="text-sm font-bold text-slate-900">Personal Documents & Credentials</h3>
+                <span className="text-slate-400 text-xs font-normal">({userDocuments.length})</span>
+              </div>
+
+              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
+                <Upload className="w-3.5 h-3.5" />
+                <span>{isUploadingDoc ? 'Uploading...' : 'Upload document'}</span>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.png,.jpg,.jpeg"
+                  onChange={handleUserDocUpload}
+                  disabled={isUploadingDoc}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {isUploadingDoc && (
+              <div className="text-xs text-blue-600 flex items-center gap-2 bg-blue-50 p-2.5 rounded-lg border border-blue-200">
+                <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <span>Uploading and verifying document...</span>
+              </div>
+            )}
+
+            {userDocuments.length === 0 ? (
+              <div className="text-center py-6 border-2 border-dashed border-slate-200 rounded-xl">
+                <FileText className="w-8 h-8 text-slate-300 mx-auto mb-1.5" />
+                <p className="text-xs font-medium text-slate-600">No personal documents uploaded</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Upload identity proof, certifications, or work agreements (PDF, DOC, ZIP, Images).</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {userDocuments.map((doc) => (
+                  <div
+                    key={doc._id}
+                    className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-slate-100/80 transition-colors text-xs"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0 uppercase">
+                        {doc.fileName.split('.').pop() || 'DOC'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-800 truncate text-xs">{doc.title || doc.fileName}</p>
+                        <p className="text-[10px] text-slate-400">
+                          {((doc.sizeBytes || 0) / 1024).toFixed(1)} KB · {doc.uploadedAt ? formatDistanceToNow(new Date(doc.uploadedAt), { addSuffix: true }) : 'recently'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0 ml-2">
+                      <a
+                        href={doc.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        className="p-1.5 text-slate-500 hover:text-blue-600 rounded transition-colors"
+                        title="Download document"
+                      >
+                        <Download className="w-4 h-4" />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteUserDoc(doc._id)}
+                        className="p-1.5 text-slate-400 hover:text-red-600 rounded transition-colors"
+                        title="Delete document"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </form>
       )}

@@ -1,11 +1,22 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface IUserDocument {
+  _id?: mongoose.Types.ObjectId;
+  title: string;
+  fileUrl: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploadedAt: Date;
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
   phoneNumber?: string;
   passwordHash: string;
   avatarUrl?: string;
+  documents?: IUserDocument[];
   isSuperAdmin: boolean;
   isVerified: boolean;
   verificationToken?: string;
@@ -27,6 +38,16 @@ const UserSchema = new Schema<IUser>(
     phoneNumber: { type: String, default: '', trim: true },
     passwordHash: { type: String, required: true },
     avatarUrl: { type: String, default: '' },
+    documents: [
+      {
+        title: { type: String, required: true },
+        fileUrl: { type: String, required: true },
+        fileName: { type: String, required: true },
+        mimeType: { type: String, required: true },
+        sizeBytes: { type: Number, required: true },
+        uploadedAt: { type: Date, default: Date.now },
+      },
+    ],
     isSuperAdmin: { type: Boolean, default: false, index: true },
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String, index: true },

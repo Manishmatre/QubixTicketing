@@ -455,3 +455,66 @@ export const deleteTicket = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+export const addTicketLink = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { title, url, type = 'web' } = req.body;
+
+    if (!title || !url) {
+      res.status(400).json({ success: false, error: { message: 'Title and URL are required.' } });
+      return;
+    }
+
+    const ticket = await Ticket.findOne(tenantScope(req, { _id: id }));
+    if (!ticket) {
+      res.status(404).json({ success: false, error: { message: 'Ticket not found' } });
+      return;
+    }
+
+    const newLink = {
+      title: title.trim(),
+      url: url.trim(),
+      type,
+      createdAt: new Date(),
+    };
+
+    ticket.links.push(newLink as any);
+    await ticket.save();
+
+    await TicketActivity.create({
+      organizationId: req.organizationId,
+      ticketId: ticket._id,
+      projectId: ticket.projectId,
+      userId: req.user?._id,
+      action: 'link_added',
+      description: `Added link reference: "${title}" (${url})`,
+    });
+
+    emitToTicket(ticket._id.toString(), 'ticket:updated', ticket);
+
+    res.json({ success: true, data: ticket.links });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const deleteTicketLink = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id, linkId } = req.params;
+    const ticket = await Ticket.findOne(tenantScope(req, { _id: id }));
+    if (!ticket) {
+      res.status(404).json({ success: false, error: { message: 'Ticket not found' } });
+      return;
+    }
+
+    ticket.links = ticket.links.filter((l: any) => l._id.toString() !== linkId);
+    await ticket.save();
+
+    emitToTicket(ticket._id.toString(), 'ticket:updated', ticket);
+
+    res.json({ success: true, data: ticket.links });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+

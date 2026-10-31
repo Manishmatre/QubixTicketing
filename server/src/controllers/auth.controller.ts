@@ -8,6 +8,7 @@ import { hashPassword, comparePassword } from '../utils/password.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import { logAuditEvent } from '../services/auditService.js';
 import { emailService } from '../services/emailAdapter.js';
+import { processUploadedFile } from '../services/storageAdapter.js';
 import mongoose from 'mongoose';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -737,6 +738,123 @@ export const acceptInvitation = async (req: Request, res: Response): Promise<voi
         email: user.email,
         name: user.name,
       },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const uploadAvatar = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ success: false, error: { message: 'No image file uploaded.' } });
+      return;
+    }
+
+    const { fileUrl } = await processUploadedFile(req.file);
+
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found.' } });
+      return;
+    }
+
+    user.avatarUrl = fileUrl;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Avatar uploaded successfully!',
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        phoneNumber: user.phoneNumber,
+        isSuperAdmin: user.isSuperAdmin,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const uploadUserDocument = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ success: false, error: { message: 'No document file uploaded.' } });
+      return;
+    }
+
+    const { fileUrl, fileName } = await processUploadedFile(req.file);
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found.' } });
+      return;
+    }
+
+    const title = (req.body.title || req.file.originalname).trim();
+    if (!user.documents) {
+      user.documents = [];
+    }
+
+    const newDoc = {
+      title,
+      fileUrl,
+      fileName,
+      mimeType: req.file.mimetype,
+      sizeBytes: req.file.size,
+      uploadedAt: new Date(),
+    };
+
+    user.documents.push(newDoc as any);
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Document uploaded successfully!',
+      data: user.documents,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const getUserDocuments = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found.' } });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: user.documents || [],
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const deleteUserDocument = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { documentId } = req.params;
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      res.status(404).json({ success: false, error: { message: 'User not found.' } });
+      return;
+    }
+
+    user.documents = (user.documents || []).filter(
+      (doc: any) => doc._id.toString() !== documentId
+    );
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Document removed successfully.',
+      data: user.documents,
     });
   } catch (err: any) {
     res.status(500).json({ success: false, error: { message: err.message } });
