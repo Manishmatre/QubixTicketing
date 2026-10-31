@@ -122,7 +122,7 @@ export const TeamsView: React.FC = () => {
       {/* Members Table */}
       <div className="bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50/80 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+          <thead className="bg-slate-50/80 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-xs">
             <tr>
               <th className="py-3 px-4">Member</th>
               <th className="py-3 px-4">Job Title & Department</th>
@@ -161,7 +161,7 @@ export const TeamsView: React.FC = () => {
                           <p className="font-semibold text-slate-900">{m.user?.name}</p>
                           {onlineUserIds.includes(m.user?.id || m.userId || m.user?._id) && (
                             <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
-                              LIVE
+                              Live
                             </span>
                           )}
                         </div>

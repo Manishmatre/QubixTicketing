@@ -436,7 +436,7 @@ export const SettingsView: React.FC = () => {
 
             {/* SLA Escalation Hours */}
             <div className="pt-4 border-t border-slate-100 space-y-4">
-              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
                 Service Level Agreement (SLA) Resolution Targets
               </h4>
               <p className="text-xs text-slate-500">

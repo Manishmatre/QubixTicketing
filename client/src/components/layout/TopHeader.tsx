@@ -46,6 +46,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   const { theme, setTheme, toggleTheme } = useTheme();
   const location = useLocation();
 
+  const isDark = theme === 'dark' || theme === 'combo';
+
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [showNotifMenu, setShowNotifMenu] = useState<boolean>(false);
@@ -200,14 +202,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             <span>{Math.max(1, onlineUserIds.length)} Live</span>
           </div>
 
-          {/* + New Ticket Button (Action Gradient) */}
+          {/* + New Task Button (Action Gradient) */}
           <button
             onClick={onOpenCreateTicket}
             className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold shadow-sm shadow-blue-500/25 transition-all active:scale-[0.98] cursor-pointer"
-            title="Create New Ticket"
+            title="Create New Task or Deliverable"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">New ticket</span>
+            <span className="hidden sm:inline">New task</span>
           </button>
 
           <div className="h-4 w-[1px] bg-slate-200 mx-0.5" />
@@ -216,7 +218,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           <button
             onClick={toggleTheme}
             className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg relative transition-colors cursor-pointer"
-            title={`Current Theme: ${theme.toUpperCase()} (Click to switch: Light → Combo → Dark)`}
+            title={`Current Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)} (Click to switch: Light → Combo → Dark)`}
           >
             {theme === 'light' && <Sun className="w-4 h-4 text-amber-500" />}
             {theme === 'combo' && <Laptop className="w-4 h-4 text-blue-500" />}
@@ -237,12 +239,22 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             </button>
 
             {showNotifMenu && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-[#EAECF0] py-2 z-50 animate-fadeIn">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100">
+              <div
+                className={`absolute right-0 mt-2 w-80 rounded-xl shadow-2xl border py-2 z-50 animate-fadeIn ${
+                  isDark
+                    ? 'bg-[#0F172A] border-slate-800 text-slate-100 shadow-slate-950/80'
+                    : 'bg-white border-slate-200 text-slate-800 shadow-xl'
+                }`}
+              >
+                <div
+                  className={`flex items-center justify-between px-4 py-2 border-b ${
+                    isDark ? 'border-slate-800 text-slate-100' : 'border-slate-100 text-slate-900'
+                  }`}
+                >
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-slate-900">Notifications</h4>
+                    <h4 className="text-xs font-bold">Notifications</h4>
                     {unreadCount > 0 && (
-                      <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                      <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
                         {unreadCount} new
                       </span>
                     )}
@@ -250,14 +262,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="text-[11px] text-blue-600 hover:underline font-medium cursor-pointer"
+                      className="text-[11px] text-blue-500 hover:underline font-medium cursor-pointer"
                     >
                       Mark all read
                     </button>
                   )}
                 </div>
 
-                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                <div className={`max-h-72 overflow-y-auto divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-100'}`}>
                   {notifications.length === 0 ? (
                     <div className="p-6 text-center text-xs text-slate-400">
                       No new notifications
@@ -267,20 +279,26 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                       <div
                         key={n._id}
                         onClick={() => markOneRead(n._id)}
-                        className={`p-3 text-xs transition-colors cursor-pointer hover:bg-slate-50 flex gap-2.5 ${
-                          !n.isRead ? 'bg-blue-50/40' : ''
+                        className={`p-3 text-xs transition-colors cursor-pointer flex gap-2.5 ${
+                          isDark
+                            ? !n.isRead
+                              ? 'bg-blue-950/40 hover:bg-slate-800/80'
+                              : 'hover:bg-slate-800/50 text-slate-200'
+                            : !n.isRead
+                            ? 'bg-blue-50/60 hover:bg-slate-50'
+                            : 'hover:bg-slate-50 text-slate-700'
                         }`}
                       >
                         <div className="mt-0.5">
                           {!n.isRead ? (
                             <div className="w-2 h-2 bg-blue-600 rounded-full mt-1" />
                           ) : (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-slate-300" />
+                            <CheckCircle2 className={`w-3.5 h-3.5 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-900 truncate text-[11px]">{n.title}</p>
-                          <p className="text-slate-600 mt-0.5 line-clamp-2 leading-relaxed text-[11px]">
+                          <p className={`font-semibold truncate text-[11px] ${isDark ? 'text-white' : 'text-slate-900'}`}>{n.title}</p>
+                          <p className={`mt-0.5 line-clamp-2 leading-relaxed text-[11px] ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                             {n.message}
                           </p>
                           <p className="text-[10px] text-slate-400 mt-1">

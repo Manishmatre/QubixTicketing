@@ -1,9 +1,15 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export type TicketCategory =
+  | 'Task'
+  | 'Feature'
+  | 'Improvement'
   | 'Bug'
-  | 'UI/UX Issue'
-  | 'Feature Request'
+  | 'General Work'
+  | 'Operations'
+  | 'Client Request'
+  | 'UI/UX Design'
+  | 'Documentation'
   | 'Technical Support'
   | 'Backend Issue'
   | 'Frontend Issue'
@@ -45,6 +51,7 @@ export interface ITicket extends Document {
   status: TicketStatus;
   reporterId: mongoose.Types.ObjectId;
   assigneeId?: mongoose.Types.ObjectId;
+  assigneeIds?: mongoose.Types.ObjectId[];
   watchers: mongoose.Types.ObjectId[];
   tags: string[];
   links: ITicketLink[];
@@ -72,9 +79,15 @@ const TicketSchema = new Schema<ITicket>(
     category: {
       type: String,
       enum: [
+        'Task',
+        'Feature',
+        'Improvement',
         'Bug',
-        'UI/UX Issue',
-        'Feature Request',
+        'General Work',
+        'Operations',
+        'Client Request',
+        'UI/UX Design',
+        'Documentation',
         'Technical Support',
         'Backend Issue',
         'Frontend Issue',
@@ -83,7 +96,7 @@ const TicketSchema = new Schema<ITicket>(
         'General Request',
         'Other',
       ],
-      default: 'Bug',
+      default: 'Task',
       index: true,
     },
     priority: {
@@ -110,6 +123,7 @@ const TicketSchema = new Schema<ITicket>(
     },
     reporterId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     assigneeId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    assigneeIds: [{ type: Schema.Types.ObjectId, ref: 'User', index: true }],
     watchers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     tags: [{ type: String, trim: true }],
     links: [
@@ -136,6 +150,7 @@ const TicketSchema = new Schema<ITicket>(
 // Compound indexes for high-speed multi-tenant queries
 TicketSchema.index({ organizationId: 1, projectId: 1, status: 1 });
 TicketSchema.index({ organizationId: 1, assigneeId: 1, status: 1 });
+TicketSchema.index({ organizationId: 1, assigneeIds: 1, status: 1 });
 TicketSchema.index({ organizationId: 1, sequenceNumber: 1 });
 TicketSchema.index({ organizationId: 1, ticketNumber: 1 }, { unique: true });
 

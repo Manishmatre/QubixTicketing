@@ -160,7 +160,7 @@ export const BillingView: React.FC = () => {
       {/* Current Plan & Resource Usage Summary */}
       <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-xl p-5 shadow-2xs grid grid-cols-1 md:grid-cols-4 gap-5 items-center">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+          <span className="text-xs font-semibold text-slate-500 block mb-1">
             Active Tier
           </span>
           <div className="flex items-center gap-2 flex-wrap">
@@ -272,7 +272,7 @@ export const BillingView: React.FC = () => {
                   <div className="flex items-center justify-between mb-1.5">
                     <h4 className="text-sm font-bold text-slate-900">{p.name}</h4>
                     {isCurrent && (
-                      <span className="text-[10px] font-bold uppercase bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                         Current
                       </span>
                     )}

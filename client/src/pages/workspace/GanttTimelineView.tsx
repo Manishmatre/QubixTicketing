@@ -196,8 +196,8 @@ export const GanttTimelineView: React.FC = () => {
       {/* Main Gantt Canvas */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Side: Ticket List Table (Fixed Width) */}
-        <div className="w-80 border-r border-[#EAECF0] flex flex-col shrink-0 bg-white">
-          <div className="h-10 px-4 border-b border-[#EAECF0] bg-[#F8FAFC] flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <div className="w-80 border-r border-[#EAECF0] dark:border-slate-800 flex flex-col shrink-0 bg-white dark:bg-slate-900">
+          <div className="h-10 px-4 border-b border-[#EAECF0] dark:border-slate-800 bg-[#F8FAFC] dark:bg-slate-900 flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
             <span>Ticket / Work Item</span>
             <span>Assignee</span>
           </div>

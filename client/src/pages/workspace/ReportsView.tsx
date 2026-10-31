@@ -162,7 +162,7 @@ export const ReportsView: React.FC = () => {
       {/* SLA / KPI Highlights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-semibold text-slate-500 block mb-2">
             Average Resolution Time
           </span>
           <div className="flex items-baseline gap-2">
@@ -175,7 +175,7 @@ export const ReportsView: React.FC = () => {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-semibold text-slate-500 block mb-2">
             First Response SLA
           </span>
           <div className="flex items-baseline gap-2">
@@ -186,7 +186,7 @@ export const ReportsView: React.FC = () => {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
+          <span className="text-xs font-semibold text-slate-500 block mb-2">
             Resolution Ratio
           </span>
           <div className="flex items-baseline gap-2">
@@ -197,7 +197,7 @@ export const ReportsView: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-2">
-            {data.metrics.resolvedTickets} of {data.metrics.totalTickets} total tickets closed
+            {data.metrics.resolvedTickets} of {data.metrics.totalTickets} total tasks closed
           </p>
         </div>
       </div>
@@ -205,7 +205,7 @@ export const ReportsView: React.FC = () => {
       {/* Visual Category Breakdown & Resolution Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-subtle">
-          <h3 className="text-sm font-bold text-slate-900 mb-1">Issues by Category</h3>
+          <h3 className="text-sm font-bold text-slate-900 mb-1">Tasks by Category</h3>
           <p className="text-xs text-slate-400 mb-6">Distribution across functional domains</p>
 
           <div className="h-64 flex items-center justify-center">

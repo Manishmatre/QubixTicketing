@@ -553,7 +553,7 @@ export const LandingPage: React.FC = () => {
 
                       {/* Workspace SLA & Health Telemetry */}
                       <div className="pt-2 border-t border-slate-100">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 block mb-1">
+                        <span className="text-xs font-semibold text-slate-500 px-2 block mb-1">
                           Workspace Telemetry
                         </span>
                         <div className="space-y-1.5 text-[11px] text-slate-600 px-2">
@@ -643,7 +643,7 @@ export const LandingPage: React.FC = () => {
                     <div className="p-4 flex-1 overflow-x-auto grid grid-cols-1 md:grid-cols-4 gap-3">
                       {/* Column 1: TO DO */}
                       <div className="space-y-2.5 min-w-[200px]">
-                        <div className="flex items-center justify-between text-slate-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                        <div className="flex items-center justify-between text-slate-600 text-xs font-semibold px-1">
                           <span className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-slate-400" />
                             To Do
@@ -681,7 +681,7 @@ export const LandingPage: React.FC = () => {
 
                       {/* Column 2: IN PROGRESS */}
                       <div className="space-y-2.5 min-w-[200px]">
-                        <div className="flex items-center justify-between text-blue-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                        <div className="flex items-center justify-between text-blue-600 text-xs font-semibold px-1">
                           <span className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                             In Progress
@@ -739,7 +739,7 @@ export const LandingPage: React.FC = () => {
 
                       {/* Column 3: CODE REVIEW */}
                       <div className="space-y-2.5 min-w-[200px]">
-                        <div className="flex items-center justify-between text-indigo-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                        <div className="flex items-center justify-between text-indigo-600 text-xs font-semibold px-1">
                           <span className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-indigo-500" />
                             Code Review
@@ -762,7 +762,7 @@ export const LandingPage: React.FC = () => {
 
                       {/* Column 4: RESOLVED */}
                       <div className="space-y-2.5 min-w-[200px]">
-                        <div className="flex items-center justify-between text-emerald-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                        <div className="flex items-center justify-between text-emerald-600 text-xs font-semibold px-1">
                           <span className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-500" />
                             Resolved
@@ -869,7 +869,7 @@ export const LandingPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-1.5">
-                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              <label className="text-xs font-semibold text-slate-500">
                                 Workflow Action
                               </label>
                               <button
@@ -896,7 +896,7 @@ export const LandingPage: React.FC = () => {
                             </div>
 
                             <div className="pt-2 border-t border-slate-100 space-y-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              <span className="text-xs font-semibold text-slate-500">
                                 Internal Note
                               </span>
                               <div className="p-2.5 rounded bg-amber-50/70 border border-amber-200 text-[11px] text-slate-700 space-y-1">
@@ -1030,22 +1030,22 @@ export const LandingPage: React.FC = () => {
                 <div className="p-6 bg-[#F8FAFC] space-y-4 text-xs">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Total Tickets</span>
+                      <span className="text-[11px] font-semibold text-slate-500">Total Tasks</span>
                       <p className="text-2xl font-black text-slate-900 mt-1">128</p>
                       <span className="text-[10px] text-emerald-600 font-bold">&uarr; +14% this month</span>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">SLA Compliance</span>
+                      <span className="text-[11px] font-semibold text-slate-500">SLA Compliance</span>
                       <p className="text-2xl font-black text-blue-600 mt-1">98.4%</p>
                       <span className="text-[10px] text-emerald-600 font-bold">Target: &gt;95.0%</span>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Avg Resolution</span>
+                      <span className="text-[11px] font-semibold text-slate-500">Avg Resolution</span>
                       <p className="text-2xl font-black text-slate-900 mt-1">1.8h</p>
                       <span className="text-[10px] text-emerald-600 font-bold">&darr; 42% faster</span>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Export Ready</span>
+                      <span className="text-[11px] font-semibold text-slate-500">Export Ready</span>
                       <p className="text-xs font-bold text-slate-700 mt-2">1-Click PDF & CSV</p>
                       <span className="text-[10px] text-slate-400">Audit-compliant</span>
                     </div>

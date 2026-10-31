@@ -481,7 +481,7 @@ export const SuperAdminView: React.FC = () => {
             {/* 4 Super Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-2xs space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-xs font-semibold text-slate-500 block">
                   Total Organizations
                 </span>
                 <span className="text-3xl font-black text-slate-900">{stats.totalOrgs}</span>
@@ -492,7 +492,7 @@ export const SuperAdminView: React.FC = () => {
               </div>
 
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-2xs space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-xs font-semibold text-slate-500 block">
                   Global Users
                 </span>
                 <span className="text-3xl font-black text-slate-900">{stats.totalUsers}</span>
@@ -503,7 +503,7 @@ export const SuperAdminView: React.FC = () => {
               </div>
 
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-2xs space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-xs font-semibold text-slate-500 block">
                   Recurring Revenue (MRR)
                 </span>
                 <span className="text-3xl font-black text-purple-600">${stats.mrr}</span>
@@ -514,8 +514,8 @@ export const SuperAdminView: React.FC = () => {
               </div>
 
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-2xs space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
-                  Total Managed Issues
+                <span className="text-xs font-semibold text-slate-500 block">
+                  Total Tasks & Projects
                 </span>
                 <span className="text-3xl font-black text-blue-600">{stats.totalTickets}</span>
                 <div className="flex items-center justify-between text-xs pt-1">
@@ -568,7 +568,7 @@ export const SuperAdminView: React.FC = () => {
                 </Button>
               </div>
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 text-slate-400 uppercase font-bold text-[10px]">
+                <thead className="bg-slate-50 text-slate-500 font-semibold text-xs">
                   <tr>
                     <th className="py-2.5 px-5">Workspace</th>
                     <th className="py-2.5 px-5">Plan</th>
@@ -640,7 +640,7 @@ export const SuperAdminView: React.FC = () => {
             <div className="bg-white border border-slate-200 rounded-xl shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs">
                     <tr>
                       <th className="py-3 px-4">Organization</th>
                       <th className="py-3 px-4">Slug URL</th>
@@ -758,7 +758,7 @@ export const SuperAdminView: React.FC = () => {
             <div className="bg-white border border-slate-200 rounded-xl shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs">
                     <tr>
                       <th className="py-3 px-4">User</th>
                       <th className="py-3 px-4">Email & Phone</th>
@@ -904,7 +904,7 @@ export const SuperAdminView: React.FC = () => {
                   </div>
 
                   <div className="space-y-1 pt-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Features:</span>
+                    <span className="text-xs font-semibold text-slate-500 block">Features:</span>
                     <div className="flex flex-wrap gap-1">
                       {p.features?.map((f: string, i: number) => (
                         <span key={i} className="bg-purple-50 text-purple-700 text-[10px] px-2 py-0.5 rounded font-medium">
@@ -1085,7 +1085,7 @@ export const SuperAdminView: React.FC = () => {
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
+                <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs">
                   <tr>
                     <th className="py-3 px-4">Action</th>
                     <th className="py-3 px-4">Entity</th>

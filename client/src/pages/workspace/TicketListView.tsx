@@ -271,7 +271,7 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
         <div className="bg-white dark:bg-[#111827] border border-slate-200/90 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden">
           <div className="w-full overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[1040px] border-collapse">
-              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold uppercase tracking-wider">
+              <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-xs">
                 <tr>
                   <th className="p-3.5 w-12 text-center border-r border-[#EAECF0]/60">
                     <input
@@ -346,13 +346,33 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap border-r border-[#EAECF0]/40">
                         <div className="flex items-center gap-2">
-                          <Avatar
-                            name={t.assigneeId?.name || 'Unassigned'}
-                            src={t.assigneeId?.avatarUrl}
-                            size="xs"
-                          />
-                          <span className="text-slate-700 font-medium text-xs">
-                            {t.assigneeId?.name || 'Unassigned'}
+                          {t.assigneeIds && t.assigneeIds.length > 0 ? (
+                            <div className="flex items-center -space-x-1.5 overflow-hidden">
+                              {t.assigneeIds.slice(0, 3).map((a, idx) => (
+                                <Avatar
+                                  key={a.id || (a as any)._id || idx}
+                                  name={a.name || 'Member'}
+                                  src={a.avatarUrl}
+                                  size="xs"
+                                />
+                              ))}
+                              {t.assigneeIds.length > 3 && (
+                                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-full px-1">
+                                  +{t.assigneeIds.length - 3}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <Avatar
+                              name={t.assigneeId?.name || 'Unassigned'}
+                              src={t.assigneeId?.avatarUrl}
+                              size="xs"
+                            />
+                          )}
+                          <span className="text-slate-700 dark:text-slate-300 font-medium text-xs">
+                            {t.assigneeIds && t.assigneeIds.length > 1
+                              ? `${t.assigneeIds.length} assignees`
+                              : (t.assigneeId?.name || t.assigneeIds?.[0]?.name || 'Unassigned')}
                           </span>
                         </div>
                       </td>

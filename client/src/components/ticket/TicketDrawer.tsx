@@ -603,7 +603,7 @@ export const TicketDrawer: React.FC<TicketDrawerProps> = ({
                         {/* Mention autocomplete dropdown */}
                         {showMentionMenu && filteredMembers.length > 0 && (
                           <div className="absolute bottom-full left-2 mb-2 w-64 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-50 max-h-48 overflow-y-auto">
-                            <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                            <div className="px-3 py-1 text-[10px] font-bold text-slate-500 border-b border-slate-100">
                               Mention Team Member
                             </div>
                             {filteredMembers.map((member) => (

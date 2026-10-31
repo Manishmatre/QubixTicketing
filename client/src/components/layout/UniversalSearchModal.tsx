@@ -324,7 +324,7 @@ export const UniversalSearchModal: React.FC<UniversalSearchModalProps> = ({
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold truncate leading-tight">{item.title}</span>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <span className="text-[10px] font-semibold text-slate-400">
                           {item.category}
                         </span>
                         {item.badge && (

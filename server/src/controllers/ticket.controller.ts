@@ -39,7 +39,12 @@ export const getTickets = async (req: Request, res: Response): Promise<void> => 
     }
     if (priority) filter.priority = priority;
     if (category) filter.category = category;
-    if (assigneeId) filter.assigneeId = assigneeId;
+    if (assigneeId) {
+      filter.$or = [
+        { assigneeId: assigneeId },
+        { assigneeIds: assigneeId },
+      ];
+    }
     if (reporterId) filter.reporterId = reporterId;
     if (tags) {
       const tagList = String(tags).split(',').map((t) => t.trim());
@@ -64,6 +69,7 @@ export const getTickets = async (req: Request, res: Response): Promise<void> => 
       Ticket.find(tenantScope(req, filter))
         .populate('reporterId', 'name email avatarUrl')
         .populate('assigneeId', 'name email avatarUrl')
+        .populate('assigneeIds', 'name email avatarUrl')
         .populate('projectId', 'name key')
         .sort(sortOptions)
         .skip(skip)
@@ -96,6 +102,7 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
       priority,
       status,
       assigneeId,
+      assigneeIds,
       dueDate,
       tags,
       watchers,
@@ -135,6 +142,16 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
     const lastInCol = await Ticket.findOne(tenantScope(req, { status: initialStatus })).sort({ order: -1 });
     const order = (lastInCol?.order || 0) + 1000;
 
+    // Handle multiple assignees
+    let targetAssigneeIds: mongoose.Types.ObjectId[] = [];
+    if (Array.isArray(assigneeIds) && assigneeIds.length > 0) {
+      targetAssigneeIds = assigneeIds
+        .filter((aId: string) => mongoose.Types.ObjectId.isValid(aId))
+        .map((aId: string) => new mongoose.Types.ObjectId(aId));
+    } else if (assigneeId && mongoose.Types.ObjectId.isValid(assigneeId)) {
+      targetAssigneeIds = [new mongoose.Types.ObjectId(assigneeId)];
+    }
+
     const ticket = await Ticket.create({
       organizationId: req.organizationId,
       projectId: project._id,
@@ -142,11 +159,12 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
       sequenceNumber,
       title: title.trim(),
       description: description || '',
-      category: (category as TicketCategory) || 'Bug',
+      category: (category as TicketCategory) || 'Task',
       priority: (priority as TicketPriority) || 'Normal',
       status: initialStatus,
       reporterId: req.user?._id,
-      assigneeId: assigneeId && mongoose.Types.ObjectId.isValid(assigneeId) ? new mongoose.Types.ObjectId(assigneeId) : undefined,
+      assigneeId: targetAssigneeIds[0] || undefined,
+      assigneeIds: targetAssigneeIds,
       dueDate: dueDate ? new Date(dueDate) : undefined,
       tags: Array.isArray(tags) ? tags : [],
       watchers: Array.isArray(watchers) ? watchers : [req.user?._id],
@@ -156,6 +174,7 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
     const populatedTicket = await Ticket.findById(ticket._id)
       .populate('reporterId', 'name email avatarUrl')
       .populate('assigneeId', 'name email avatarUrl')
+      .populate('assigneeIds', 'name email avatarUrl')
       .populate('projectId', 'name key');
 
     // Create activity
@@ -165,23 +184,25 @@ export const createTicket = async (req: Request, res: Response): Promise<void> =
       projectId: project._id,
       userId: req.user?._id,
       action: 'created',
-      description: `Created ticket ${ticketNumber}: "${ticket.title}"`,
+      description: `Created task ${ticketNumber}: "${ticket.title}"`,
     });
 
-    // Notify assignee if assigned
-    if (ticket.assigneeId && ticket.assigneeId.toString() !== req.user?._id.toString()) {
-      const notif = await Notification.create({
-        organizationId: req.organizationId,
-        recipientId: ticket.assigneeId,
-        senderId: req.user?._id,
-        type: 'ticket_assigned',
-        title: `Assigned to ticket: ${ticketNumber}`,
-        message: `${req.user?.name} assigned you to "${ticket.title}"`,
-        link: `/workspace/tickets/${ticket._id}`,
-        relatedEntityId: ticket._id,
-        relatedEntityType: 'ticket',
-      });
-      emitToUser(ticket.assigneeId.toString(), 'notification:new', notif);
+    // Notify all assignees if assigned
+    for (const aId of targetAssigneeIds) {
+      if (aId.toString() !== req.user?._id.toString()) {
+        const notif = await Notification.create({
+          organizationId: req.organizationId,
+          recipientId: aId,
+          senderId: req.user?._id,
+          type: 'ticket_assigned',
+          title: `Assigned to task: ${ticketNumber}`,
+          message: `${req.user?.name} assigned you to "${ticket.title}"`,
+          link: `/workspace/tickets/${ticket._id}`,
+          relatedEntityId: ticket._id,
+          relatedEntityType: 'ticket',
+        });
+        emitToUser(aId.toString(), 'notification:new', notif);
+      }
     }
 
     // Realtime broadcast to org
@@ -210,6 +231,7 @@ export const getTicketById = async (req: Request, res: Response): Promise<void> 
     const ticket = await Ticket.findOne(tenantScope(req, { _id: id }))
       .populate('reporterId', 'name email avatarUrl')
       .populate('assigneeId', 'name email avatarUrl')
+      .populate('assigneeIds', 'name email avatarUrl designation')
       .populate('watchers', 'name email avatarUrl')
       .populate('projectId', 'name key priority status')
       .populate('relatedTicketIds', 'ticketNumber title status priority');
@@ -235,6 +257,7 @@ export const updateTicket = async (req: Request, res: Response): Promise<void> =
       priority,
       status,
       assigneeId,
+      assigneeIds,
       dueDate,
       tags,
       watchers,
@@ -244,6 +267,26 @@ export const updateTicket = async (req: Request, res: Response): Promise<void> =
     const ticket = await Ticket.findOne(tenantScope(req, { _id: id }));
     if (!ticket) {
       res.status(404).json({ success: false, error: { message: 'Ticket not found' } });
+      return;
+    }
+
+    // Role & Assignment Permission Check: Non-managers can ONLY update status & details on assigned tasks!
+    const userRole = req.membershipRole || 'employee';
+    const isManager = ['owner', 'admin', 'project_manager'].includes(userRole) || req.user?.isSuperAdmin;
+    const currentUserIdStr = req.user?._id.toString();
+    const isAssigned =
+      (ticket.assigneeId && ticket.assigneeId.toString() === currentUserIdStr) ||
+      (ticket.assigneeIds && ticket.assigneeIds.some((aId: any) => aId.toString() === currentUserIdStr)) ||
+      ticket.reporterId.toString() === currentUserIdStr;
+
+    if (!isManager && !isAssigned) {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN_TASK_ACCESS',
+          message: 'You can only update status and progress on tasks assigned to you.',
+        },
+      });
       return;
     }
 
@@ -264,10 +307,18 @@ export const updateTicket = async (req: Request, res: Response): Promise<void> =
         ticket.closedAt = undefined;
       }
     }
-    if (assigneeId !== undefined) {
+    if (assigneeIds !== undefined) {
+      if (Array.isArray(assigneeIds)) {
+        ticket.assigneeIds = assigneeIds
+          .filter((aId: string) => mongoose.Types.ObjectId.isValid(aId))
+          .map((aId: string) => new mongoose.Types.ObjectId(aId));
+        ticket.assigneeId = ticket.assigneeIds[0] || undefined;
+      }
+    } else if (assigneeId !== undefined) {
       ticket.assigneeId = assigneeId && mongoose.Types.ObjectId.isValid(assigneeId)
         ? new mongoose.Types.ObjectId(assigneeId)
         : undefined;
+      ticket.assigneeIds = ticket.assigneeId ? [ticket.assigneeId] : [];
     }
     if (dueDate !== undefined) ticket.dueDate = dueDate ? new Date(dueDate) : undefined;
     if (tags) ticket.tags = tags;
@@ -344,6 +395,7 @@ export const updateTicket = async (req: Request, res: Response): Promise<void> =
     const populated = await Ticket.findById(ticket._id)
       .populate('reporterId', 'name email avatarUrl')
       .populate('assigneeId', 'name email avatarUrl')
+      .populate('assigneeIds', 'name email avatarUrl designation')
       .populate('watchers', 'name email avatarUrl')
       .populate('projectId', 'name key');
 
@@ -364,6 +416,26 @@ export const updateTicketStatus = async (req: Request, res: Response): Promise<v
     const ticket = await Ticket.findOne(tenantScope(req, { _id: id }));
     if (!ticket) {
       res.status(404).json({ success: false, error: { message: 'Ticket not found' } });
+      return;
+    }
+
+    // Role & Assignment Permission Check: Non-managers can ONLY update status on tasks assigned to them!
+    const userRole = req.membershipRole || 'employee';
+    const isManager = ['owner', 'admin', 'project_manager'].includes(userRole) || req.user?.isSuperAdmin;
+    const currentUserIdStr = req.user?._id.toString();
+    const isAssigned =
+      (ticket.assigneeId && ticket.assigneeId.toString() === currentUserIdStr) ||
+      (ticket.assigneeIds && ticket.assigneeIds.some((aId: any) => aId.toString() === currentUserIdStr)) ||
+      ticket.reporterId.toString() === currentUserIdStr;
+
+    if (!isManager && !isAssigned) {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN_TASK_ACCESS',
+          message: 'You can only update status on tasks assigned to you.',
+        },
+      });
       return;
     }
 
@@ -390,6 +462,7 @@ export const updateTicketStatus = async (req: Request, res: Response): Promise<v
     const populated = await Ticket.findById(ticket._id)
       .populate('reporterId', 'name email avatarUrl')
       .populate('assigneeId', 'name email avatarUrl')
+      .populate('assigneeIds', 'name email avatarUrl designation')
       .populate('projectId', 'name key');
 
     emitToOrg(req.organizationId!.toString(), 'ticket:status_changed', populated);

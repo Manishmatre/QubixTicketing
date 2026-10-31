@@ -494,7 +494,7 @@ export const ProjectDetailsPage: React.FC = () => {
             <div className="bg-white border border-[#EAECF0] rounded-xl shadow-2xs overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs min-w-[750px] border-collapse">
-                  <thead className="bg-[#F8FAFC] border-b border-[#EAECF0] text-slate-500 font-bold uppercase tracking-wider">
+                  <thead className="bg-[#F8FAFC] dark:bg-slate-900 border-b border-[#EAECF0] dark:border-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-xs">
                     <tr>
                       <th className="py-3 px-4 w-28">ID</th>
                       <th className="py-3 px-4">Title</th>

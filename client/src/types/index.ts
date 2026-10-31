@@ -8,9 +8,15 @@ export type OrgRole =
   | 'viewer';
 
 export type TicketCategory =
+  | 'Task'
+  | 'Feature'
+  | 'Improvement'
   | 'Bug'
-  | 'UI/UX Issue'
-  | 'Feature Request'
+  | 'General Work'
+  | 'Operations'
+  | 'Client Request'
+  | 'UI/UX Design'
+  | 'Documentation'
   | 'Technical Support'
   | 'Backend Issue'
   | 'Frontend Issue'
@@ -135,6 +141,7 @@ export interface Ticket {
   status: TicketStatus;
   reporterId: User;
   assigneeId?: User;
+  assigneeIds?: User[];
   watchers: User[];
   tags: string[];
   links?: TicketLink[];

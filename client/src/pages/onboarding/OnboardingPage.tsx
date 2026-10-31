@@ -88,7 +88,7 @@ export const OnboardingPage: React.FC = () => {
         invitedEmails: emails,
         projectName: projectName.trim(),
         projectKey: projectKey.trim().toUpperCase(),
-        firstTicketTitle: `Welcome to ${companyName.trim()} issue workspace`,
+        firstTicketTitle: `Welcome to ${companyName.trim()} workspace`,
         firstTicketPriority: 'High',
       });
 
@@ -161,7 +161,7 @@ export const OnboardingPage: React.FC = () => {
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-blue-600">
                 <Building2 className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Workspace Setup</span>
+                <span className="text-xs font-bold">Workspace Setup</span>
               </div>
 
               <div>
@@ -269,7 +269,7 @@ export const OnboardingPage: React.FC = () => {
             <div className="space-y-5">
               <div className="flex items-center gap-2 text-blue-600">
                 <Sparkles className="w-5 h-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Ready to Launch</span>
+                <span className="text-xs font-bold">Ready to Launch</span>
               </div>
 
               <div>

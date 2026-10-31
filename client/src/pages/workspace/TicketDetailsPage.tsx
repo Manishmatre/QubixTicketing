@@ -103,9 +103,19 @@ export const TicketDetailsPage: React.FC = () => {
   const [mentionCursorIndex, setMentionCursorIndex] = useState(0);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Permissions check for internal notes
+  // Permissions check for internal notes & task editing
   const userRole = (organization?.role || 'employee') as OrgRole;
+  const isManager = ['owner', 'admin', 'project_manager'].includes(userRole) || user?.isSuperAdmin;
   const canSeeInternalNotes = ['owner', 'admin', 'project_manager', 'team_lead', 'employee'].includes(userRole) || user?.isSuperAdmin;
+
+  const currentUserId = user?.id;
+  const isAssigned =
+    (ticket?.assigneeId && (ticket.assigneeId.id === currentUserId || (ticket.assigneeId as any)._id === currentUserId)) ||
+    (ticket?.assigneeIds && ticket.assigneeIds.some((a) => a.id === currentUserId || (a as any)._id === currentUserId)) ||
+    ticket?.reporterId?.id === currentUserId ||
+    (ticket?.reporterId as any)?._id === currentUserId;
+
+  const canUpdateTask = isManager || !!isAssigned;
 
   const fetchTicketDetails = async (id: string) => {
     setIsLoading(true);
@@ -181,6 +191,10 @@ export const TicketDetailsPage: React.FC = () => {
 
   const handleStatusChange = async (newStatus: string) => {
     if (!ticket) return;
+    if (!canUpdateTask) {
+      alert('You can only update status on tasks assigned to you.');
+      return;
+    }
     try {
       const res = await apiClient.patch(`/tickets/${ticket._id}/status`, { status: newStatus });
       if (res.data.success) {
@@ -188,46 +202,62 @@ export const TicketDetailsPage: React.FC = () => {
         const actRes = await apiClient.get(`/ticket-comments/ticket/${ticket._id}/activities`);
         if (actRes.data.success) setActivities(actRes.data.data);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Update status error:', err);
+      alert(err.response?.data?.message || 'Failed to update status');
     }
   };
 
   const handlePriorityChange = async (newPriority: string) => {
     if (!ticket) return;
+    if (!canUpdateTask) {
+      alert('You can only update priority on tasks assigned to you.');
+      return;
+    }
     try {
       const res = await apiClient.patch(`/tickets/${ticket._id}`, { priority: newPriority });
       if (res.data.success) {
         setTicket(res.data.data);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Update priority error:', err);
+      alert(err.response?.data?.message || 'Failed to update priority');
     }
   };
 
   const handleSaveTitle = async () => {
     if (!ticket || !titleValue.trim()) return;
+    if (!canUpdateTask) {
+      alert('You can only edit tasks assigned to you.');
+      return;
+    }
     try {
       const res = await apiClient.patch(`/tickets/${ticket._id}`, { title: titleValue.trim() });
       if (res.data.success) {
         setTicket(res.data.data);
         setIsEditingTitle(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Save title error:', err);
+      alert(err.response?.data?.message || 'Failed to update title');
     }
   };
 
   const handleSaveDesc = async () => {
     if (!ticket) return;
+    if (!canUpdateTask) {
+      alert('You can only edit tasks assigned to you.');
+      return;
+    }
     try {
       const res = await apiClient.patch(`/tickets/${ticket._id}`, { description: descValue.trim() });
       if (res.data.success) {
         setTicket(res.data.data);
         setIsEditingDesc(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Save desc error:', err);
+      alert(err.response?.data?.message || 'Failed to update description');
     }
   };
 
@@ -287,6 +317,10 @@ export const TicketDetailsPage: React.FC = () => {
   };
 
   const toggleSubTicket = (id: string) => {
+    if (!canUpdateTask) {
+      alert('You can only update checklist items on tasks assigned to you.');
+      return;
+    }
     setSubTickets((prev) =>
       prev.map((s) => (s.id === id ? { ...s, done: !s.done } : s))
     );
@@ -543,13 +577,15 @@ export const TicketDetailsPage: React.FC = () => {
                 <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight leading-snug">
                   {ticket.title}
                 </h1>
-                <button
-                  onClick={() => setIsEditingTitle(true)}
-                  className="text-slate-400 hover:text-blue-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Edit title"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
+                {canUpdateTask && (
+                  <button
+                    onClick={() => setIsEditingTitle(true)}
+                    className="text-slate-400 hover:text-blue-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Edit title"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             )}
 
@@ -564,12 +600,12 @@ export const TicketDetailsPage: React.FC = () => {
 
           {/* Description Area */}
           <div className="space-y-2 rounded-xl border border-[#EAECF0] p-4 bg-[#F8FAFC]">
-            <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
               <span>Description</span>
-              {!isEditingDesc && (
+              {canUpdateTask && !isEditingDesc && (
                 <button
                   onClick={() => setIsEditingDesc(true)}
-                  className="text-blue-600 hover:underline font-semibold flex items-center gap-1 text-[11px] normal-case"
+                  className="text-blue-600 hover:underline font-semibold flex items-center gap-1 text-[11px]"
                 >
                   <Edit2 className="w-3 h-3" />
                   <span>Edit</span>
@@ -984,7 +1020,7 @@ export const TicketDetailsPage: React.FC = () => {
                 {/* Floating Mention Autocomplete Menu */}
                 {showMentionMenu && filteredMembers.length > 0 && (
                   <div className="absolute bottom-full left-3 mb-2 w-64 bg-white border border-[#EAECF0] rounded-xl shadow-xl z-30 overflow-hidden py-1">
-                    <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
+                    <div className="px-3 py-1.5 text-[10px] font-bold text-slate-500 border-b border-slate-100 flex items-center justify-between">
                       <span>Mention teammate</span>
                       <span className="font-mono text-[9px] text-blue-600">Click to tag</span>
                     </div>
@@ -1065,18 +1101,18 @@ export const TicketDetailsPage: React.FC = () => {
         </div>
 
         {/* Right Details Sidebar (30%) */}
-        <div className="w-full md:w-80 border-t md:border-t-0 md:border-l border-[#EAECF0] bg-white overflow-y-auto p-6 space-y-6 text-xs text-slate-700 shrink-0">
+        <div className="w-full md:w-80 border-t md:border-t-0 md:border-l border-[#EAECF0] dark:border-slate-800 bg-white dark:bg-[#111827] overflow-y-auto p-6 space-y-6 text-xs text-slate-700 dark:text-slate-300 shrink-0">
           {/* Status & Share Header Bar */}
-          <div className="pb-4 border-b border-[#EAECF0] space-y-3">
+          <div className="pb-4 border-b border-[#EAECF0] dark:border-slate-800 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Current Status</span>
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Current Status</span>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
-                  alert('Ticket URL copied to clipboard!');
+                  alert('Task URL copied to clipboard!');
                 }}
-                title="Share ticket link"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-blue-200"
+                title="Share task link"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-blue-200"
               >
                 <Share2 className="w-3.5 h-3.5 text-blue-600" />
                 <span>Share</span>
@@ -1087,8 +1123,12 @@ export const TicketDetailsPage: React.FC = () => {
             <div className="relative">
               <select
                 value={ticket.status}
+                disabled={!canUpdateTask}
+                title={!canUpdateTask ? 'Only assigned members can update this task' : undefined}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full appearance-none bg-blue-50/80 hover:bg-blue-100/70 border border-blue-200 text-blue-700 font-bold text-xs rounded-xl pl-8 pr-7 py-2 cursor-pointer outline-none transition-colors"
+                className={`w-full appearance-none bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100/70 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 font-bold text-xs rounded-xl pl-8 pr-7 py-2 outline-none transition-colors ${
+                  !canUpdateTask ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                }`}
               >
                 <option value="To Do">Open / To Do</option>
                 <option value="In Progress">In Progress</option>
@@ -1096,25 +1136,33 @@ export const TicketDetailsPage: React.FC = () => {
                 <option value="Resolved">Resolved</option>
                 <option value="Closed">Closed</option>
               </select>
-              <Circle className="w-2.5 h-2.5 text-blue-600 fill-blue-600 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <ChevronDown className="w-3.5 h-3.5 text-blue-600 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Circle className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
+            {!canUpdateTask && (
+              <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                🔒 You can only update tasks assigned to you.
+              </p>
+            )}
           </div>
 
           {/* Attributes Card */}
           <div className="space-y-4">
-            <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-blue-600" />
-              <span>Ticket Attributes</span>
+            <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Task Attributes</span>
             </h4>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Priority</span>
+                <span className="text-slate-500 dark:text-slate-400">Priority</span>
                 <select
                   value={ticket.priority}
+                  disabled={!canUpdateTask}
                   onChange={(e) => handlePriorityChange(e.target.value)}
-                  className="bg-slate-50 text-slate-800 font-semibold text-xs border border-slate-200 rounded-lg px-2.5 py-1 outline-none cursor-pointer hover:border-slate-300"
+                  className={`bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 outline-none transition-colors ${
+                    !canUpdateTask ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:border-slate-300'
+                  }`}
                 >
                   <option value="Critical">Critical</option>
                   <option value="Urgent">Urgent</option>
@@ -1125,15 +1173,15 @@ export const TicketDetailsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Category</span>
-                <span className="font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded text-[11px]">
-                  {ticket.category || 'General'}
+                <span className="text-slate-500 dark:text-slate-400">Category</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px]">
+                  {ticket.category || 'Task'}
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">Due Date</span>
-                <div className="flex items-center gap-1 font-semibold text-slate-800">
+                <span className="text-slate-500 dark:text-slate-400">Due Date</span>
+                <div className="flex items-center gap-1 font-semibold text-slate-800 dark:text-slate-200">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   <span>{ticket.dueDate ? format(new Date(ticket.dueDate), 'MMM d, yyyy') : 'No due date'}</span>
                 </div>
@@ -1141,36 +1189,65 @@ export const TicketDetailsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* People Section */}
-          <div className="pt-4 border-t border-[#EAECF0] space-y-3.5">
-            <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <UserIcon className="w-3.5 h-3.5 text-blue-600" />
+          {/* People Section: Multiple Assignees */}
+          <div className="pt-4 border-t border-[#EAECF0] dark:border-slate-800 space-y-3.5">
+            <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
+              <UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>Assigned Team</span>
             </h4>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400">Assignee</span>
-                <div className="flex items-center gap-2">
-                  <Avatar name={ticket.assigneeId?.name || 'Unassigned'} src={ticket.assigneeId?.avatarUrl} size="xs" />
-                  <span className="font-semibold text-slate-800">{ticket.assigneeId?.name || 'Unassigned'}</span>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-500 dark:text-slate-400">Assignees</span>
+                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                    {((ticket.assigneeIds && ticket.assigneeIds.length > 0)
+                      ? ticket.assigneeIds
+                      : (ticket.assigneeId ? [ticket.assigneeId] : [])).length} assigned
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {((ticket.assigneeIds && ticket.assigneeIds.length > 0)
+                    ? ticket.assigneeIds
+                    : (ticket.assigneeId ? [ticket.assigneeId] : [])
+                  ).map((assignee, idx) => (
+                    <div
+                      key={assignee.id || (assignee as any)._id || idx}
+                      className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60"
+                    >
+                      <Avatar name={assignee.name || 'Member'} src={assignee.avatarUrl} size="xs" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate">
+                          {assignee.name || 'Member'}
+                        </p>
+                        <p className="text-[10px] text-slate-400 truncate">
+                          {assignee.email || assignee.designation || 'Team Member'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {(!ticket.assigneeIds || ticket.assigneeIds.length === 0) && !ticket.assigneeId && (
+                    <div className="text-slate-400 text-xs italic py-1">No team members assigned</div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-slate-400">Reporter</span>
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-slate-500 dark:text-slate-400">Reporter</span>
                 <div className="flex items-center gap-2">
                   <Avatar name={ticket.reporterId?.name || 'User'} size="xs" />
-                  <span className="font-semibold text-slate-800">{ticket.reporterId?.name || 'Reporter'}</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">{ticket.reporterId?.name || 'Reporter'}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Tags Section */}
-          <div className="pt-4 border-t border-[#EAECF0] space-y-3">
-            <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-blue-600" />
+          <div className="pt-4 border-t border-[#EAECF0] dark:border-slate-800 space-y-3">
+            <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>Tags</span>
             </h4>
 
@@ -1179,7 +1256,7 @@ export const TicketDetailsPage: React.FC = () => {
                 ticket.tags.map((tg) => (
                   <span
                     key={tg}
-                    className="bg-blue-50 text-blue-700 border border-blue-200/60 text-[11px] px-2 py-0.5 rounded-md font-medium"
+                    className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900 text-[11px] px-2 py-0.5 rounded-md font-medium"
                   >
                     #{tg}
                   </span>
@@ -1191,7 +1268,7 @@ export const TicketDetailsPage: React.FC = () => {
           </div>
 
           {/* Meta Info */}
-          <div className="pt-4 border-t border-[#EAECF0] space-y-2 text-[11px] text-slate-500">
+          <div className="pt-4 border-t border-[#EAECF0] dark:border-slate-800 space-y-2 text-[11px] text-slate-500 dark:text-slate-400">
             <div className="flex justify-between">
               <span>Created</span>
               <span>{ticket.createdAt ? format(new Date(ticket.createdAt), 'MMM d, yyyy h:mm a') : '-'}</span>

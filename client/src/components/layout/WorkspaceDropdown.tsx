@@ -1,17 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import {
-  Building2,
-  CheckCircle2,
   ChevronDown,
   Plus,
   Users,
-  Briefcase,
-  ShieldCheck,
   Check,
-  Layers,
-  Sparkles,
 } from 'lucide-react';
 
 interface WorkspaceDropdownProps {
@@ -25,9 +20,12 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
 }) => {
   const navigate = useNavigate();
   const { user, organization, memberships, switchOrganization } = useAuth();
+  const { theme } = useTheme();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSwitching, setIsSwitching] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const isDark = theme === 'dark' || theme === 'combo';
 
   // Close when clicking outside
   useEffect(() => {
@@ -58,36 +56,65 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
   };
 
   const getRoleBadge = (role: string) => {
-    const formatted = (role || 'Member').replace(/_/g, ' ');
     switch (role) {
       case 'owner':
         return (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">
+          <span
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+              isDark
+                ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800'
+                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            }`}
+          >
             Owner
           </span>
         );
       case 'admin':
         return (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+          <span
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+              isDark
+                ? 'bg-blue-950/70 text-blue-300 border-blue-800'
+                : 'bg-blue-50 text-blue-700 border-blue-200'
+            }`}
+          >
             Admin
           </span>
         );
       case 'project_manager':
         return (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 uppercase">
-            Project Mgr
+          <span
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+              isDark
+                ? 'bg-purple-950/70 text-purple-300 border-purple-800'
+                : 'bg-purple-50 text-purple-700 border-purple-200'
+            }`}
+          >
+            Project Manager
           </span>
         );
       case 'team_lead':
         return (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 uppercase">
+          <span
+            className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${
+              isDark
+                ? 'bg-amber-950/70 text-amber-300 border-amber-800'
+                : 'bg-amber-50 text-amber-800 border-amber-200'
+            }`}
+          >
             Team Lead
           </span>
         );
       default:
         return (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 capitalize">
-            {formatted}
+          <span
+            className={`text-[11px] font-medium px-2 py-0.5 rounded-md border capitalize ${
+              isDark
+                ? 'bg-slate-800 text-slate-300 border-slate-700'
+                : 'bg-slate-100 text-slate-700 border-slate-200'
+            }`}
+          >
+            {(role || 'Member').replace(/_/g, ' ')}
           </span>
         );
     }
@@ -118,8 +145,12 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-all text-xs cursor-pointer group shadow-2xs"
-          title="Switch Organization / Company"
+          className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border transition-all text-xs cursor-pointer group shadow-2xs ${
+            isDark
+              ? 'bg-[#0F172A] hover:bg-slate-800 border-slate-700 text-slate-100'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
+          }`}
+          title="Switch Workspace"
         >
           <div
             className={`w-5 h-5 rounded-md ${getOrgColor(
@@ -129,7 +160,7 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
             {currentOrgName.charAt(0).toUpperCase()}
           </div>
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-bold text-slate-900 truncate max-w-[140px] leading-tight">
+            <span className={`font-bold truncate max-w-[140px] leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {currentOrgName}
             </span>
             <div className="hidden sm:inline-block scale-90 origin-left">
@@ -137,9 +168,9 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
             </div>
           </div>
           <ChevronDown
-            className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform ${
-              isOpen ? 'rotate-180' : ''
-            }`}
+            className={`w-3.5 h-3.5 transition-transform ${
+              isDark ? 'text-slate-400 group-hover:text-slate-200' : 'text-slate-400 group-hover:text-slate-600'
+            } ${isOpen ? 'rotate-180' : ''}`}
           />
         </button>
       ) : isCollapsed ? (
@@ -149,7 +180,7 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
           className={`w-10 h-10 rounded-xl ${getOrgColor(
             currentOrgName
           )} text-white font-black text-sm flex items-center justify-center mx-auto shadow-sm hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer`}
-          title={`${currentOrgName} (${currentRole}) - Click to switch company`}
+          title={`${currentOrgName} - Click to switch workspace`}
         >
           {currentOrgName.charAt(0).toUpperCase()}
         </button>
@@ -157,7 +188,11 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full bg-white dark:bg-[#1E293B] border border-slate-200/90 dark:border-slate-700/80 hover:border-slate-300 rounded-lg px-2.5 py-2 flex items-center justify-between transition-all cursor-pointer group text-left shadow-2xs"
+          className={`w-full border rounded-lg px-2.5 py-2 flex items-center justify-between transition-all cursor-pointer group text-left shadow-2xs ${
+            isDark
+              ? 'bg-[#0F172A] hover:bg-slate-800/80 border-slate-700/80'
+              : 'bg-white hover:bg-slate-50 border-slate-200/90'
+          }`}
         >
           <div className="min-w-0 flex items-center gap-2">
             <div
@@ -168,14 +203,18 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
               {currentOrgName.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-slate-900 truncate leading-tight group-hover:text-blue-600 transition-colors">
+              <p
+                className={`text-xs font-bold truncate leading-tight transition-colors ${
+                  isDark ? 'text-white group-hover:text-blue-400' : 'text-slate-900 group-hover:text-blue-600'
+                }`}
+              >
                 {currentOrgName}
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] text-slate-500 capitalize">
+                <span className={`text-[10px] capitalize ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {currentRole.replace(/_/g, ' ')}
                 </span>
-                <span className="text-[10px] text-blue-600 font-semibold capitalize">
+                <span className="text-[10px] text-blue-500 font-semibold capitalize">
                   • {organization?.subscriptionPlan || 'Free'}
                 </span>
               </div>
@@ -192,10 +231,14 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
         </button>
       )}
 
-      {/* DROPDOWN MENU */}
+      {/* DROPDOWN MENU POPUP */}
       {isOpen && (
         <div
-          className={`absolute z-50 mt-1.5 w-72 bg-white dark:bg-[#111827] rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-fadeIn text-xs ${
+          className={`absolute z-50 mt-1.5 w-76 rounded-xl shadow-2xl border overflow-hidden animate-fadeIn text-xs ${
+            isDark
+              ? 'bg-[#0F172A] border-slate-800 text-slate-200 shadow-slate-950/80'
+              : 'bg-white border-slate-200 text-slate-800 shadow-xl'
+          } ${
             variant === 'header'
               ? 'left-0'
               : isCollapsed
@@ -204,24 +247,28 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
           }`}
         >
           {/* Header */}
-          <div className="px-3.5 py-2.5 bg-slate-50/80 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div
+            className={`px-3.5 py-2.5 border-b flex items-center justify-between ${
+              isDark ? 'bg-slate-900/95 border-slate-800' : 'bg-slate-50 border-slate-100'
+            }`}
+          >
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Workspaces & Companies
+              <p className={`text-[10px] font-semibold tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                Workspaces & Organizations
               </p>
-              <p className="text-[11px] font-medium text-slate-700 truncate max-w-[200px]">
+              <p className={`text-[11px] font-medium truncate max-w-[200px] ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                 {user?.email}
               </p>
             </div>
             {isSwitching && (
-              <span className="text-[10px] text-blue-600 font-semibold animate-pulse">
+              <span className="text-[10px] text-blue-500 font-semibold animate-pulse">
                 Switching...
               </span>
             )}
           </div>
 
           {/* List of Workspaces */}
-          <div className="max-h-64 overflow-y-auto py-1 divide-y divide-slate-50">
+          <div className={`max-h-64 overflow-y-auto py-1 divide-y ${isDark ? 'divide-slate-800/80' : 'divide-slate-50'}`}>
             {memberships && memberships.length > 0 ? (
               memberships.map((m: any) => {
                 const org = m.organization;
@@ -238,7 +285,11 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
                     disabled={isSwitching}
                     className={`w-full px-3.5 py-2.5 flex items-center justify-between text-left transition-colors cursor-pointer group ${
                       isActive
-                        ? 'bg-blue-50/60 font-semibold'
+                        ? isDark
+                          ? 'bg-blue-600/20 text-white font-semibold border-l-2 border-blue-500'
+                          : 'bg-blue-50/80 text-blue-900 font-semibold border-l-2 border-blue-600'
+                        : isDark
+                        ? 'hover:bg-slate-800/60 text-slate-300'
                         : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
@@ -254,7 +305,11 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
                         <p
                           className={`text-xs truncate ${
                             isActive
-                              ? 'text-blue-900 font-bold'
+                              ? isDark
+                                ? 'text-white font-bold'
+                                : 'text-blue-900 font-bold'
+                              : isDark
+                              ? 'text-slate-200 font-medium group-hover:text-white'
                               : 'text-slate-800 font-medium group-hover:text-slate-900'
                           }`}
                         >
@@ -273,12 +328,18 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
 
                     <div className="shrink-0 ml-2">
                       {isActive ? (
-                        <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200">
-                          <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                        <span
+                          className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
+                            isDark
+                              ? 'text-emerald-300 bg-emerald-950/70 border-emerald-800'
+                              : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                          }`}
+                        >
+                          <Check className="w-3 h-3 stroke-[2.5]" />
                           Active
                         </span>
                       ) : (
-                        <span className="text-[11px] text-slate-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+                        <span className="text-[11px] text-slate-400 group-hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
                           Switch &rarr;
                         </span>
                       )}
@@ -288,23 +349,27 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
               })
             ) : (
               <div className="px-3.5 py-2.5 text-left">
-                <p className="font-semibold text-slate-800">{currentOrgName}</p>
+                <p className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{currentOrgName}</p>
                 <div className="mt-1">{getRoleBadge(currentRole)}</div>
               </div>
             )}
           </div>
 
           {/* Actions Footer */}
-          <div className="p-1.5 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 space-y-1">
+          <div className={`p-1.5 border-t space-y-1 ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
                 navigate('/onboarding');
               }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:text-blue-700 hover:bg-white dark:hover:bg-slate-800 text-xs font-semibold transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-transparent ${
+                isDark
+                  ? 'text-slate-300 hover:text-white hover:bg-slate-800 hover:border-slate-700'
+                  : 'text-slate-700 hover:text-blue-700 hover:bg-white hover:border-slate-200'
+              }`}
             >
-              <Plus className="w-3.5 h-3.5 text-blue-600" />
+              <Plus className="w-3.5 h-3.5 text-blue-500" />
               <span>Create New Workspace</span>
             </button>
 
@@ -314,7 +379,11 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
                 setIsOpen(false);
                 navigate('/workspace/teams');
               }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-800 text-[11px] font-medium transition-colors cursor-pointer"
+              className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
+                isDark
+                  ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white'
+              }`}
             >
               <Users className="w-3.5 h-3.5 text-slate-400" />
               <span>Manage Team & Invitations</span>
@@ -325,4 +394,3 @@ export const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
     </div>
   );
 };
-

@@ -184,13 +184,14 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
       sequenceNumber: ticketSeq,
       title: firstTicketTitle || 'Welcome to QubixDesk - Set up your team workflow',
       description:
-        'Welcome to your new QubixDesk issue tracking workspace! Here you can assign tasks, collaborate on bug fixes, drag cards across your Kanban board, and track progress effortlessly.',
-      category: firstTicketCategory || 'General Request',
+        'Welcome to your new QubixDesk workspace! Here you can assign tasks and deliverables, collaborate with your team, move items across your Kanban board, and track progress effortlessly.',
+      category: firstTicketCategory || 'Task',
       priority: firstTicketPriority || 'Normal',
       status: 'To Do',
       reporterId: req.user._id,
       assigneeId: req.user._id,
-      tags: ['onboarding', 'getting-started'],
+      assigneeIds: [req.user._id],
+      tags: ['getting-started'],
       dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
 
