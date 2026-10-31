@@ -98,16 +98,16 @@ export const TeamsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-8 space-y-6 overflow-y-auto bg-[#F8FAFC]">
+    <div className="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto bg-white font-sans text-slate-800">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-4 border-b border-[#EAECF0]">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Team Directory</h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Team Directory</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
             Manage organization members, job titles, department assignments, and permissions.
           </p>
         </div>
-        <Button onClick={() => setIsInviteOpen(true)} leftIcon={<UserPlus className="w-4 h-4" />}>
+        <Button size="sm" onClick={() => setIsInviteOpen(true)} leftIcon={<UserPlus className="w-3.5 h-3.5" />}>
           Invite Member
         </Button>
       </div>

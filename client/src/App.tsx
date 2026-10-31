@@ -14,6 +14,7 @@ import {
   AllTicketsPage,
   MyTicketsPage,
 } from './pages/workspace/WorkspacePages';
+import { TicketDetailsPage } from './pages/workspace/TicketDetailsPage';
 import { ProjectsView } from './pages/workspace/ProjectsView';
 import { TeamsView } from './pages/workspace/TeamsView';
 import { ReportsView } from './pages/workspace/ReportsView';
@@ -63,6 +64,8 @@ export const App: React.FC = () => {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="kanban" element={<KanbanPage />} />
                 <Route path="tickets" element={<AllTicketsPage />} />
+                <Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
+                <Route path="ticket/:ticketId" element={<TicketDetailsPage />} />
                 <Route path="my-tickets" element={<MyTicketsPage />} />
                 <Route path="projects" element={<ProjectsView />} />
                 <Route path="teams" element={<TeamsView />} />

@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 import { apiClient } from '../../api/client';
 import { NotificationItem } from '../../types';
 import { Avatar } from '../ui/Avatar';
-import { Button } from '../ui/Button';
 import {
   Bell,
   Search,
   Plus,
-  Check,
-  ExternalLink,
   CheckCircle2,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -24,8 +23,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onOpenCreateTicket,
   onSearchChange,
 }) => {
-  const { user } = useAuth();
+  const { user, organization } = useAuth();
   const { socket } = useSocket();
+  const location = useLocation();
+
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [showNotifMenu, setShowNotifMenu] = useState<boolean>(false);
@@ -84,28 +85,60 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     }
   };
 
+  // Determine dynamic section title from current pathname
+  const getPageTitle = () => {
+    const p = location.pathname;
+    if (p.includes('/workspace/kanban')) return 'Kanban Board';
+    if (p.includes('/workspace/tickets/')) return 'Ticket Inspector';
+    if (p.includes('/workspace/tickets')) return 'All Tickets';
+    if (p.includes('/workspace/my-tickets')) return 'Assigned to Me';
+    if (p.includes('/workspace/dashboard')) return 'Overview Dashboard';
+    if (p.includes('/workspace/projects')) return 'Projects Directory';
+    if (p.includes('/workspace/teams')) return 'Team Members';
+    if (p.includes('/workspace/reports')) return 'Analytics & Reports';
+    if (p.includes('/workspace/workflows')) return 'Workflow Automations';
+    if (p.includes('/workspace/billing')) return 'Subscription & Billing';
+    if (p.includes('/workspace/settings')) return 'Workspace Settings';
+    return 'Workspace';
+  };
+
   return (
-    <header className="h-14 bg-white border-b border-[#EAECF0] px-6 flex items-center justify-between sticky top-0 z-20">
-      {/* Global Search Bar */}
-      <div className="w-80 relative flex items-center">
+    <header className="h-14 bg-white border-b border-[#EAECF0] px-6 flex items-center justify-between sticky top-0 z-20 shrink-0 font-sans">
+      {/* Left: Dynamic Breadcrumb / Page Title */}
+      <div className="flex items-center gap-2 text-xs">
+        <span className="font-semibold text-slate-400">
+          {organization?.name || 'Workspace'}
+        </span>
+        <span className="text-slate-300">/</span>
+        <h1 className="text-sm font-bold text-slate-900 tracking-tight">
+          {getPageTitle()}
+        </h1>
+      </div>
+
+      {/* Middle: Clean Minimalist Search Input */}
+      <div className="hidden sm:flex w-72 relative items-center">
         <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
         <input
           type="text"
-          placeholder="Search tickets, IDs, or projects..."
+          placeholder="Search tickets, IDs, or keywords..."
           value={searchVal}
           onChange={(e) => {
             setSearchVal(e.target.value);
             if (onSearchChange) onSearchChange(e.target.value);
           }}
-          className="w-full bg-[#F8FAFC] hover:bg-slate-100/70 focus:bg-white border border-[#EAECF0] rounded-lg pl-8 pr-4 py-1.5 text-xs text-slate-900 transition-all outline-none focus:border-slate-400"
+          className="w-full bg-[#F8FAFC] hover:bg-slate-100/70 focus:bg-white border border-[#EAECF0] rounded-lg pl-8 pr-8 py-1.5 text-xs text-slate-900 transition-all outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
         />
+        <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none">
+          ⌘K
+        </span>
       </div>
 
-      {/* Action Buttons & Notifications */}
+      {/* Right: Actions, Notifications & Avatar */}
       <div className="flex items-center gap-3">
+        {/* + New Ticket in QubixDesk Theme Blue */}
         <button
           onClick={onOpenCreateTicket}
-          className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm transition-all"
+          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm shadow-blue-500/20 transition-all active:scale-[0.98]"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>New ticket</span>
@@ -115,21 +148,22 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setShowNotifMenu(!showNotifMenu)}
-            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg relative transition-colors"
+            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg relative transition-colors"
+            title="Notifications"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
             )}
           </button>
 
           {showNotifMenu && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-[#EAECF0] py-2 z-50">
               <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <h4 className="text-xs font-bold text-slate-900">Notifications</h4>
                   {unreadCount > 0 && (
-                    <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
                       {unreadCount} new
                     </span>
                   )}
@@ -147,7 +181,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
                 {notifications.length === 0 ? (
                   <div className="p-6 text-center text-xs text-slate-400">
-                    No notifications yet
+                    No new notifications
                   </div>
                 ) : (
                   notifications.map((n) => (
@@ -166,8 +200,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-900 truncate">{n.title}</p>
-                        <p className="text-slate-600 mt-0.5 line-clamp-2 leading-relaxed">
+                        <p className="font-semibold text-slate-900 truncate text-[11px]">{n.title}</p>
+                        <p className="text-slate-600 mt-0.5 line-clamp-2 leading-relaxed text-[11px]">
                           {n.message}
                         </p>
                         <p className="text-[10px] text-slate-400 mt-1">
@@ -188,4 +222,3 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     </header>
   );
 };
-

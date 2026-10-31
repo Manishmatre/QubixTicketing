@@ -80,20 +80,20 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   ];
 
   return (
-    <div className="flex-1 p-8 space-y-8 overflow-y-auto bg-[#F8FAFC]">
+    <div className="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto bg-white font-sans text-slate-800">
       {/* Welcome Banner & Time Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#EAECF0]">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
             Welcome back, {user?.name?.split(' ')[0]} 👋
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Workspace telemetry for <span className="font-semibold text-slate-700">{organization?.name}</span>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Real-time workspace telemetry for <span className="font-semibold text-slate-700">{organization?.name}</span>
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-white border border-slate-200 rounded-lg p-1 flex items-center text-xs font-medium">
+          <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-lg p-1 flex items-center text-xs font-medium">
             {['today', 'week', 'month', 'all'].map((t) => (
               <button
                 key={t}
@@ -108,10 +108,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
             ))}
           </div>
-
-          <Button size="sm" onClick={onOpenCreateTicket}>
-            + Create Ticket
-          </Button>
         </div>
       </div>
 

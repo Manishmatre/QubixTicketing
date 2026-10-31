@@ -193,50 +193,50 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-white font-sans text-slate-800">
-      {/* Top Header matching reference Screenshot 2 */}
-      <div className="px-6 py-3 border-b border-[#EAECF0] flex items-center justify-between gap-4 shrink-0 bg-white">
-        <div className="flex items-center gap-4">
+    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-white font-sans text-slate-800">
+      {/* Sub-Toolbar: Clean Minimalist Filter Bar (No duplicate header) */}
+      <div className="px-6 py-2.5 border-b border-[#EAECF0] flex items-center justify-between gap-4 shrink-0 bg-white text-xs">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <TicketIcon className="w-4 h-4 text-slate-800" />
-            <h1 className="text-sm font-bold text-slate-900 tracking-tight">Tickets</h1>
+            <span className="text-slate-400 font-medium text-[11px] uppercase tracking-wider">Priority:</span>
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 outline-none cursor-pointer hover:border-slate-300 transition-colors"
+            >
+              <option value="all">All Priorities</option>
+              <option value="Critical">Critical</option>
+              <option value="Urgent">Urgent</option>
+              <option value="High">High</option>
+              <option value="Normal">Normal</option>
+              <option value="Low">Low</option>
+            </select>
           </div>
 
-          <div className="h-4 w-[1px] bg-slate-200" />
-
-          {/* Select All */}
-          <label className="flex items-center gap-2 text-xs text-slate-600 font-medium cursor-pointer hover:text-slate-900">
-            <input
-              type="checkbox"
-              checked={selectAll}
-              onChange={(e) => setSelectAll(e.target.checked)}
-              className="rounded border-slate-300 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
-            />
-            <span>Select all</span>
-          </label>
-
-          {/* Filters Button */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg border border-[#EAECF0] text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs">
-            <SlidersHorizontal className="w-3 h-3 text-slate-500" />
-            <span>Filters</span>
+          <div className="flex items-center gap-2">
+            <span className="text-slate-400 font-medium text-[11px] uppercase tracking-wider">Category:</span>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 outline-none cursor-pointer hover:border-slate-300 transition-colors"
+            >
+              <option value="all">All Categories</option>
+              <option value="Bug">Bug</option>
+              <option value="UI/UX Issue">UI/UX Issue</option>
+              <option value="Feature Request">Feature Request</option>
+              <option value="Security Issue">Security Issue</option>
+              <option value="Performance Issue">Performance Issue</option>
+            </select>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          {/* View Options */}
-          <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#EAECF0] text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer shadow-2xs transition-colors">
-            <Sliders className="w-3 h-3 text-slate-500" />
-            <span>View options</span>
-          </button>
-
-          {/* + New Ticket Button (High contrast dark button like in screenshot) */}
-          <button
-            onClick={onOpenCreateTicket}
-            className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm transition-all active:scale-[0.98]"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New ticket</span>
-          </button>
+        <div className="flex items-center gap-3 text-slate-500 font-medium">
+          <span>{filteredTickets.length} tickets on board</span>
+          <div className="h-3.5 w-[1px] bg-slate-200" />
+          <span className="inline-flex items-center gap-1.5 text-blue-600 font-semibold bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-full text-[11px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            Live Sync
+          </span>
         </div>
       </div>
 

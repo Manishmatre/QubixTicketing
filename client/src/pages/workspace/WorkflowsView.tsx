@@ -106,18 +106,18 @@ export const WorkflowsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-8 space-y-6 overflow-y-auto bg-[#F8FAFC]">
+    <div className="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto bg-white font-sans text-slate-800">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-4 border-b border-[#EAECF0]">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
             Workflow Automation
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-0.5">
             Automate ticket routing, priority escalations, status transitions, and notification dispatch.
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="w-4 h-4" />}>
+        <Button size="sm" onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="w-3.5 h-3.5" />}>
           New Workflow
         </Button>
       </div>

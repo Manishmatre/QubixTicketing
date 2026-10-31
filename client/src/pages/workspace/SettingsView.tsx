@@ -54,12 +54,12 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 p-8 space-y-8 overflow-y-auto bg-[#F8FAFC]">
-      <div>
-        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+    <div className="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto bg-white font-sans text-slate-800">
+      <div className="pb-4 border-b border-[#EAECF0]">
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           Workspace Settings
         </h2>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-slate-500 mt-0.5">
           Configure organization identity, issue numbering rules, and default environment values.
         </p>
       </div>

@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
-import { TicketDrawer } from '../ticket/TicketDrawer';
 import { CreateTicketModal } from '../ticket/CreateTicketModal';
 import { Ticket } from '../../types';
 
 export const AppLayout: React.FC = () => {
   const { user, organization, isLoading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [searchFilter, setSearchFilter] = useState<string>('');
 
@@ -53,19 +52,13 @@ export const AppLayout: React.FC = () => {
         <main className="flex-1 flex overflow-hidden">
           <Outlet
             context={{
-              onSelectTicket: (id: string) => setSelectedTicketId(id),
+              onSelectTicket: (id: string) => navigate(`/workspace/tickets/${id}`),
               onOpenCreateTicket: () => setIsCreateModalOpen(true),
               searchFilter,
             }}
           />
         </main>
       </div>
-
-      {/* Slide-out Ticket Details Drawer */}
-      <TicketDrawer
-        ticketId={selectedTicketId}
-        onClose={() => setSelectedTicketId(null)}
-      />
 
       {/* New Ticket Modal */}
       <CreateTicketModal

@@ -110,14 +110,14 @@ export const ReportsView: React.FC = () => {
   })) || [];
 
   return (
-    <div className="flex-1 p-8 space-y-6 overflow-y-auto bg-[#F8FAFC]">
+    <div className="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto bg-white font-sans text-slate-800">
       {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#EAECF0]">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Reports & Analytics
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            Reports & SLA Analytics
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-500 mt-0.5">
             Analyze issue resolution times, SLA adherence, and team productivity.
           </p>
         </div>

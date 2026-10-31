@@ -149,9 +149,9 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-[#F8FAFC]">
+    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-white font-sans text-slate-800">
       {/* Top Filter & Toolbar */}
-      <div className="p-6 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
+      <div className="px-6 py-2.5 bg-white border-b border-[#EAECF0] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-64">
             <Input
