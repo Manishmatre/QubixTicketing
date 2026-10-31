@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: qubix-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: qubix
+    volumes:
+      - mongo-data:/data/db
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: qubix-server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongodb:27017/qubix
+      JWT_SECRET: qubix_enterprise_jwt_super_secret_key_2026_xyz!
+      REFRESH_TOKEN_SECRET: qubix_enterprise_refresh_super_secret_key_2026_xyz!
+      CLIENT_URL: http://localhost:3000
+      SEED_ON_START: "true"
+    depends_on:
+      - mongodb
+    volumes:
+      - uploads-data:/app/server/uploads
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    container_name: qubix-client
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:
+  uploads-data:
+

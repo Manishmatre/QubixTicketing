@@ -1,0 +1,473 @@
+import { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import { Organization } from '../models/Organization.js';
+import { OrganizationMembership, OrgRole } from '../models/OrganizationMembership.js';
+import { Invitation } from '../models/Invitation.js';
+import { Project } from '../models/Project.js';
+import { Ticket } from '../models/Ticket.js';
+import { User } from '../models/User.js';
+import { emailService } from '../services/emailAdapter.js';
+import { logAuditEvent } from '../services/auditService.js';
+import crypto from 'crypto';
+
+export const getMyOrganizations = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+
+    const memberships = await OrganizationMembership.find({
+      userId: req.user._id,
+      status: 'active',
+    }).populate('organizationId');
+
+    const orgs = memberships
+      .filter((m) => m.organizationId)
+      .map((m: any) => ({
+        id: m.organizationId._id,
+        name: m.organizationId.name,
+        slug: m.organizationId.slug,
+        logoUrl: m.organizationId.logoUrl,
+        role: m.role,
+        subscriptionPlan: m.organizationId.subscriptionPlan,
+        subscriptionStatus: m.organizationId.subscriptionStatus,
+      }));
+
+    res.json({ success: true, data: orgs });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const completeOnboarding = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
+      return;
+    }
+
+    const {
+      organizationName,
+      slug,
+      industry,
+      size,
+      subscriptionPlan,
+      invitedEmails,
+      projectName,
+      projectKey,
+      firstTicketTitle,
+      firstTicketCategory,
+      firstTicketPriority,
+    } = req.body;
+
+    if (!organizationName || !slug) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Organization name and workspace slug are required.' },
+      });
+      return;
+    }
+
+    const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '').trim();
+    const existing = await Organization.findOne({ slug: cleanSlug });
+    if (existing) {
+      res.status(409).json({
+        success: false,
+        error: { message: `Workspace URL "${cleanSlug}" is already taken. Please choose another.` },
+      });
+      return;
+    }
+
+    // 1. Create Organization
+    const organization = await Organization.create({
+      name: organizationName.trim(),
+      slug: cleanSlug,
+      industry: industry || 'Technology',
+      size: size || '1-10',
+      ownerId: req.user._id,
+      subscriptionPlan: subscriptionPlan || 'starter',
+      subscriptionStatus: 'trialing',
+      settings: {
+        ticketPrefix: (projectKey || 'QUB').toUpperCase().slice(0, 5),
+        timezone: 'UTC',
+        allowExternalReporters: true,
+      },
+    });
+
+    // 2. Add User as Owner
+    await OrganizationMembership.create({
+      organizationId: organization._id,
+      userId: req.user._id,
+      role: 'owner',
+      jobTitle: 'Workspace Owner',
+      department: 'Executive',
+    });
+
+    // Update user's active org
+    const user = await User.findById(req.user._id);
+    if (user) {
+      user.activeOrganizationId = organization._id as any;
+      await user.save();
+    }
+
+    // 3. Process Invited Members
+    if (Array.isArray(invitedEmails) && invitedEmails.length > 0) {
+      for (const email of invitedEmails) {
+        if (!email || typeof email !== 'string') continue;
+        const normalized = email.toLowerCase().trim();
+        const token = crypto.randomBytes(24).toString('hex');
+        await Invitation.create({
+          organizationId: organization._id,
+          email: normalized,
+          role: 'employee',
+          token,
+          invitedBy: req.user._id,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        });
+
+        await emailService.sendEmail({
+          to: normalized,
+          subject: `You've been invited to join ${organization.name} on QUBIX`,
+          text: `You have been invited to collaborate with ${organization.name} on QUBIX SaaS.\nUse your invitation link to join: ${process.env.CLIENT_URL || 'http://localhost:5173'}/invite?token=${token}`,
+        });
+      }
+    }
+
+    // 4. Create First Project
+    const pKey = (projectKey || 'CORE').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+    const project = await Project.create({
+      organizationId: organization._id,
+      name: projectName || 'General Operations',
+      key: pKey,
+      description: 'Primary project workspace created during onboarding.',
+      priority: 'high',
+      status: 'active',
+      projectManagerId: req.user._id,
+      members: [
+        {
+          userId: req.user._id,
+          role: 'lead',
+          assignedAt: new Date(),
+        },
+      ],
+      ticketStats: {
+        total: 1,
+        open: 1,
+        inProgress: 0,
+        resolved: 0,
+        closed: 0,
+      },
+    });
+
+    // 5. Create First Ticket
+    const ticketSeq = 1;
+    const ticketNumber = `${organization.settings.ticketPrefix || 'QUB'}-000001`;
+    const ticket = await Ticket.create({
+      organizationId: organization._id,
+      projectId: project._id,
+      ticketNumber,
+      sequenceNumber: ticketSeq,
+      title: firstTicketTitle || 'Welcome to QUBIX - Set up your team workflow',
+      description:
+        'Welcome to your new QUBIX issue tracking workspace! Here you can assign tasks, collaborate on bug fixes, drag cards across your Kanban board, and track progress effortlessly.',
+      category: firstTicketCategory || 'General Request',
+      priority: firstTicketPriority || 'Normal',
+      status: 'To Do',
+      reporterId: req.user._id,
+      assigneeId: req.user._id,
+      tags: ['onboarding', 'getting-started'],
+      dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    });
+
+    await logAuditEvent({
+      userId: req.user._id as any,
+      organizationId: organization._id as any,
+      action: 'ORGANIZATION_ONBOARDED',
+      entity: 'Organization',
+      entityId: organization._id.toString(),
+      req,
+      details: { organizationName, projectKey: pKey, ticketNumber },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        organization: {
+          id: organization._id,
+          name: organization.name,
+          slug: organization.slug,
+          subscriptionPlan: organization.subscriptionPlan,
+        },
+        project: {
+          id: project._id,
+          name: project.name,
+          key: project.key,
+        },
+        ticket: {
+          id: ticket._id,
+          ticketNumber: ticket.ticketNumber,
+          title: ticket.title,
+        },
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const getCurrentOrganization = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const organization = await Organization.findById(req.organizationId);
+    if (!organization) {
+      res.status(404).json({ success: false, error: { message: 'Organization not found' } });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: organization._id,
+        name: organization.name,
+        slug: organization.slug,
+        logoUrl: organization.logoUrl,
+        website: organization.website,
+        industry: organization.industry,
+        size: organization.size,
+        status: organization.status,
+        subscriptionPlan: organization.subscriptionPlan,
+        subscriptionStatus: organization.subscriptionStatus,
+        trialEndsAt: organization.trialEndsAt,
+        settings: organization.settings,
+        userRole: req.membershipRole,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const updateCurrentOrganization = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, logoUrl, website, industry, size, settings } = req.body;
+
+    const organization = await Organization.findById(req.organizationId);
+    if (!organization) {
+      res.status(404).json({ success: false, error: { message: 'Organization not found' } });
+      return;
+    }
+
+    if (name) organization.name = name.trim();
+    if (logoUrl !== undefined) organization.logoUrl = logoUrl;
+    if (website !== undefined) organization.website = website.trim();
+    if (industry) organization.industry = industry;
+    if (size) organization.size = size;
+    if (settings) {
+      organization.settings = {
+        ...organization.settings,
+        ...settings,
+      };
+    }
+
+    await organization.save();
+
+    await logAuditEvent({
+      userId: req.user?._id as any,
+      organizationId: organization._id as any,
+      action: 'ORGANIZATION_UPDATED',
+      entity: 'Organization',
+      entityId: organization._id.toString(),
+      req,
+    });
+
+    res.json({ success: true, data: organization });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const getMembers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const members = await OrganizationMembership.find({
+      organizationId: req.organizationId,
+    })
+      .populate('userId', 'name email avatarUrl lastLoginAt')
+      .sort({ createdAt: 1 });
+
+    // Calculate workload / assigned tickets per member
+    const tickets = await Ticket.find({
+      organizationId: req.organizationId,
+      status: { $nin: ['Resolved', 'Closed'] },
+    }).select('assigneeId');
+
+    const workloadMap: Record<string, number> = {};
+    for (const t of tickets) {
+      if (t.assigneeId) {
+        const idStr = t.assigneeId.toString();
+        workloadMap[idStr] = (workloadMap[idStr] || 0) + 1;
+      }
+    }
+
+    const formatted = members
+      .filter((m) => m.userId)
+      .map((m: any) => ({
+        id: m._id,
+        user: {
+          id: m.userId._id,
+          name: m.userId.name,
+          email: m.userId.email,
+          avatarUrl: m.userId.avatarUrl,
+          lastLoginAt: m.userId.lastLoginAt,
+        },
+        role: m.role,
+        jobTitle: m.jobTitle,
+        department: m.department,
+        status: m.status,
+        joinedAt: m.joinedAt,
+        activeTicketCount: workloadMap[m.userId._id.toString()] || 0,
+      }));
+
+    res.json({ success: true, data: formatted });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const inviteMember = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, role, jobTitle, department } = req.body;
+
+    if (!email || !email.includes('@')) {
+      res.status(400).json({ success: false, error: { message: 'Valid email required' } });
+      return;
+    }
+
+    const normalized = email.toLowerCase().trim();
+    const token = crypto.randomBytes(24).toString('hex');
+
+    // Check if user already exists
+    let existingUser = await User.findOne({ email: normalized });
+
+    if (existingUser) {
+      const existingMembership = await OrganizationMembership.findOne({
+        organizationId: req.organizationId,
+        userId: existingUser._id,
+      });
+
+      if (existingMembership) {
+        res.status(409).json({
+          success: false,
+          error: { message: 'This user is already a member of this workspace.' },
+        });
+        return;
+      }
+
+      // Add directly as member
+      const membership = await OrganizationMembership.create({
+        organizationId: req.organizationId,
+        userId: existingUser._id,
+        role: (role as OrgRole) || 'employee',
+        jobTitle: jobTitle || '',
+        department: department || 'General',
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Member successfully added to workspace.',
+        data: membership,
+      });
+      return;
+    }
+
+    // Otherwise create pending invitation
+    const invitation = await Invitation.create({
+      organizationId: req.organizationId,
+      email: normalized,
+      role: (role as OrgRole) || 'employee',
+      token,
+      invitedBy: req.user?._id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    await emailService.sendEmail({
+      to: normalized,
+      subject: `Invitation to join team workspace on QUBIX`,
+      text: `You have been invited to join the team workspace on QUBIX.\nAccept your invitation: ${process.env.CLIENT_URL || 'http://localhost:5173'}/register?inviteToken=${token}&email=${encodeURIComponent(normalized)}`,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Invitation sent successfully.',
+      data: invitation,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const updateMemberRole = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { memberId } = req.params;
+    const { role, jobTitle, department, status } = req.body;
+
+    const membership = await OrganizationMembership.findOne({
+      _id: memberId,
+      organizationId: req.organizationId,
+    });
+
+    if (!membership) {
+      res.status(404).json({ success: false, error: { message: 'Member not found' } });
+      return;
+    }
+
+    if (membership.role === 'owner' && role !== 'owner') {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Cannot demote the primary organization owner.' },
+      });
+      return;
+    }
+
+    if (role) membership.role = role as OrgRole;
+    if (jobTitle !== undefined) membership.jobTitle = jobTitle;
+    if (department !== undefined) membership.department = department;
+    if (status) membership.status = status;
+
+    await membership.save();
+
+    res.json({ success: true, data: membership });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const removeMember = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { memberId } = req.params;
+
+    const membership = await OrganizationMembership.findOne({
+      _id: memberId,
+      organizationId: req.organizationId,
+    });
+
+    if (!membership) {
+      res.status(404).json({ success: false, error: { message: 'Member not found' } });
+      return;
+    }
+
+    if (membership.role === 'owner') {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Cannot remove organization owner.' },
+      });
+      return;
+    }
+
+    await OrganizationMembership.deleteOne({ _id: membership._id });
+
+    res.json({ success: true, message: 'Member removed successfully.' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
