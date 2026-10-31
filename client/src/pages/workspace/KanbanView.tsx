@@ -195,7 +195,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-white font-sans text-slate-800">
       {/* Sub-Toolbar: Clean Minimalist Filter Bar (No duplicate header) */}
-      <div className="px-6 py-2.5 border-b border-[#EAECF0] flex items-center justify-between gap-4 shrink-0 bg-white text-xs">
+      <div className="px-5 py-2.5 border-b border-[#EAECF0] flex items-center justify-between gap-3 shrink-0 bg-white text-xs">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="text-slate-400 font-medium text-[11px] uppercase tracking-wider">Priority:</span>

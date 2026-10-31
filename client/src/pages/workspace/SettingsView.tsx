@@ -150,11 +150,11 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 w-full overflow-y-auto bg-white font-sans text-slate-800 p-6 space-y-4">
+    <div className="flex-1 w-full overflow-y-auto bg-white font-sans text-slate-800 p-5 space-y-4">
       {/* 1. Standard Header (Consistent with all other pages) */}
-      <div className="pb-4 border-b border-[#EAECF0] flex items-center justify-between gap-4">
+      <div className="pb-3 border-b border-[#EAECF0] flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
             Workspace Settings
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">

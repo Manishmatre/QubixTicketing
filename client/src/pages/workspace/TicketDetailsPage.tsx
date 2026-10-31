@@ -321,7 +321,7 @@ export const TicketDetailsPage: React.FC = () => {
       {/* 2-Column Responsive Body */}
       <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
         {/* Left Main Scroll Area (70%) */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+        <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-5">
           {/* Minimal Inline Back Navigation */}
           <div className="flex items-center justify-between pb-1">
             <button

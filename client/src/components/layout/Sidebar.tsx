@@ -58,9 +58,9 @@ export const Sidebar: React.FC = () => {
   return (
     <aside className="w-64 bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800">
       {/* 1. Organization Workspace Selector (Clean Minimalist Top, matching reference UI) */}
-      <div className="p-3 border-b border-[#EAECF0] bg-white">
-        <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-xl p-2.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
-          <div className="min-w-0 flex items-center gap-2.5">
+      <div className="h-14 px-3 border-b border-[#EAECF0] bg-white flex items-center">
+        <div className="w-full bg-[#F8FAFC] border border-[#EAECF0] rounded-lg px-2.5 py-1.5 flex items-center justify-between relative group hover:border-slate-300 transition-colors">
+          <div className="min-w-0 flex items-center gap-2">
             <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
               {organization?.name ? organization.name.charAt(0).toUpperCase() : 'A'}
             </div>
@@ -74,7 +74,7 @@ export const Sidebar: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center text-slate-400 group-hover:text-slate-600">
+          <div className="flex items-center text-slate-400 group-hover:text-slate-600 shrink-0 ml-1">
             <ChevronDown className="w-3.5 h-3.5" />
           </div>
 

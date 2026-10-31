@@ -284,7 +284,7 @@ export const ProjectDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-white font-sans text-slate-800 p-6 space-y-4">
+    <div className="flex-1 overflow-y-auto bg-white font-sans text-slate-800 p-5 space-y-4">
       {/* 1. Header & Navigation Row */}
       <div className="flex items-center justify-between pb-1">
         <button

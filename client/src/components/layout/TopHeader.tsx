@@ -11,6 +11,16 @@ import {
   Plus,
   CheckCircle2,
   SlidersHorizontal,
+  LayoutDashboard,
+  FolderKanban,
+  Layers,
+  Ticket as TicketIcon,
+  Users,
+  BarChart3,
+  Zap,
+  CreditCard,
+  Settings,
+  User,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -85,36 +95,41 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     }
   };
 
-  // Determine dynamic section title from current pathname
-  const getPageTitle = () => {
+  // Determine dynamic section title and icon from current pathname
+  const getHeaderMeta = () => {
     const p = location.pathname;
-    if (p.includes('/workspace/kanban')) return 'Kanban Board';
-    if (p.includes('/workspace/tickets/')) return 'Ticket Details';
-    if (p.includes('/workspace/tickets')) return 'All Tickets';
-    if (p.includes('/workspace/my-tickets')) return 'Assigned to Me';
-    if (p.includes('/workspace/dashboard')) return 'Overview Dashboard';
-    if (p.includes('/workspace/projects/')) return 'Project Details';
-    if (p.includes('/workspace/projects')) return 'Projects Directory';
-    if (p.includes('/workspace/teams')) return 'Team Members';
-    if (p.includes('/workspace/reports')) return 'Analytics & Reports';
-    if (p.includes('/workspace/workflows')) return 'Workflow Automations';
-    if (p.includes('/workspace/billing')) return 'Subscription & Billing';
-    if (p.includes('/workspace/settings')) return 'Workspace Settings';
-    if (p.includes('/workspace/profile')) return 'My Profile';
-    return 'Workspace';
+    if (p.includes('/workspace/kanban')) return { title: 'Kanban Board', icon: FolderKanban };
+    if (p.includes('/workspace/tickets/')) return { title: 'Ticket Details', icon: TicketIcon };
+    if (p.includes('/workspace/tickets')) return { title: 'All Tickets', icon: Layers };
+    if (p.includes('/workspace/my-tickets')) return { title: 'Assigned to Me', icon: TicketIcon };
+    if (p.includes('/workspace/dashboard')) return { title: 'Overview Dashboard', icon: LayoutDashboard };
+    if (p.includes('/workspace/projects/')) return { title: 'Project Details', icon: FolderKanban };
+    if (p.includes('/workspace/projects')) return { title: 'Projects Directory', icon: FolderKanban };
+    if (p.includes('/workspace/teams')) return { title: 'Team Directory', icon: Users };
+    if (p.includes('/workspace/reports')) return { title: 'Analytics & Reports', icon: BarChart3 };
+    if (p.includes('/workspace/workflows')) return { title: 'Workflow Automations', icon: Zap };
+    if (p.includes('/workspace/billing')) return { title: 'Subscription & Billing', icon: CreditCard };
+    if (p.includes('/workspace/settings')) return { title: 'Workspace Settings', icon: Settings };
+    if (p.includes('/workspace/profile')) return { title: 'My Profile', icon: User };
+    return { title: 'Workspace', icon: LayoutDashboard };
   };
 
+  const { title: headerTitle, icon: HeaderIcon } = getHeaderMeta();
+
   return (
-    <header className="h-13 bg-white border-b border-[#EAECF0] px-6 flex items-center justify-between sticky top-0 z-20 shrink-0 font-sans">
-      {/* Left: Clean Minimal Page Title */}
-      <div className="flex items-center gap-2">
+    <header className="h-14 bg-white border-b border-[#EAECF0] px-5 flex items-center justify-between sticky top-0 z-20 shrink-0 font-sans">
+      {/* Left: Clean Minimal Page Title with Icon */}
+      <div className="flex items-center gap-2.5">
+        <div className="w-6 h-6 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+          <HeaderIcon className="w-3.5 h-3.5" />
+        </div>
         <h1 className="text-sm font-bold text-slate-900 tracking-tight">
-          {getPageTitle()}
+          {headerTitle}
         </h1>
       </div>
 
       {/* Middle: Clean Minimalist Search Input */}
-      <div className="hidden sm:flex w-72 relative items-center">
+      <div className="hidden sm:flex w-80 relative items-center">
         <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
         <input
           type="text"
@@ -124,23 +139,25 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             setSearchVal(e.target.value);
             if (onSearchChange) onSearchChange(e.target.value);
           }}
-          className="w-full bg-[#F8FAFC] hover:bg-slate-100/70 focus:bg-white border border-[#EAECF0] rounded-lg pl-8 pr-8 py-1.5 text-xs text-slate-900 transition-all outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
+          className="w-full bg-[#F8FAFC] hover:bg-slate-100/70 focus:bg-white border border-[#EAECF0] rounded-lg pl-8 pr-10 py-1.5 text-xs text-slate-900 transition-all outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 placeholder:text-slate-400"
         />
-        <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none">
+        <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none bg-slate-100 px-1 py-0.5 rounded border border-slate-200/60">
           ⌘K
         </span>
       </div>
 
-      {/* Right: Actions, Notifications & Avatar */}
+      {/* Right: Actions, Notifications & Avatar with balanced spacing */}
       <div className="flex items-center gap-3">
         {/* + New Ticket in QubixDesk Theme Blue */}
         <button
           onClick={onOpenCreateTicket}
-          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm shadow-blue-500/20 transition-all active:scale-[0.98]"
+          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3.5 py-1.5 text-xs font-semibold shadow-xs shadow-blue-500/20 transition-all active:scale-[0.98]"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>New ticket</span>
         </button>
+
+        <div className="h-4 w-[1px] bg-slate-200 mx-0.5" />
 
         {/* Notifications Popover */}
         <div className="relative">
@@ -214,13 +231,23 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           )}
         </div>
 
+        <div className="h-4 w-[1px] bg-slate-200 mx-0.5" />
+
         {/* User Profile Link */}
         <Link
           to="/workspace/profile"
-          className="flex items-center rounded-full hover:ring-2 hover:ring-blue-500/20 transition-all cursor-pointer"
+          className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 transition-colors group cursor-pointer"
           title="View My Profile"
         >
           <Avatar name={user?.name} src={user?.avatarUrl} size="sm" />
+          <div className="hidden lg:block text-left">
+            <span className="block text-xs font-semibold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
+              {user?.name?.split(' ')[0]}
+            </span>
+            <span className="block text-[10px] text-slate-400 capitalize leading-tight">
+              {organization?.role || 'Member'}
+            </span>
+          </div>
         </Link>
       </div>
     </header>

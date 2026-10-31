@@ -77,10 +77,10 @@ export const BillingView: React.FC = () => {
   const currentPlan = organization?.subscriptionPlan || 'starter';
 
   return (
-    <div className="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto bg-white font-sans text-slate-800">
+    <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-white font-sans text-slate-800">
       {/* Header */}
-      <div className="pb-4 border-b border-[#EAECF0]">
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+      <div className="pb-3 border-b border-[#EAECF0]">
+        <h2 className="text-lg font-bold text-slate-900 tracking-tight">
           Subscription & Billing
         </h2>
         <p className="text-xs text-slate-500 mt-0.5">

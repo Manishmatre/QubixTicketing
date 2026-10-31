@@ -493,3 +493,4 @@ export const AcceptInvitePage: React.FC = () => {
     </div>
   );
 };
+
