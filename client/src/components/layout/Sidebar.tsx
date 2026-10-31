@@ -39,18 +39,14 @@ export const Sidebar: React.FC = () => {
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 select-none h-screen sticky top-0 z-30">
       {/* Brand Header & Organization Switcher */}
       <div className="p-4 border-b border-slate-100">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
-            <Layers className="w-5 h-5" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="text-base font-extrabold text-slate-900 tracking-tight leading-none">
-              QubixDesk
-            </h1>
-            <p className="text-[10px] font-semibold text-blue-600 tracking-wider uppercase mt-1">
-              Workspace Platform
-            </p>
-          </div>
+        <div className="flex items-center">
+          <NavLink to="/workspace/dashboard" className="block">
+            <img
+              src="/logo.png"
+              alt="QubixDesk"
+              className="h-8 max-w-[200px] object-contain"
+            />
+          </NavLink>
         </div>
 
         {/* Organization Switcher Dropdown */}

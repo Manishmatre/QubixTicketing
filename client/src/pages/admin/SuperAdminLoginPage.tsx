@@ -54,13 +54,18 @@ export const SuperAdminLoginPage: React.FC = () => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mx-auto mb-2 shadow-lg shadow-purple-900/20">
-            <ShieldCheck className="w-6 h-6" />
+        <div className="text-center space-y-3">
+          <div className="bg-white/95 p-2 rounded-xl inline-block shadow-md mx-auto">
+            <img src="/logo.png" alt="QubixDesk" className="h-7 w-auto object-contain" />
           </div>
-          <h2 className="text-2xl font-black text-white tracking-tight">
-            QubixDesk Super Admin
-          </h2>
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-md">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <h2 className="text-xl font-black text-white tracking-tight">
+              Super Admin Console
+            </h2>
+          </div>
           <p className="text-xs text-slate-400">
             Centralized SaaS Control Plane & Global Operations
           </p>

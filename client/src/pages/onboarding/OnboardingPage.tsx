@@ -80,6 +80,13 @@ export const OnboardingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center items-center p-6">
+      <div className="mb-6 text-center">
+        <img
+          src="/logo.png"
+          alt="QubixDesk"
+          className="h-10 mx-auto object-contain"
+        />
+      </div>
       <div className="w-full max-w-xl bg-white border border-slate-200 rounded-2xl shadow-card overflow-hidden">
         {/* Progress Bar */}
         <div className="bg-slate-50 px-8 py-4 border-b border-slate-200 flex items-center justify-between">

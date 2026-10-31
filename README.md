@@ -1,6 +1,22 @@
-# QubixDesk — Enterprise Multi-Tenant Project & Issue Ticketing SaaS Platform
+<p align="center">
+  <img src="./client/public/logo.png" alt="QubixDesk Official Logo" width="560"/>
+</p>
 
-> **"Work Smarter. Track Better. Deliver Faster."**
+<h3 align="center">Enterprise Multi-Tenant Project & Issue Ticketing SaaS Platform</h3>
+
+<p align="center">
+  <strong><em>"Work Smarter. Track Better. Deliver Faster."</em></strong>
+</p>
+
+<p align="center">
+  <a href="#-dedicated-authentication-portals--demo-credentials">Demo Logins</a> •
+  <a href="#-key-product-capabilities">Key Features</a> •
+  <a href="#-getting-started">Quickstart</a> •
+  <a href="#-testing-multi-tenant-isolation">Security Tests</a> •
+  <a href="#-technology-stack-summary">Tech Stack</a>
+</p>
+
+---
 
 QubixDesk is a production-grade, multi-tenant Software-as-a-Service (SaaS) platform built for high-velocity software engineering companies, IT service providers, digital agencies, and enterprise teams to manage projects, track issues, assign ownership, collaborate with real-time updates, and resolve tickets with full operational visibility.
 

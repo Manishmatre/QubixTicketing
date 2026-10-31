@@ -105,18 +105,12 @@ export const LandingPage: React.FC = () => {
       {/* Public Navbar */}
       <header className="h-18 bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 px-6 sm:px-10 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
-              <Layers className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-tight text-slate-900 leading-none">
-                QubixDesk
-              </span>
-              <span className="text-[10px] font-semibold text-blue-600 tracking-wider uppercase mt-0.5">
-                Enterprise SaaS
-              </span>
-            </div>
+          <Link to="/" className="flex items-center">
+            <img
+              src="/logo.png"
+              alt="QubixDesk - Work Smarter. Track Better. Deliver Faster."
+              className="h-9 sm:h-10 w-auto object-contain"
+            />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-7 text-xs font-semibold text-slate-600">
@@ -936,13 +930,14 @@ export const LandingPage: React.FC = () => {
       <footer className="mt-auto border-t border-slate-800 py-14 px-6 sm:px-10 bg-slate-950 text-slate-400 text-xs">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           <div className="space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                <Layers className="w-4 h-4" />
-              </div>
-              <span className="font-extrabold text-white text-base">QubixDesk</span>
+            <div className="bg-white/95 p-2 rounded-xl inline-block shadow-sm">
+              <img
+                src="/logo.png"
+                alt="QubixDesk"
+                className="h-7 w-auto object-contain"
+              />
             </div>
-            <p className="text-slate-500 text-[11px] leading-relaxed">
+            <p className="text-slate-400 text-[11px] leading-relaxed">
               Work Smarter. Track Better. Deliver Faster. The multi-tenant enterprise issue and project ticketing platform.
             </p>
           </div>
@@ -1042,11 +1037,14 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center items-center p-6">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-card p-8 space-y-6">
-        <div className="text-center space-y-1">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold mx-auto shadow-md shadow-blue-500/20 mb-3">
-            <Layers className="w-5 h-5" />
-          </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Sign in to QubixDesk</h2>
+        <div className="text-center space-y-2">
+          <Link to="/" className="inline-block">
+            <img
+              src="/logo.png"
+              alt="QubixDesk"
+              className="h-10 mx-auto object-contain"
+            />
+          </Link>
           <p className="text-xs text-slate-500">Access your organization issue tracking workspace</p>
         </div>
 
@@ -1154,11 +1152,15 @@ export const RegisterPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center items-center p-6">
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-card p-8 space-y-6">
-        <div className="text-center space-y-1">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold mx-auto shadow-md shadow-blue-500/20 mb-3">
-            <Layers className="w-5 h-5" />
-          </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Create your workspace</h2>
+        <div className="text-center space-y-2">
+          <Link to="/" className="inline-block">
+            <img
+              src="/logo.png"
+              alt="QubixDesk"
+              className="h-10 mx-auto object-contain"
+            />
+          </Link>
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Create your workspace</h2>
           <p className="text-xs text-slate-500">14-day full feature trial • No credit card required</p>
         </div>
 
