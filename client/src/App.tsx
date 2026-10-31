@@ -21,6 +21,7 @@ import { WorkflowsView } from './pages/workspace/WorkflowsView';
 import { BillingView } from './pages/workspace/BillingView';
 import { SettingsView } from './pages/workspace/SettingsView';
 import { SuperAdminView } from './pages/admin/SuperAdminView';
+import { SuperAdminLoginPage } from './pages/admin/SuperAdminLoginPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,7 +36,7 @@ const SuperAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const { user, isLoading } = useAuth();
   if (isLoading) return null;
   if (!user || !user.isSuperAdmin) {
-    return <Navigate to="/workspace/dashboard" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
   return <>{children}</>;
 };
@@ -51,6 +52,7 @@ export const App: React.FC = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/admin/login" element={<SuperAdminLoginPage />} />
 
               {/* Onboarding Wizard */}
               <Route path="/onboarding" element={<OnboardingPage />} />

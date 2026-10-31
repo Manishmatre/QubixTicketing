@@ -403,8 +403,13 @@ export const LoginPage: React.FC = () => {
     setPassword('Password123!');
   };
 
-  const fillSuperAdmin = () => {
-    setEmail('admin@qubix.io');
+  const fillTechLead = () => {
+    setEmail('alex.rivera@acme.com');
+    setPassword('Password123!');
+  };
+
+  const fillDesigner = () => {
+    setEmail('emma.watson@acme.com');
     setPassword('Password123!');
   };
 
@@ -419,23 +424,30 @@ export const LoginPage: React.FC = () => {
           <p className="text-xs text-slate-500">Access your organization issue tracking workspace</p>
         </div>
 
-        {/* Demo Fast-fill Buttons for seamless evaluation */}
+        {/* Demo Fast-fill Buttons for Organization Members */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 text-xs">
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quick Fill Demo Accounts:</p>
-          <div className="flex gap-2">
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Quick Fill Organization Accounts:</p>
+          <div className="grid grid-cols-3 gap-1.5">
             <button
               type="button"
               onClick={fillDemoOwner}
-              className="flex-1 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-blue-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors"
+              className="bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-blue-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors truncate"
             >
               Acme Owner
             </button>
             <button
               type="button"
-              onClick={fillSuperAdmin}
-              className="flex-1 bg-white hover:bg-purple-50 border border-slate-200 hover:border-purple-300 text-purple-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors"
+              onClick={fillTechLead}
+              className="bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-blue-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors truncate"
             >
-              Platform Super Admin
+              Tech Lead
+            </button>
+            <button
+              type="button"
+              onClick={fillDesigner}
+              className="bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-blue-700 py-1.5 px-2 rounded-lg font-semibold text-[11px] transition-colors truncate"
+            >
+              Designer
             </button>
           </div>
         </div>
@@ -466,16 +478,25 @@ export const LoginPage: React.FC = () => {
           />
 
           <Button type="submit" variant="primary" className="w-full text-xs" isLoading={isLoading}>
-            Sign In
+            Sign In to Workspace
           </Button>
         </form>
 
-        <p className="text-center text-xs text-slate-500">
-          Don't have an organization workspace?{' '}
-          <Link to="/register" className="text-blue-600 font-semibold hover:underline">
-            Start Free Trial
+        <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-2 text-xs text-slate-500">
+          <p>
+            Don't have an organization workspace?{' '}
+            <Link to="/register" className="text-blue-600 font-semibold hover:underline">
+              Start Free Trial
+            </Link>
+          </p>
+
+          <Link
+            to="/admin/login"
+            className="text-purple-600 hover:text-purple-700 font-semibold hover:underline flex items-center gap-1 mt-1 text-[11px]"
+          >
+            Platform Administrator? Go to Super Admin Portal &rarr;
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

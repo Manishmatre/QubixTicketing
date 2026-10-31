@@ -2,127 +2,203 @@
 
 > **"One Workspace. Every Issue. Complete Control."**
 
-QUBIX is a production-grade, multi-tenant Software-as-a-Service (SaaS) application designed for high-velocity software companies, IT service providers, agencies, and enterprise teams to manage projects, track issues, assign ownership, collaborate in real time, and resolve tickets with complete visibility.
+QUBIX is a production-grade, multi-tenant Software-as-a-Service (SaaS) platform built for high-velocity software engineering companies, IT service providers, digital agencies, and enterprise teams to manage projects, track issues, assign ownership, collaborate with real-time updates, and resolve tickets with full operational visibility.
+
+---
+
+## 🔐 Dedicated Authentication Portals & Demo Credentials
+
+QUBIX enforces a strict separation between **Organization Workspace Users** and **Platform Super Administrators**.
+
+### 1. Organization Workspace Login
+- **URL**: [http://localhost:5173/login](http://localhost:5173/login)
+- **Scope**: Access your company's workspace (`acme-corp`), active projects, Kanban boards, ticket drawer, team member directories, workflow automations, and reports.
+- **Fast-Fill**: Includes one-click demo credentials buttons on the login interface.
+
+| Role | Email | Password | Access & Responsibilities |
+|---|---|---|---|
+| **Organization Owner** | `sarah.jenkins@acme.com` | `Password123!` | Full organization management, team invites, billing & subscription settings |
+| **Team Lead / Tech Lead** | `alex.rivera@acme.com` | `Password123!` | Project management, ticket assignment, workflow triggers & internal discussions |
+| **Product Designer** | `emma.watson@acme.com` | `Password123!` | UI/UX tickets, design attachments, public comments & task delivery |
+
+---
+
+### 2. Platform Super Admin Security Console
+- **URL**: [http://localhost:5173/admin/login](http://localhost:5173/admin/login)
+- **Scope**: Isolated, fortified administration portal for SaaS owners and system operators. Normal workspace users cannot access this portal.
+- **Features**: Global MRR telemetry, platform subscription analytics, cross-tenant organization suspension/reactivation, platform user inspection, and global audit trails.
+
+| Role | Email | Password | Console URL |
+|---|---|---|---|
+| **Platform Super Admin** | `admin@qubix.io` | `Password123!` | [http://localhost:5173/admin](http://localhost:5173/admin) |
 
 ---
 
 ## 🌟 Key Product Capabilities
 
-### 1. Multi-Tenant Architecture & Data Isolation
-- **Tenant Context**: Every organization operates inside a dedicated, isolated workspace with a unique slug URL (`qubix.io/:slug`).
-- **Middleware Security**: Every database query is strictly scoped to `organizationId`. Cross-tenant data leakage is mathematically prevented at the API and database levels.
+### 1. True Multi-Tenant Architecture & Data Isolation
+- **Tenant Context**: Every organization has a unique slug and tenant ID (`organizationId`).
+- **Middleware Isolation**: Backend middleware (`tenantContext`) validates tenant membership and injects `organizationId` directly into Mongoose queries (`tenantScope`). Cross-tenant leakage is strictly prevented at the database query level.
 - **8-Tier Role-Based Access Control (RBAC)**:
-  1. **Platform Super Admin** (`admin@qubix.io`)
-  2. **Organization Owner**
-  3. **Organization Admin**
-  4. **Project Manager**
-  5. **Team Lead**
-  6. **Employee / Developer**
-  7. **Reporter / Client**
-  8. **Read-only Viewer**
+  1. `super_admin`: Global platform operator.
+  2. `owner`: Tenant account owner with billing and member rights.
+  3. `admin`: Tenant administrator.
+  4. `project_manager`: Project creator, assigner, and milestone manager.
+  5. `team_lead`: Technical leader, ticket reviewer, workflow operator.
+  6. `employee`: Software developer or staff member working on assigned tickets.
+  7. `reporter`: External client or customer submitting issues.
+  8. `viewer`: Read-only stakeholder.
 
-### 2. High-Conversion SaaS Marketing Website
-- Premium landing page with hero presentation, live interactive preview, feature breakdown, customer use cases, FAQ accordion, and transparent monthly/yearly pricing.
-- 8-Step Interactive Onboarding Wizard (`/onboarding`) with progress tracking.
+### 2. Live Interactive Kanban Board
+- **Visual Identity**: Clean card layout, subtle elevation, status indicators (`To Do`, `In Progress`, `Resolved`).
+- **Drag & Drop**: Instant status transitions with optimistic UI rendering.
+- **Real-Time Collaboration**: Powered by Socket.IO (`org_${id}` rooms) — changes sync across teammates' screens without refreshing.
 
-### 3. Real-Time Kanban Board & Workspaces
-- Reproduces the visual identity of modern enterprise ticketing systems (clean white cards, light grey background `#F8FAFC`, dark navy typography `#111827`, blue accent `#2563EB`).
-- **Columns**: To Do, In Progress, Resolved.
-- **Drag & Drop**: Instant optimistic UI updates with automatic rollback on error.
-- **Live Sync**: Socket.IO broadcasts updates to all active team browsers in real time.
-
-### 4. Ticket Details Drawer (Slide-out Right Drawer)
-- Click any ticket from any view to slide out the right-side inspector.
-- **Header**: Ticket number (e.g. `QUB-000101`), title, project, status, priority, and assignee.
+### 3. Ticket Details Drawer (Slide-Out Inspector)
+- Click any ticket from any view to open the right-side inspector without losing your work context.
+- **Header**: Ticket identifier (e.g. `QUB-000101`), title, project, assignee, priority tag, status dropdown.
 - **Tabs**:
-  - **Public Comments**: Real-time comment stream, timestamps, user avatars.
-  - **Internal Notes**: Restricted exclusively to internal team members (strictly hidden from external reporters/clients).
-  - **Attachments**: Drag-and-drop file uploads with secure MIME validation and downloads.
-  - **Activity Timeline**: Full chronological audit trail of all changes.
+  - 💬 **Public Comments**: Team and client discussions with timestamps and user avatars.
+  - 🔒 **Internal Notes**: Restricted strictly to internal team members (hidden from external clients/reporters).
+  - 📎 **Attachments**: Cloud-backed file uploads powered by Cloudinary object storage with local disk fallback.
+  - 📜 **Activity Timeline**: Complete chronological audit trail tracking who changed what and when.
 
-### 5. Automated Workflow Engine
-- Configure conditional rules:
-  - **Triggers**: Priority becomes Urgent/Critical, Ticket Created, Ticket Resolved, etc.
-  - **Actions**: Auto-assign to lead, dispatch in-app notifications, send email alerts, apply tags (`#escalated`).
+### 4. Automated Workflow Engine
+- Configure conditional automations without writing code:
+  - **Triggers**: Priority escalated to Critical/Urgent, Ticket Created, Ticket Resolved.
+  - **Actions**: Auto-assign to Team Lead, dispatch push notification, send email alert, tag `#escalated`.
 
-### 6. Reports & Executive Analytics
-- Velocity trends area chart, SLA compliance indicators, workload distribution, category breakdowns, and one-click export to **CSV** and **PDF**.
+### 5. SLA Analytics & Executive Reports
+- Visual velocity trends, SLA compliance tracking, category breakdowns, and workload distributions.
+- **Exporting**: One-click export to **CSV** and formatted **PDF** via jsPDF.
 
-### 7. SaaS Billing & Subscription Management
-- Configurable tiers: **Starter** ($19/mo), **Professional** ($49/mo), **Business** ($129/mo), **Enterprise** ($399/mo).
-- Invoice history, seat usage progress meters, and upgrade flows.
-
-### 8. Platform Super Admin Console (`/admin`)
-- Accessible to platform super administrators.
-- Monitor global MRR, manage tenant organizations (suspend/reactivate), review all platform users, and inspect global audit logs.
+### 6. Billing & Subscription Management
+- Pre-configured subscription plans:
+  - **Starter**: \$19/month (up to 5 team members).
+  - **Professional**: \$49/month (up to 25 team members).
+  - **Business**: \$129/month (up to 100 team members).
+  - **Enterprise**: \$399/month (unlimited members, custom SLA, dedicated support).
+- Seat usage tracking, plan upgrade dialogs, and invoice history.
 
 ---
 
-## 🚀 Quick Start Guide
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18+ or v22+)
-- npm (v9+)
-- *(Optional)* MongoDB Atlas URI — If omitted, QUBIX automatically initializes an embedded, zero-dependency in-memory MongoDB instance with pre-seeded demo data!
+- **Node.js**: v18.0.0+ (Tested on Node v22.19.0)
+- **npm**: v9.0.0+
+- **MongoDB Atlas** or local MongoDB instance (Embedded in-memory MongoDB fallback supported automatically if URI is omitted).
 
-### 1. Install Dependencies
+### 1. Clone & Install
 ```bash
+git clone https://github.com/Manishmatre/QubixTicketing.git
+cd QubixTicketing
 npm install
 ```
 
-### 2. Run Backend Server
-```bash
-npm run dev:server
-```
-The server will start on `http://localhost:5000` and automatically seed the demo company and users.
+### 2. Environment Configuration
 
-### 3. Run Frontend Client
-In a second terminal:
+The server environment file is located at `server/.env`:
+```env
+PORT=4000
+NODE_ENV=development
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.vnevj1u.mongodb.net/QubixTicketing?retryWrites=true&w=majority
+JWT_SECRET=qubix_super_secret_jwt_key_2026_enterprise_saas
+JWT_REFRESH_SECRET=qubix_super_secret_refresh_jwt_key_2026_enterprise_saas
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Cloudinary Object Storage
+CLOUDINARY_CLOUD_NAME=deekt4ncx
+CLOUDINARY_API_KEY=338921665685543
+CLOUDINARY_API_SECRET=YaC6R_YN8PghLGY2pK4phK3Gj5A
+```
+
+The client environment file is located at `client/.env`:
+```env
+VITE_API_URL=/api/v1
+VITE_SOCKET_URL=http://localhost:4000
+```
+
+### 3. Start Development Servers
+
+Start both servers concurrently from the root directory:
 ```bash
+# Terminal 1: Backend Server (runs on Port 4000)
+npm run dev:server
+
+# Terminal 2: Frontend Vite Client (runs on Port 5173 with API proxy)
 npm run dev:client
 ```
-The client will start on `http://localhost:5173`.
+
+Now open [http://localhost:5173](http://localhost:5173) in your browser!
 
 ---
 
-## 🔑 Demo Login Credentials
+## 🧪 Testing Multi-Tenant Isolation
 
-The database automatically seeds realistic demo records on startup:
+QUBIX includes an automated test suite verifying cross-tenant isolation and security:
 
-| Role | Email | Password | Access Level |
-|---|---|---|---|
-| **Organization Owner** | `sarah.jenkins@acme.com` | `Password123!` | Acme Technologies Workspace (`acme-corp`) |
-| **Team Lead / Architect** | `alex.rivera@acme.com` | `Password123!` | Technical Lead & Workflows |
-| **Product Designer** | `emma.watson@acme.com` | `Password123!` | UI/UX & Ticket Drawer |
-| **Platform Super Admin** | `admin@qubix.io` | `Password123!` | Global Platform Console (`/admin`) |
-
-*Tip: The login page includes quick-fill buttons for instant 1-click authentication.*
-
----
-
-## 🛠️ Technology Stack
-
-- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, Framer Motion, Lucide React, React Router v7, TanStack Query, Recharts, jsPDF.
-- **Backend**: Node.js, Express, TypeScript, Mongoose, MongoDB, JWT (with refresh token rotation), Socket.IO, Multer, Helmet, Nodemailer.
-- **DevOps & QA**: Docker, Docker Compose, Nginx, Vitest, Supertest, MongoMemoryServer.
-
----
-
-## 🧪 Automated Testing
-
-Run the automated multi-tenant isolation and security test suite:
 ```bash
 npm run test:server
 ```
 
+**Test Coverage**:
+- ✅ Cross-tenant data leakage prevention (Tenant A cannot read Tenant B's tickets).
+- ✅ Internal notes protection (External reporters cannot access internal notes).
+- ✅ Role-based permission enforcement (Viewers cannot delete projects).
+- ✅ Platform Super Admin isolation (Workspace tokens cannot access `/admin` APIs).
+
 ---
 
-## 📦 Production Build
+## 🏗️ Technology Stack Summary
 
-```bash
-npm run build
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 18, Vite, TypeScript, Tailwind CSS, Framer Motion, Lucide React, React Router v7, TanStack Query, Recharts, jsPDF |
+| **Backend** | Node.js, Express.js, TypeScript, Mongoose, Socket.IO, JWT Auth, Multer, Helmet, Nodemailer, Cloudinary SDK |
+| **Database** | MongoDB Atlas with Mongoose schema validation & compound multi-tenant indexing |
+| **DevOps & QA** | Vitest, Supertest, MongoMemoryServer, Docker, Docker Compose, Nginx |
+
+---
+
+## 📂 Project Directory Structure
+
+```text
+Qubix/
+├── client/                     # Vite + React + TypeScript Frontend
+│   ├── src/
+│   │   ├── api/                # Axios API client & typed endpoints
+│   │   ├── components/         # Kanban, Drawer, Workflows, Modals, Navbar
+│   │   ├── context/            # AuthContext, TenantContext, SocketContext
+│   │   ├── pages/
+│   │   │   ├── admin/          # SuperAdminLoginPage, SuperAdminView
+│   │   │   ├── auth/           # Workspace LoginPage, RegisterPage
+│   │   │   ├── onboarding/     # Multi-step Workspace Setup Wizard
+│   │   │   ├── public/         # Landing, Features, Pricing, Docs
+│   │   │   └── workspace/      # Dashboard, Kanban, Tickets, Teams, Reports
+│   │   ├── App.tsx             # Route definitions & guards
+│   │   └── main.tsx            # App bootstrap
+│   └── vite.config.ts          # Reverse proxy to backend port 4000
+│
+├── server/                     # Express + TypeScript REST API & Socket.IO
+│   ├── src/
+│   │   ├── config/             # DB & Cloudinary storage configuration
+│   │   ├── controllers/        # Auth, Tenant, Ticket, Project, Admin
+│   │   ├── middleware/         # authMiddleware, tenantContext, rbacGuard
+│   │   ├── models/             # Organization, User, Project, Ticket, Plan
+│   │   ├── routes/             # Versioned REST API endpoints (/api/v1)
+│   │   ├── services/           # Socket.IO & Cloudinary Storage Adapter
+│   │   ├── tests/              # Multi-tenant isolation test suite
+│   │   └── server.ts           # HTTP server, WebSocket boot & seeder
+│   └── package.json
+│
+├── package.json                # Monorepo workspaces
+└── README.md                   # Complete documentation
 ```
-Builds both the backend (`server/dist`) and client (`client/dist`).
 
+---
 
-# QubixTicketing
+## 📄 License
+
+MIT © [QUBIX Technologies](https://qubix.io)
