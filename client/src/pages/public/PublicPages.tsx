@@ -33,6 +33,11 @@ import {
   Sliders,
   Shield,
   Layers2,
+  MousePointer2,
+  Search,
+  Bell,
+  Plus,
+  Filter,
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
@@ -133,34 +138,37 @@ export const LandingPage: React.FC = () => {
       </div>
 
       {/* Public Navbar */}
-      <header className="h-18 bg-white/85 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 px-6 sm:px-10 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center">
+      <header className="h-20 sm:h-24 bg-white/95 backdrop-blur-xl border-b border-slate-200/90 sticky top-0 z-40 px-6 sm:px-12 flex items-center justify-between shadow-xs transition-all">
+        <div className="flex items-center gap-10">
+          <Link to="/" className="flex items-center group">
             <img
               src="/logo.png"
               alt="QubixDesk - Work Smarter. Track Better. Deliver Faster."
-              className="h-9 sm:h-10 w-auto object-contain"
+              className="h-10 sm:h-12 w-auto object-contain group-hover:scale-102 transition-transform"
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-7 text-xs font-semibold text-slate-600">
-            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-blue-600 transition-colors">Features</a>
-            <a href="#preview" onClick={(e) => scrollToSection(e, 'preview')} className="hover:text-blue-600 transition-colors">Live Preview</a>
-            <a href="#solutions" onClick={(e) => scrollToSection(e, 'solutions')} className="hover:text-blue-600 transition-colors">Solutions</a>
-            <a href="#comparison" onClick={(e) => scrollToSection(e, 'comparison')} className="hover:text-blue-600 transition-colors">Comparison</a>
-            <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="hover:text-blue-600 transition-colors">Pricing</a>
-            <a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="hover:text-blue-600 transition-colors">FAQ</a>
+          <nav className="hidden lg:flex items-center gap-8 text-[13px] font-semibold text-slate-600">
+            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Features</a>
+            <a href="#preview" onClick={(e) => scrollToSection(e, 'preview')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+              <span>Live Preview</span>
+              <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">Interactive</span>
+            </a>
+            <a href="#solutions" onClick={(e) => scrollToSection(e, 'solutions')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Solutions</a>
+            <a href="#comparison" onClick={(e) => scrollToSection(e, 'comparison')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Comparison</a>
+            <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">Pricing</a>
+            <a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="hover:text-blue-600 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">FAQ</a>
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3.5">
           <Link to="/login">
-            <Button variant="ghost" size="sm" className="text-slate-700 font-semibold hover:text-blue-600">
+            <Button variant="ghost" size="md" className="text-slate-700 font-semibold text-xs hover:text-blue-600 hover:bg-slate-50 px-4 py-2">
               Sign In
             </Button>
           </Link>
           <Link to="/register">
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 text-xs font-bold px-4">
+            <Button size="md" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 text-xs font-bold px-5 py-2.5 rounded-xl transition-all hover:scale-102 active:scale-98">
               Start Free Trial
             </Button>
           </Link>
@@ -168,14 +176,53 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-16 px-6 max-w-6xl mx-auto text-center space-y-6">
+      <section className="relative z-10 pt-20 pb-16 px-4 sm:px-6 max-w-7xl mx-auto text-center space-y-7">
+        {/* Floating Live Interaction Badges */}
+        <div className="hidden lg:block absolute left-8 top-28 pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3 shadow-xl shadow-slate-200/50 flex items-center gap-3 animate-float-soft"
+          >
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
+              ⚡
+            </div>
+            <div className="text-left text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-bold text-slate-800">Live Socket Sync</span>
+              </div>
+              <p className="text-[11px] text-slate-500">Alex Rivera moved QUB-00102</p>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="hidden lg:block absolute right-8 top-32 pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="bg-white/90 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3 shadow-xl shadow-slate-200/50 flex items-center gap-3 animate-float-soft"
+            style={{ animationDelay: '2.5s' }}
+          >
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0">
+              🔒
+            </div>
+            <div className="text-left text-xs">
+              <span className="font-bold text-slate-800">Tenant Isolation</span>
+              <p className="text-[11px] text-slate-500">0 Cross-Workspace Leakage</p>
+            </div>
+          </motion.div>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200/80 text-blue-700 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-2xs backdrop-blur-sm"
+          className="inline-flex items-center gap-2 bg-blue-50/90 border border-blue-200/80 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-2xs backdrop-blur-sm"
         >
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-spin" style={{ animationDuration: '8s' }} />
           <span>Next-Generation Multi-Tenant Issue & Project Ticketing</span>
         </motion.div>
 
@@ -183,10 +230,10 @@ export const LandingPage: React.FC = () => {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-5xl mx-auto"
+          className="text-5xl sm:text-7xl lg:text-8xl font-black text-slate-900 tracking-tight leading-[1.08] max-w-5xl mx-auto"
         >
           Work Smarter. Track Better.{' '}
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 bg-clip-text text-transparent">
             Deliver Faster.
           </span>
         </motion.h1>
@@ -195,7 +242,7 @@ export const LandingPage: React.FC = () => {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
+          className="text-base sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal"
         >
           QubixDesk unifies project management, issue tracking, and client helpdesk into one ultra-fast, multi-tenant workspace. Built with strict data isolation, real-time collaboration, and intelligent workflow automation.
         </motion.p>
@@ -207,17 +254,17 @@ export const LandingPage: React.FC = () => {
           className="flex flex-wrap items-center justify-center gap-4 pt-3"
         >
           <Link to="/register">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 px-6 font-bold" rightIcon={<ArrowRight className="w-4 h-4" />}>
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-500/30 px-7 py-3 text-sm font-bold rounded-xl hover:scale-102 transition-all active:scale-98" rightIcon={<ArrowRight className="w-4 h-4" />}>
               Start Free Trial (14 Days)
             </Button>
           </Link>
           <a href="#preview" onClick={(e) => scrollToSection(e, 'preview')}>
-            <Button size="lg" variant="outline" className="border-slate-300 font-semibold text-slate-700 hover:bg-slate-100">
-              Explore Interactive Preview
+            <Button size="lg" variant="outline" className="border-slate-300 font-semibold text-slate-700 hover:bg-slate-100 px-6 py-3 text-sm rounded-xl">
+              Explore Live Workspace
             </Button>
           </a>
           <Link to="/login">
-            <Button size="lg" variant="ghost" className="text-blue-700 font-semibold hover:bg-blue-50">
+            <Button size="lg" variant="ghost" className="text-blue-700 font-semibold hover:bg-blue-50 px-5 py-3 text-sm">
               Demo Workspace Login &rarr;
             </Button>
           </Link>
@@ -248,16 +295,39 @@ export const LandingPage: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Interactive Product Demo Showcase Frame */}
+        {/* Interactive Full Workspace Showcase Frame */}
         <motion.div
           id="preview"
-          initial={{ opacity: 0, y: 35 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-14 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-2xl shadow-slate-300/40 max-w-5xl mx-auto text-left overflow-hidden hover:shadow-blue-500/10 transition-shadow"
+          className="mt-14 rounded-2xl border border-slate-300/80 bg-white p-2 sm:p-3 shadow-2xl shadow-slate-300/50 max-w-6xl mx-auto text-left overflow-hidden hover:shadow-blue-500/10 transition-shadow relative"
         >
-          {/* Mock Browser Header */}
+          {/* Animated Interactive Cursor Simulation */}
+          <motion.div
+            className="hidden lg:flex absolute z-50 pointer-events-none items-center gap-2 drop-shadow-xl"
+            animate={{
+              x: [120, 360, 360, 580, 580, 860, 860, 120],
+              y: [160, 260, 260, 260, 260, 100, 100, 160],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <div className="relative">
+              <MousePointer2 className="w-5 h-5 text-blue-600 fill-blue-600 -rotate-45" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-400 rounded-full animate-ping" />
+            </div>
+            <div className="bg-slate-900/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md backdrop-blur-xs flex items-center gap-1.5 whitespace-nowrap">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Alex Rivera (Lead Engineer)</span>
+            </div>
+          </motion.div>
+
+          {/* Mock Browser Top Header Bar */}
           <div className="bg-slate-100 rounded-t-xl px-4 py-2.5 flex items-center justify-between border-b border-slate-200/80">
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5">
@@ -265,24 +335,25 @@ export const LandingPage: React.FC = () => {
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
               </div>
-              <span className="text-xs font-mono text-slate-500 ml-2 bg-white px-2 py-0.5 rounded border border-slate-200">
-                qubixdesk.io/acme-corp/{activeDemoTab}
+              <span className="text-xs font-mono text-slate-500 ml-2 bg-white px-2.5 py-0.5 rounded border border-slate-200 flex items-center gap-1.5">
+                <Lock className="w-3 h-3 text-emerald-600" />
+                https://qubixdesk.toolio.tech/workspace/{activeDemoTab}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-mono text-[11px] font-semibold text-slate-700">Live Socket Sync Active</span>
+              <span className="font-mono text-[11px] font-semibold text-slate-700">WebSocket Cluster: 12ms</span>
             </div>
           </div>
 
-          {/* Interactive Demo Tab Bar */}
+          {/* Interactive Feature Demo Tabs */}
           <div className="bg-white border-b border-slate-200 px-4 flex gap-2 pt-2 overflow-x-auto">
             {[
-              { id: 'kanban', label: 'Interactive Kanban Board', icon: Kanban },
+              { id: 'kanban', label: 'Full Sprint Kanban Workspace', icon: Kanban },
               { id: 'drawer', label: 'Ticket Drawer & Internal Notes', icon: FileText },
-              { id: 'workflow', label: 'Workflow Automation Builder', icon: Workflow },
-              { id: 'analytics', label: 'SLA & Velocity Analytics', icon: BarChart3 },
+              { id: 'workflow', label: 'Automated SLA & Escalation Engine', icon: Workflow },
+              { id: 'analytics', label: 'Velocity & Compliance Telemetry', icon: BarChart3 },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -310,77 +381,260 @@ export const LandingPage: React.FC = () => {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.22, ease: 'easeOut' }}
             >
-              {/* Tab 1: Kanban Board Preview */}
+              {/* Tab 1: Full Authentic Kanban Board Workspace Replica */}
               {activeDemoTab === 'kanban' && (
-                <div className="p-6 bg-[#F8FAFC] space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-sm text-slate-900">Sprint Kanban Board</span>
-                      <span className="bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded font-mono font-semibold border border-blue-200/60">
-                        ECP • Enterprise Cloud Portal
-                      </span>
+                <div className="bg-[#F8FAFC] flex min-h-[460px] text-xs">
+                  {/* Left Workspace Sidebar Replica */}
+                  <div className="w-56 bg-white border-r border-slate-200 p-3 hidden sm:flex flex-col justify-between shrink-0 select-none">
+                    <div className="space-y-4">
+                      {/* Org Header */}
+                      <div className="bg-[#F8FAFC] border border-slate-200 rounded-lg p-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-6 h-6 rounded-md bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                            A
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 truncate text-[11px] leading-tight">Acme Cloud Inc.</p>
+                            <p className="text-[10px] text-blue-600 font-semibold leading-tight">Professional Plan</p>
+                          </div>
+                        </div>
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                      </div>
+
+                      {/* Nav Links */}
+                      <div className="space-y-0.5 text-[11px]">
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer">
+                          <Layers2 className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Dashboard</span>
+                        </div>
+                        <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 font-semibold cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            <Kanban className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Kanban Board</span>
+                          </div>
+                          <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 rounded-full">Live</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer">
+                          <Layers className="w-3.5 h-3.5 text-slate-400" />
+                          <span>All Tickets</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer">
+                          <FileText className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Projects</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer">
+                          <Users className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Teams</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer">
+                          <BarChart3 className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Analytics & SLA</span>
+                        </div>
+                        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50 cursor-pointer">
+                          <Zap className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Automations</span>
+                        </div>
+                      </div>
+
+                      {/* Teammate Presence */}
+                      <div className="pt-2 border-t border-slate-100">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 block mb-1">
+                          Online Teammates
+                        </span>
+                        <div className="space-y-1 text-[11px] text-slate-600 pl-2">
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                              Sarah Jenkins
+                            </span>
+                            <span className="text-slate-400 font-mono text-[10px]">4</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-blue-500" />
+                              Alex Rivera
+                            </span>
+                            <span className="text-slate-400 font-mono text-[10px]">6</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                              Emma Watson
+                            </span>
+                            <span className="text-slate-400 font-mono text-[10px]">2</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <span className="bg-white border border-slate-200 px-2 py-1 rounded shadow-2xs font-semibold text-slate-700">To Do (3)</span>
-                      <span className="bg-white border border-blue-200 px-2 py-1 rounded shadow-2xs font-semibold text-blue-700">In Progress (2)</span>
-                      <span className="bg-white border border-emerald-200 px-2 py-1 rounded shadow-2xs font-semibold text-emerald-700">Resolved (3)</span>
+
+                    {/* User profile bottom */}
+                    <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-full bg-slate-800 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                          SJ
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-900 truncate text-[11px]">Sarah Jenkins</p>
+                          <p className="text-[10px] text-slate-400 truncate">Founder</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    {/* To Do Column Preview */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider px-1">
-                        <span>To Do</span>
-                        <span className="bg-slate-200 text-slate-700 rounded-full px-2 py-0.5 text-[10px]">3</span>
+                  {/* Main Kanban Content Area */}
+                  <div className="flex-1 flex flex-col min-w-0">
+                    {/* Top Workspace Bar */}
+                    <div className="h-12 border-b border-slate-200 bg-white px-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900 text-xs">Core Engineering (DEV)</span>
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-500 text-xs">Sprint Board</span>
                       </div>
-                      <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-subtle space-y-2 hover:border-slate-300 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-blue-600 font-bold">QUB-000102</span>
-                          <span className="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-amber-200">High</span>
+
+                      <div className="flex items-center gap-3">
+                        <div className="relative hidden md:block">
+                          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+                          <input
+                            type="text"
+                            placeholder="Search tickets (QUB-)..."
+                            className="bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1 text-[11px] w-48 outline-none focus:border-blue-500"
+                            readOnly
+                          />
                         </div>
-                        <p className="font-semibold text-slate-800">OAuth2 GitHub SSO Integration</p>
-                        <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t">
-                          <span className="flex items-center gap-1 text-slate-500"><Clock className="w-3 h-3" /> Due in 7 days</span>
-                          <span>💬 3</span>
+
+                        <button className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold shadow-xs">
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>New ticket</span>
+                        </button>
+
+                        <div className="relative p-1.5 text-slate-500 rounded-lg">
+                          <Bell className="w-4 h-4" />
+                          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
                         </div>
                       </div>
                     </div>
 
-                    {/* In Progress Column Preview */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-blue-600 text-[11px] font-bold uppercase tracking-wider px-1">
-                        <span>In Progress</span>
-                        <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-[10px]">2</span>
-                      </div>
-                      <div className="bg-white border border-blue-400 rounded-xl p-3.5 shadow-card space-y-2 ring-2 ring-blue-500/20">
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-blue-600 font-bold">QUB-000101</span>
-                          <span className="bg-red-50 text-red-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-red-200">Critical</span>
+                    {/* Columns Grid */}
+                    <div className="p-4 flex-1 overflow-x-auto grid grid-cols-1 md:grid-cols-4 gap-3">
+                      {/* Column 1: TO DO */}
+                      <div className="space-y-2.5 min-w-[200px]">
+                        <div className="flex items-center justify-between text-slate-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-slate-400" />
+                            To Do
+                          </span>
+                          <span className="bg-slate-200 text-slate-700 rounded-full px-2 py-0.2 text-[10px]">3</span>
                         </div>
-                        <p className="font-semibold text-slate-900">High latency on replica queries during peak reporting</p>
-                        <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
-                          <span className="text-red-600 font-medium flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> SLA: 4 hrs left</span>
-                          <span>💬 5 • 📎 2</span>
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Resolved Column Preview */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-emerald-600 text-[11px] font-bold uppercase tracking-wider px-1">
-                        <span>Resolved</span>
-                        <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 text-[10px]">3</span>
-                      </div>
-                      <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-subtle space-y-2 hover:border-slate-300 transition-colors">
-                        <div className="flex justify-between items-center">
-                          <span className="font-mono text-blue-600 font-bold">QUB-000103</span>
-                          <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-emerald-200">Resolved</span>
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000102</span>
+                            <span className="bg-amber-50 text-amber-700 px-1.5 py-0.2 rounded text-[10px] font-bold border border-amber-200">High</span>
+                          </div>
+                          <p className="font-semibold text-slate-900 text-xs">OAuth2 GitHub SSO Integration with Token Rotation</p>
+                          <div className="flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded w-fit font-medium">
+                            #security #backend
+                          </div>
+                          <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                            <span className="flex items-center gap-1 text-slate-500"><Clock className="w-3 h-3" /> Due 5d</span>
+                            <span>💬 3 • ☑️ 4/4</span>
+                          </div>
                         </div>
-                        <p className="font-semibold text-slate-800">Rotate stale JWT refresh tokens</p>
-                        <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t">
-                          <span className="text-emerald-600 font-medium flex items-center gap-1"><Check className="w-3 h-3" /> Completed</span>
-                          <span>💬 2</span>
+
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000105</span>
+                            <span className="bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded text-[10px] font-bold">Normal</span>
+                          </div>
+                          <p className="font-semibold text-slate-900 text-xs">Dark mode preference synchronization</p>
+                          <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                            <span className="flex items-center gap-1 text-slate-500"><Clock className="w-3 h-3" /> Due 7d</span>
+                            <span>💬 1</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Column 2: IN PROGRESS */}
+                      <div className="space-y-2.5 min-w-[200px]">
+                        <div className="flex items-center justify-between text-blue-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            In Progress
+                          </span>
+                          <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-0.2 text-[10px]">2</span>
+                        </div>
+
+                        <div className="bg-white border-2 border-blue-500 rounded-xl p-3 shadow-md space-y-2 ring-3 ring-blue-500/10">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000101</span>
+                            <span className="bg-red-50 text-red-700 px-1.5 py-0.2 rounded text-[10px] font-bold border border-red-200">Critical</span>
+                          </div>
+                          <p className="font-semibold text-slate-900 text-xs">High latency on replica queries during peak reporting</p>
+                          <div className="flex items-center gap-1.5 text-[10px] text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded border border-red-200 w-fit">
+                            <AlertTriangle className="w-3 h-3" /> SLA: 1h 45m left
+                          </div>
+                          <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                            <span className="text-slate-600 font-medium">Alex Rivera</span>
+                            <span>💬 7 • 📎 3</span>
+                          </div>
+                        </div>
+
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000106</span>
+                            <span className="bg-amber-50 text-amber-700 px-1.5 py-0.2 rounded text-[10px] font-bold border border-amber-200">High</span>
+                          </div>
+                          <p className="font-semibold text-slate-900 text-xs">Socket.io real-time connection reconnect backoff</p>
+                          <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                            <span className="text-slate-500">Emma Watson</span>
+                            <span>💬 4</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Column 3: CODE REVIEW */}
+                      <div className="space-y-2.5 min-w-[200px]">
+                        <div className="flex items-center justify-between text-indigo-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                            Code Review
+                          </span>
+                          <span className="bg-indigo-100 text-indigo-700 rounded-full px-2 py-0.2 text-[10px]">2</span>
+                        </div>
+
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000103</span>
+                            <span className="bg-blue-50 text-blue-700 px-1.5 py-0.2 rounded text-[10px] font-bold">Normal</span>
+                          </div>
+                          <p className="font-semibold text-slate-900 text-xs">Automated PDF & CSV SLA report generator</p>
+                          <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                            <span className="text-emerald-600 font-medium">PR #84 Ready</span>
+                            <span>💬 2</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Column 4: RESOLVED */}
+                      <div className="space-y-2.5 min-w-[200px]">
+                        <div className="flex items-center justify-between text-emerald-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                            Resolved
+                          </span>
+                          <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.2 text-[10px]">4</span>
+                        </div>
+
+                        <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs space-y-2 opacity-85 hover:opacity-100 transition-opacity">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000104</span>
+                            <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.2 rounded text-[10px] font-bold border border-emerald-200">Done</span>
+                          </div>
+                          <p className="font-semibold text-slate-800 text-xs">Tenant compound index isolation optimization</p>
+                          <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                            <span className="text-emerald-600 font-medium flex items-center gap-1"><Check className="w-3 h-3" /> SLA Met (14m)</span>
+                            <span>💬 6</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -524,24 +778,52 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Metrics Banner */}
-      <section className="bg-slate-900 text-white py-12 px-6 border-y border-slate-800">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-blue-400">48%</div>
-            <div className="text-xs text-slate-400 font-medium mt-1">Faster Bug Resolution</div>
-          </div>
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-emerald-400">99.9%</div>
-            <div className="text-xs text-slate-400 font-medium mt-1">SLA Compliance Met</div>
-          </div>
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-indigo-400">3.4x</div>
-            <div className="text-xs text-slate-400 font-medium mt-1">Ticket Triage Velocity</div>
-          </div>
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-purple-400">0</div>
-            <div className="text-xs text-slate-400 font-medium mt-1">Cross-Tenant Leakage</div>
-          </div>
+      <section className="bg-slate-950 text-white py-16 px-6 border-y border-slate-800/80 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-950/20 via-indigo-950/10 to-transparent pointer-events-none" />
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xs hover:border-blue-500/40 transition-colors"
+          >
+            <div className="text-3xl sm:text-5xl font-black text-blue-400 tracking-tight">48%</div>
+            <div className="text-xs text-slate-300 font-semibold mt-2">Faster Bug Resolution</div>
+            <p className="text-[11px] text-slate-500 mt-1">Automated triage & assignments</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xs hover:border-emerald-500/40 transition-colors"
+          >
+            <div className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tight">99.9%</div>
+            <div className="text-xs text-slate-300 font-semibold mt-2">SLA Compliance Met</div>
+            <p className="text-[11px] text-slate-500 mt-1">Real-time countdown monitors</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xs hover:border-indigo-500/40 transition-colors"
+          >
+            <div className="text-3xl sm:text-5xl font-black text-indigo-400 tracking-tight">3.4x</div>
+            <div className="text-xs text-slate-300 font-semibold mt-2">Ticket Triage Velocity</div>
+            <p className="text-[11px] text-slate-500 mt-1">Zero-delay Socket.io engine</p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xs hover:border-purple-500/40 transition-colors"
+          >
+            <div className="text-3xl sm:text-5xl font-black text-purple-400 tracking-tight">0</div>
+            <div className="text-xs text-slate-300 font-semibold mt-2">Cross-Tenant Leakage</div>
+            <p className="text-[11px] text-slate-500 mt-1">Verified middleware isolation</p>
+          </motion.div>
         </div>
       </section>
 
@@ -559,7 +841,11 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card transition-shadow">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card hover:border-blue-300 transition-all cursor-default"
+            >
               <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
                 <Kanban className="w-6 h-6" />
               </div>
@@ -567,9 +853,13 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-600 leading-relaxed">
                 Smooth drag-and-drop status transitions with optimistic UI rendering. Powered by Socket.IO so your entire engineering team stays in sync without reloading.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card transition-shadow">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card hover:border-indigo-300 transition-all cursor-default"
+            >
               <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
                 <ShieldCheck className="w-6 h-6" />
               </div>
@@ -577,9 +867,13 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-600 leading-relaxed">
                 Strict organization boundaries in middleware and database query layers ensure zero data leakage between different companies, clients, or internal branches.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card transition-shadow">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card hover:border-emerald-300 transition-all cursor-default"
+            >
               <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
                 <Zap className="w-6 h-6" />
               </div>
@@ -587,9 +881,13 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-600 leading-relaxed">
                 Configure conditional actions to auto-assign engineers, notify leads on critical issues, or apply tags without manual effort or external webhook scripts.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card transition-shadow">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card hover:border-amber-300 transition-all cursor-default"
+            >
               <div className="w-12 h-12 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
                 <Lock className="w-6 h-6" />
               </div>
@@ -597,9 +895,13 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-600 leading-relaxed">
                 Allow external clients and customers to submit tickets while keeping sensitive architectural discussions, root-cause investigations, and debug notes strictly private.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card transition-shadow">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card hover:border-purple-300 transition-all cursor-default"
+            >
               <div className="w-12 h-12 rounded-xl bg-purple-600 text-white flex items-center justify-center shadow-md shadow-purple-500/20">
                 <BarChart3 className="w-6 h-6" />
               </div>
@@ -607,9 +909,13 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-600 leading-relaxed">
                 Track team velocity, overdue issues, and category breakdowns. Generate audit-ready formatted PDF summaries and raw CSV datasets with one click.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card transition-shadow">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="p-7 rounded-2xl bg-[#F8FAFC] border border-slate-200/90 space-y-3.5 hover:shadow-card hover:border-sky-300 transition-all cursor-default"
+            >
               <div className="w-12 h-12 rounded-xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-500/20">
                 <Globe2 className="w-6 h-6" />
               </div>
@@ -617,7 +923,7 @@ export const LandingPage: React.FC = () => {
               <p className="text-xs text-slate-600 leading-relaxed">
                 Integrated Cloudinary cloud storage for screenshots, log files, crash dumps, and specs with automated previewing and secure file streaming.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
