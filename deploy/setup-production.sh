@@ -19,6 +19,7 @@ cd "$APP_DIR"
 
 # 1. Check and Set Directory Permissions
 echo "📁 [1/5] Applying correct directory permissions..."
+chmod 755 /var/www || true
 chmod -R 755 "$APP_DIR"
 if [ -d "$CLIENT_DIST" ]; then
     chmod -R 755 "$CLIENT_DIST"
@@ -26,6 +27,14 @@ if [ -d "$CLIENT_DIST" ]; then
     echo "   ✅ Client dist permissions granted to www-data."
 else
     echo "   ⚠️ Warning: $CLIENT_DIST does not exist yet. Please build client first."
+fi
+
+# Build backend server if dist is missing or out of date
+if [ ! -f "$APP_DIR/server/dist/index.js" ]; then
+    echo "🔨 Building backend TypeScript..."
+    cd "$APP_DIR/server"
+    npm run build
+    cd "$APP_DIR"
 fi
 
 # 2. Check and Deploy Nginx Configuration
