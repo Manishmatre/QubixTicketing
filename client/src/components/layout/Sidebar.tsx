@@ -35,29 +35,9 @@ export const Sidebar: React.FC = () => {
   const { user, organization, memberships, switchOrganization, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [viewsOpen, setViewsOpen] = useState(true);
-  const [queuesOpen, setQueuesOpen] = useState(true);
-
   // Role-Based Access Control inside current organization
   const userRole = organization?.role || 'employee';
   const isOrgAdmin = userRole === 'owner' || userRole === 'admin';
-
-  // Teammates list with status dots
-  const teamMembers = [
-    { name: 'Sarah Jenkins', dot: 'bg-emerald-500', count: 4 },
-    { name: 'Alex Rivera', dot: 'bg-blue-500', count: 6 },
-    { name: 'Emma Watson', dot: 'bg-indigo-500', count: 2 },
-    { name: 'Michael Chang', dot: 'bg-sky-500', count: 3 },
-  ];
-
-  // Category queues with theme-matched action icons
-  const queues = [
-    { name: 'Knowledge', icon: BookOpen, color: 'text-blue-600 bg-blue-50' },
-    { name: 'Usability', icon: Link2, color: 'text-indigo-600 bg-indigo-50' },
-    { name: 'Features', icon: Sparkles, color: 'text-purple-600 bg-purple-50' },
-    { name: 'Design Specs', icon: Layers, color: 'text-pink-600 bg-pink-50' },
-    { name: 'DevOps & Cloud', icon: Zap, color: 'text-amber-600 bg-amber-50' },
-  ];
 
   return (
     <aside className="w-64 bg-white border-r border-[#EAECF0] flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800">
@@ -149,6 +129,20 @@ export const Sidebar: React.FC = () => {
           </NavLink>
 
           <NavLink
+            to="/workspace/my-tickets"
+            className={({ isActive }) =>
+              `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
+                isActive
+                  ? 'bg-blue-50 text-blue-700 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              }`
+            }
+          >
+            <CheckCircle2 className="w-4 h-4 text-slate-500" />
+            <span>My Tickets</span>
+          </NavLink>
+
+          <NavLink
             to="/workspace/projects"
             className={({ isActive }) =>
               `flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all ${
@@ -205,72 +199,6 @@ export const Sidebar: React.FC = () => {
               <Zap className="w-4 h-4 text-slate-500" />
               <span>Automations</span>
             </NavLink>
-          )}
-        </div>
-
-        {/* Collapsible Views: Team Member presence */}
-        <div>
-          <div
-            onClick={() => setViewsOpen(!viewsOpen)}
-            className="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-slate-400 hover:text-slate-700 cursor-pointer uppercase tracking-wider"
-          >
-            <div className="flex items-center gap-1.5">
-              {viewsOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-              <span>Views</span>
-            </div>
-            <Plus className="w-3 h-3 opacity-60 hover:opacity-100" />
-          </div>
-
-          {viewsOpen && (
-            <div className="mt-1 space-y-0.5 pl-1.5">
-              {teamMembers.map((member) => (
-                <div
-                  key={member.name}
-                  onClick={() => navigate('/workspace/kanban')}
-                  className="flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${member.dot}`} />
-                    <span className="text-xs truncate">{member.name}</span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-mono">{member.count}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Collapsible Queues with theme colored icons */}
-        <div>
-          <div
-            onClick={() => setQueuesOpen(!queuesOpen)}
-            className="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-slate-400 hover:text-slate-700 cursor-pointer uppercase tracking-wider"
-          >
-            <div className="flex items-center gap-1.5">
-              {queuesOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-              <span>Queues</span>
-            </div>
-            <Plus className="w-3 h-3 opacity-60 hover:opacity-100" />
-          </div>
-
-          {queuesOpen && (
-            <div className="mt-1 space-y-0.5 pl-1.5">
-              {queues.map((queue) => {
-                const Icon = queue.icon;
-                return (
-                  <div
-                    key={queue.name}
-                    onClick={() => navigate('/workspace/kanban')}
-                    className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer transition-colors"
-                  >
-                    <div className={`w-4 h-4 rounded flex items-center justify-center ${queue.color}`}>
-                      <Icon className="w-2.5 h-2.5" />
-                    </div>
-                    <span className="text-xs truncate">{queue.name}</span>
-                  </div>
-                );
-              })}
-            </div>
           )}
         </div>
       </div>

@@ -46,6 +46,57 @@ export const LandingPage: React.FC = () => {
   const [activeDemoTab, setActiveDemoTab] = useState<'kanban' | 'drawer' | 'workflow' | 'analytics'>('kanban');
   const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
 
+  // Interactive Software Demo State & Live Collaboration Simulation
+  const [demoStep, setDemoStep] = useState<number>(0);
+  const [selectedDemoTicket, setSelectedDemoTicket] = useState<any | null>(null);
+  const [isTaskResolved, setIsTaskResolved] = useState<boolean>(false);
+  const [isCursorClicking, setIsCursorClicking] = useState<boolean>(false);
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 380, y: 220 });
+
+  useEffect(() => {
+    // Automated interactive workflow cycle
+    const timer = setInterval(() => {
+      setDemoStep((prev) => {
+        const next = (prev + 1) % 5;
+        if (next === 0) {
+          // Hover over QUB-000101
+          setCursorPos({ x: 420, y: 210 });
+          setIsCursorClicking(false);
+          setIsTaskResolved(false);
+          setSelectedDemoTicket(null);
+        } else if (next === 1) {
+          // Click QUB-000101 -> Opens Details Drawer
+          setCursorPos({ x: 440, y: 230 });
+          setIsCursorClicking(true);
+          setTimeout(() => setIsCursorClicking(false), 500);
+          setSelectedDemoTicket({
+            code: 'QUB-000101',
+            title: 'High latency on replica queries during peak reporting',
+            priority: 'Critical',
+            assignee: 'Alex Rivera',
+            sla: '1h 45m left',
+            status: 'In Progress',
+          });
+        } else if (next === 2) {
+          // Cursor moves to "Mark as Resolved" button in Drawer
+          setCursorPos({ x: 740, y: 155 });
+        } else if (next === 3) {
+          // Click "Mark as Resolved" -> Triggers Celebration & Done Animation!
+          setCursorPos({ x: 750, y: 160 });
+          setIsCursorClicking(true);
+          setTimeout(() => setIsCursorClicking(false), 500);
+          setIsTaskResolved(true);
+        } else if (next === 4) {
+          // Cursor moves to celebrate in RESOLVED column
+          setCursorPos({ x: 880, y: 230 });
+        }
+        return next;
+      });
+    }, 4200);
+
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 400);
@@ -176,7 +227,7 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-16 px-4 sm:px-6 max-w-7xl mx-auto text-center space-y-7">
+      <section className="relative z-10 pt-8 sm:pt-12 pb-14 px-4 sm:px-6 max-w-7xl mx-auto text-center space-y-6">
         {/* Floating Live Interaction Badges */}
         <div className="hidden lg:block absolute left-8 top-28 pointer-events-none">
           <motion.div
@@ -304,24 +355,33 @@ export const LandingPage: React.FC = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mt-14 rounded-2xl border border-slate-300/80 bg-white p-2 sm:p-3 shadow-2xl shadow-slate-300/50 max-w-6xl mx-auto text-left overflow-hidden hover:shadow-blue-500/10 transition-shadow relative"
         >
-          {/* Animated Interactive Cursor Simulation */}
+          {/* Animated Interactive Cursor Simulation (Precision Figma/macOS Up-Left Pointer) */}
           <motion.div
-            className="hidden lg:flex absolute z-50 pointer-events-none items-center gap-2 drop-shadow-xl"
+            className="hidden lg:flex absolute z-50 pointer-events-none items-center gap-1.5 drop-shadow-xl"
             animate={{
-              x: [120, 360, 360, 580, 580, 860, 860, 120],
-              y: [160, 260, 260, 260, 260, 100, 100, 160],
+              x: cursorPos.x,
+              y: cursorPos.y,
             }}
             transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
+              duration: 1.1,
+              ease: [0.22, 1, 0.36, 1],
             }}
           >
             <div className="relative">
-              <MousePointer2 className="w-5 h-5 text-blue-600 fill-blue-600 -rotate-45" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-400 rounded-full animate-ping" />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="drop-shadow-md">
+                <path
+                  d="M3 3L10.07 20.97L13.58 13.58L20.97 10.07L3 3Z"
+                  fill="#2563EB"
+                  stroke="#FFFFFF"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              {isCursorClicking && (
+                <span className="absolute -top-1.5 -left-1.5 w-7 h-7 rounded-full border-2 border-blue-400 bg-blue-400/30 animate-ping" />
+              )}
             </div>
-            <div className="bg-slate-900/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-md backdrop-blur-xs flex items-center gap-1.5 whitespace-nowrap">
+            <div className="bg-slate-900/95 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-lg backdrop-blur-xs flex items-center gap-1.5 border border-slate-700 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span>Alex Rivera (Lead Engineer)</span>
             </div>
@@ -436,32 +496,23 @@ export const LandingPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Teammate Presence */}
+                      {/* Workspace SLA & Health Telemetry */}
                       <div className="pt-2 border-t border-slate-100">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 block mb-1">
-                          Online Teammates
+                          Workspace Telemetry
                         </span>
-                        <div className="space-y-1 text-[11px] text-slate-600 pl-2">
+                        <div className="space-y-1.5 text-[11px] text-slate-600 px-2">
                           <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                              Sarah Jenkins
-                            </span>
-                            <span className="text-slate-400 font-mono text-[10px]">4</span>
+                            <span className="text-slate-500">SLA Compliance</span>
+                            <span className="text-emerald-600 font-bold font-mono text-[10px]">99.4%</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-blue-500" />
-                              Alex Rivera
-                            </span>
-                            <span className="text-slate-400 font-mono text-[10px]">6</span>
+                            <span className="text-slate-500">Avg Resolution</span>
+                            <span className="text-blue-600 font-bold font-mono text-[10px]">18 min</span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                              Emma Watson
-                            </span>
-                            <span className="text-slate-400 font-mono text-[10px]">2</span>
+                            <span className="text-slate-500">Active Sockets</span>
+                            <span className="text-purple-600 font-bold font-mono text-[10px]">142 peers</span>
                           </div>
                         </div>
                       </div>
@@ -470,19 +521,38 @@ export const LandingPage: React.FC = () => {
                     {/* User profile bottom */}
                     <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-6 h-6 rounded-full bg-slate-800 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                          SJ
+                        <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                          AR
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-slate-900 truncate text-[11px]">Sarah Jenkins</p>
-                          <p className="text-[10px] text-slate-400 truncate">Founder</p>
+                          <p className="font-bold text-slate-900 truncate text-[11px]">Alex Rivera</p>
+                          <p className="text-[10px] text-slate-400 truncate">Lead Engineer</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Main Kanban Content Area */}
-                  <div className="flex-1 flex flex-col min-w-0">
+                  <div className="flex-1 flex flex-col min-w-0 relative overflow-hidden">
+                    {/* Live Task Resolution Celebration Toast */}
+                    <AnimatePresence>
+                      {isTaskResolved && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                          className="absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-emerald-600 text-white px-5 py-2 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-bold border border-emerald-400 backdrop-blur-md"
+                        >
+                          <span className="w-5 h-5 rounded-full bg-white text-emerald-600 flex items-center justify-center font-black text-xs shadow-xs">✓</span>
+                          <div>
+                            <p className="font-extrabold text-white text-xs">QUB-000101 Marked as Resolved</p>
+                            <p className="text-[10px] text-emerald-100 font-normal">SLA Met (14m ahead) • Real-time socket sync broadcasted</p>
+                          </div>
+                          <span className="bg-emerald-800 text-emerald-200 text-[9px] font-mono font-bold px-2 py-0.5 rounded uppercase ml-2">Live</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
                     {/* Top Workspace Bar */}
                     <div className="h-12 border-b border-slate-200 bg-white px-4 flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -564,14 +634,37 @@ export const LandingPage: React.FC = () => {
                           <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-0.2 text-[10px]">2</span>
                         </div>
 
-                        <div className="bg-white border-2 border-blue-500 rounded-xl p-3 shadow-md space-y-2 ring-3 ring-blue-500/10">
+                        {/* Interactive Clickable Ticket Card */}
+                        <div
+                          onClick={() => {
+                            setSelectedDemoTicket({
+                              code: 'QUB-000101',
+                              title: 'High latency on replica queries during peak reporting',
+                              priority: 'Critical',
+                              assignee: 'Alex Rivera',
+                              sla: '1h 45m left',
+                              status: 'In Progress',
+                            });
+                          }}
+                          className={`bg-white border-2 rounded-xl p-3 shadow-md space-y-2 cursor-pointer transition-all hover:scale-102 ${
+                            isTaskResolved
+                              ? 'border-emerald-500 ring-2 ring-emerald-500/20 opacity-80'
+                              : 'border-blue-500 ring-3 ring-blue-500/10'
+                          }`}
+                        >
                           <div className="flex justify-between items-center">
                             <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000101</span>
-                            <span className="bg-red-50 text-red-700 px-1.5 py-0.2 rounded text-[10px] font-bold border border-red-200">Critical</span>
+                            <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold border ${isTaskResolved ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                              {isTaskResolved ? 'Done' : 'Critical'}
+                            </span>
                           </div>
                           <p className="font-semibold text-slate-900 text-xs">High latency on replica queries during peak reporting</p>
-                          <div className="flex items-center gap-1.5 text-[10px] text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded border border-red-200 w-fit">
-                            <AlertTriangle className="w-3 h-3" /> SLA: 1h 45m left
+                          <div className={`flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded border w-fit ${isTaskResolved ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-600 bg-red-50 border-red-200'}`}>
+                            {isTaskResolved ? (
+                              <><Check className="w-3 h-3 text-emerald-600" /> SLA Met (14m ahead)</>
+                            ) : (
+                              <><AlertTriangle className="w-3 h-3 text-red-600" /> SLA: 1h 45m left</>
+                            )}
                           </div>
                           <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
                             <span className="text-slate-600 font-medium">Alex Rivera</span>
@@ -622,8 +715,42 @@ export const LandingPage: React.FC = () => {
                             <span className="w-2 h-2 rounded-full bg-emerald-500" />
                             Resolved
                           </span>
-                          <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.2 text-[10px]">4</span>
+                          <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.2 text-[10px]">
+                            {isTaskResolved ? '5' : '4'}
+                          </span>
                         </div>
+
+                        {/* Animated Done Task */}
+                        {isTaskResolved && (
+                          <motion.div
+                            initial={{ scale: 0.8, opacity: 0, y: -10 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4 }}
+                            onClick={() => {
+                              setSelectedDemoTicket({
+                                code: 'QUB-000101',
+                                title: 'High latency on replica queries during peak reporting',
+                                priority: 'Critical',
+                                assignee: 'Alex Rivera',
+                                sla: 'SLA Met (14m ahead)',
+                                status: 'Resolved',
+                              });
+                            }}
+                            className="bg-emerald-50/70 border-2 border-emerald-500 rounded-xl p-3 shadow-md space-y-2 ring-3 ring-emerald-500/10 cursor-pointer"
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="font-mono text-blue-600 font-bold text-[11px]">QUB-000101</span>
+                              <span className="bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded text-[10px] font-bold border border-emerald-300 flex items-center gap-1">
+                                <Check className="w-2.5 h-2.5" /> Resolved
+                              </span>
+                            </div>
+                            <p className="font-semibold text-slate-900 text-xs">High latency on replica queries during peak reporting</p>
+                            <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-emerald-100">
+                              <span className="text-emerald-700 font-medium flex items-center gap-1"><Check className="w-3 h-3" /> SLA Met (14m ahead)</span>
+                              <span>💬 8</span>
+                            </div>
+                          </motion.div>
+                        )}
 
                         <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs space-y-2 opacity-85 hover:opacity-100 transition-opacity">
                           <div className="flex justify-between items-center">
@@ -638,6 +765,105 @@ export const LandingPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
+
+                    {/* Slide-over Ticket Details Drawer Preview */}
+                    <AnimatePresence>
+                      {selectedDemoTicket && (
+                        <motion.div
+                          initial={{ x: 340, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          exit={{ x: 340, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: 'easeOut' }}
+                          className="absolute top-0 right-0 w-80 h-full bg-white border-l border-slate-200 shadow-2xl z-30 flex flex-col justify-between p-4 text-xs"
+                        >
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-blue-600 font-bold">{selectedDemoTicket.code}</span>
+                                <span
+                                  className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                                    isTaskResolved
+                                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                      : 'bg-red-50 text-red-700 border-red-200'
+                                  }`}
+                                >
+                                  {isTaskResolved ? 'Done' : selectedDemoTicket.priority}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => setSelectedDemoTicket(null)}
+                                className="text-slate-400 hover:text-slate-700 font-bold text-sm p-1 rounded hover:bg-slate-100"
+                              >
+                                ✕
+                              </button>
+                            </div>
+
+                            <h4 className="font-bold text-slate-900 text-xs leading-snug">
+                              {selectedDemoTicket.title}
+                            </h4>
+
+                            <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-[11px]">
+                              <span className="text-slate-500">SLA Status:</span>
+                              {isTaskResolved ? (
+                                <span className="text-emerald-600 font-bold flex items-center gap-1">
+                                  ✓ SLA Met (14m ahead)
+                                </span>
+                              ) : (
+                                <span className="text-red-600 font-bold flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3" /> 1h 45m left
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                Workflow Action
+                              </label>
+                              <button
+                                onClick={() => setIsTaskResolved(!isTaskResolved)}
+                                className={`w-full py-2 px-3 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all ${
+                                  isTaskResolved
+                                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20'
+                                }`}
+                              >
+                                {isTaskResolved ? (
+                                  <>
+                                    <Check className="w-4 h-4" />
+                                    <span>Task Completed ✓</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>Mark as Resolved</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                  </>
+                                )}
+                              </button>
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-100 space-y-2">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                Internal Note
+                              </span>
+                              <div className="p-2.5 rounded bg-amber-50/70 border border-amber-200 text-[11px] text-slate-700 space-y-1">
+                                <div className="flex justify-between font-bold text-amber-900 text-[10px]">
+                                  <span>Alex Rivera (Tech Lead)</span>
+                                  <span className="text-slate-400 font-normal">Just now</span>
+                                </div>
+                                <p>
+                                  Root cause identified in replica aggregation query. Optimization verified on staging.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                            <span>Assignee: Alex Rivera</span>
+                            <span className="text-blue-600 font-semibold cursor-pointer">Live Workspace →</span>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               )}
