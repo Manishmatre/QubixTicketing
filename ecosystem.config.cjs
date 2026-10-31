@@ -1,3 +1,10 @@
+const path = require('path');
+try {
+  require('dotenv').config({ path: path.resolve(__dirname, 'server/.env') });
+} catch (e) {}
+
+const PORT = Number(process.env.PORT) || 4000;
+
 module.exports = {
   apps: [
     {
@@ -8,11 +15,11 @@ module.exports = {
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
-        PORT: 4000,
+        PORT: PORT,
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: 4000,
+        PORT: PORT,
       },
       max_memory_restart: '800M',
       autorestart: true,
