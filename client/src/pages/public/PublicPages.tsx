@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -38,6 +39,28 @@ export const LandingPage: React.FC = () => {
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeDemoTab, setActiveDemoTab] = useState<'kanban' | 'drawer' | 'workflow' | 'analytics'>('kanban');
+  const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const elem = document.getElementById(id);
+    if (elem) {
+      const top = elem.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Contact / Demo form state
   const [demoName, setDemoName] = useState('');
@@ -90,9 +113,16 @@ export const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-blue-100 selection:text-blue-900 relative">
+      {/* Background Decorative Ambient Glows */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] h-[480px] bg-gradient-to-tr from-blue-500/15 via-indigo-500/10 to-purple-500/10 blur-[140px] rounded-full animate-pulse-glow" />
+        <div className="absolute top-[35%] -left-40 w-[450px] h-[450px] bg-blue-400/10 blur-[130px] rounded-full animate-float-soft" />
+        <div className="absolute top-[65%] -right-40 w-[450px] h-[450px] bg-indigo-400/10 blur-[130px] rounded-full animate-float-soft" style={{ animationDelay: '3.5s' }} />
+      </div>
+
       {/* Top Announcement Ribbon */}
-      <div className="bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 text-white text-[11px] font-semibold py-2 px-4 text-center flex items-center justify-center gap-2">
+      <div className="relative z-10 bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 text-white text-[11px] font-semibold py-2 px-4 text-center flex items-center justify-center gap-2">
         <Sparkles className="w-3.5 h-3.5 text-blue-200 shrink-0" />
         <span>
           Announcing <strong>QubixDesk 2.0</strong> — Multi-Tenant Architecture, SLA Automations, and Real-Time WebSocket Collaboration.
@@ -114,12 +144,12 @@ export const LandingPage: React.FC = () => {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-7 text-xs font-semibold text-slate-600">
-            <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
-            <a href="#preview" className="hover:text-blue-600 transition-colors">Live Preview</a>
-            <a href="#solutions" className="hover:text-blue-600 transition-colors">Solutions</a>
-            <a href="#comparison" className="hover:text-blue-600 transition-colors">Comparison</a>
-            <a href="#pricing" className="hover:text-blue-600 transition-colors">Pricing</a>
-            <a href="#faq" className="hover:text-blue-600 transition-colors">FAQ</a>
+            <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-blue-600 transition-colors">Features</a>
+            <a href="#preview" onClick={(e) => scrollToSection(e, 'preview')} className="hover:text-blue-600 transition-colors">Live Preview</a>
+            <a href="#solutions" onClick={(e) => scrollToSection(e, 'solutions')} className="hover:text-blue-600 transition-colors">Solutions</a>
+            <a href="#comparison" onClick={(e) => scrollToSection(e, 'comparison')} className="hover:text-blue-600 transition-colors">Comparison</a>
+            <a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="hover:text-blue-600 transition-colors">Pricing</a>
+            <a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="hover:text-blue-600 transition-colors">FAQ</a>
           </nav>
         </div>
 
@@ -138,30 +168,50 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-20 pb-16 px-6 max-w-6xl mx-auto text-center space-y-6">
-        <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200/80 text-blue-700 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5" />
+      <section className="relative z-10 pt-20 pb-16 px-6 max-w-6xl mx-auto text-center space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200/80 text-blue-700 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide shadow-2xs backdrop-blur-sm"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
           <span>Next-Generation Multi-Tenant Issue & Project Ticketing</span>
-        </div>
+        </motion.div>
 
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-5xl mx-auto">
+        <motion.h1
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.12] max-w-5xl mx-auto"
+        >
           Work Smarter. Track Better.{' '}
           <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent">
             Deliver Faster.
           </span>
-        </h1>
+        </motion.h1>
 
-        <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        <motion.p
+          initial={{ opacity: 0, y: 25 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
+        >
           QubixDesk unifies project management, issue tracking, and client helpdesk into one ultra-fast, multi-tenant workspace. Built with strict data isolation, real-time collaboration, and intelligent workflow automation.
-        </p>
+        </motion.p>
 
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-3">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-wrap items-center justify-center gap-4 pt-3"
+        >
           <Link to="/register">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 px-6 font-bold" rightIcon={<ArrowRight className="w-4 h-4" />}>
               Start Free Trial (14 Days)
             </Button>
           </Link>
-          <a href="#preview">
+          <a href="#preview" onClick={(e) => scrollToSection(e, 'preview')}>
             <Button size="lg" variant="outline" className="border-slate-300 font-semibold text-slate-700 hover:bg-slate-100">
               Explore Interactive Preview
             </Button>
@@ -171,10 +221,15 @@ export const LandingPage: React.FC = () => {
               Demo Workspace Login &rarr;
             </Button>
           </Link>
-        </div>
+        </motion.div>
 
         {/* Trust Badges */}
-        <div className="pt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs font-semibold text-slate-500">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="pt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs font-semibold text-slate-500"
+        >
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>Strict Tenant Isolation</span>
@@ -191,10 +246,17 @@ export const LandingPage: React.FC = () => {
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>99.99% Uptime SLA</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Interactive Product Demo Showcase Frame */}
-        <div id="preview" className="mt-14 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-2xl shadow-slate-200/60 max-w-5xl mx-auto text-left overflow-hidden">
+        <motion.div
+          id="preview"
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-14 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-2xl shadow-slate-300/40 max-w-5xl mx-auto text-left overflow-hidden hover:shadow-blue-500/10 transition-shadow"
+        >
           {/* Mock Browser Header */}
           <div className="bg-slate-100 rounded-t-xl px-4 py-2.5 flex items-center justify-between border-b border-slate-200/80">
             <div className="flex items-center gap-2">
@@ -215,7 +277,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Interactive Demo Tab Bar */}
-          <div className="bg-white border-b border-slate-200 px-4 flex gap-2 pt-2">
+          <div className="bg-white border-b border-slate-200 px-4 flex gap-2 pt-2 overflow-x-auto">
             {[
               { id: 'kanban', label: 'Interactive Kanban Board', icon: Kanban },
               { id: 'drawer', label: 'Ticket Drawer & Internal Notes', icon: FileText },
@@ -227,10 +289,10 @@ export const LandingPage: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveDemoTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
                     activeDemoTab === tab.id
                       ? 'border-blue-600 text-blue-600 bg-blue-50/50'
-                      : 'border-transparent text-slate-500 hover:text-slate-800'
+                      : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -240,215 +302,225 @@ export const LandingPage: React.FC = () => {
             })}
           </div>
 
-          {/* Tab 1: Kanban Board Preview */}
-          {activeDemoTab === 'kanban' && (
-            <div className="p-6 bg-[#F8FAFC] space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                <div className="flex items-center gap-3">
-                  <span className="font-bold text-sm text-slate-900">Sprint Kanban Board</span>
-                  <span className="bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded font-mono font-semibold border border-blue-200/60">
-                    ECP • Enterprise Cloud Portal
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-slate-500">
-                  <span className="bg-white border border-slate-200 px-2 py-1 rounded shadow-2xs font-semibold text-slate-700">To Do (3)</span>
-                  <span className="bg-white border border-blue-200 px-2 py-1 rounded shadow-2xs font-semibold text-blue-700">In Progress (2)</span>
-                  <span className="bg-white border border-emerald-200 px-2 py-1 rounded shadow-2xs font-semibold text-emerald-700">Resolved (3)</span>
-                </div>
-              </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeDemoTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+            >
+              {/* Tab 1: Kanban Board Preview */}
+              {activeDemoTab === 'kanban' && (
+                <div className="p-6 bg-[#F8FAFC] space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-sm text-slate-900">Sprint Kanban Board</span>
+                      <span className="bg-blue-50 text-blue-700 text-xs px-2.5 py-0.5 rounded font-mono font-semibold border border-blue-200/60">
+                        ECP • Enterprise Cloud Portal
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <span className="bg-white border border-slate-200 px-2 py-1 rounded shadow-2xs font-semibold text-slate-700">To Do (3)</span>
+                      <span className="bg-white border border-blue-200 px-2 py-1 rounded shadow-2xs font-semibold text-blue-700">In Progress (2)</span>
+                      <span className="bg-white border border-emerald-200 px-2 py-1 rounded shadow-2xs font-semibold text-emerald-700">Resolved (3)</span>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                {/* To Do Column Preview */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider px-1">
-                    <span>To Do</span>
-                    <span className="bg-slate-200 text-slate-700 rounded-full px-2 py-0.5 text-[10px]">3</span>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-subtle space-y-2 hover:border-slate-300 transition-colors">
-                    <div className="flex justify-between items-center">
-                      <span className="font-mono text-blue-600 font-bold">QUB-000102</span>
-                      <span className="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-amber-200">High</span>
-                    </div>
-                    <p className="font-semibold text-slate-800">OAuth2 GitHub SSO Integration</p>
-                    <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t">
-                      <span className="flex items-center gap-1 text-slate-500"><Clock className="w-3 h-3" /> Due in 7 days</span>
-                      <span>💬 3</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* In Progress Column Preview */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-blue-600 text-[11px] font-bold uppercase tracking-wider px-1">
-                    <span>In Progress</span>
-                    <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-[10px]">2</span>
-                  </div>
-                  <div className="bg-white border border-blue-400 rounded-xl p-3.5 shadow-card space-y-2 ring-2 ring-blue-500/20">
-                    <div className="flex justify-between items-center">
-                      <span className="font-mono text-blue-600 font-bold">QUB-000101</span>
-                      <span className="bg-red-50 text-red-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-red-200">Critical</span>
-                    </div>
-                    <p className="font-semibold text-slate-900">High latency on replica queries during peak reporting</p>
-                    <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
-                      <span className="text-red-600 font-medium flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> SLA: 4 hrs left</span>
-                      <span>💬 5 • 📎 2</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Resolved Column Preview */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-emerald-600 text-[11px] font-bold uppercase tracking-wider px-1">
-                    <span>Resolved</span>
-                    <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 text-[10px]">3</span>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-subtle space-y-2 hover:border-slate-300 transition-colors">
-                    <div className="flex justify-between items-center">
-                      <span className="font-mono text-blue-600 font-bold">QUB-000103</span>
-                      <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-emerald-200">Resolved</span>
-                    </div>
-                    <p className="font-semibold text-slate-800">Rotate stale JWT refresh tokens</p>
-                    <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t">
-                      <span className="text-emerald-600 font-medium flex items-center gap-1"><Check className="w-3 h-3" /> Completed</span>
-                      <span>💬 2</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 2: Ticket Drawer & Internal Notes Preview */}
-          {activeDemoTab === 'drawer' && (
-            <div className="p-6 bg-[#F8FAFC] space-y-4 text-xs">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 text-blue-600" />
-                      <span className="font-bold text-slate-800">Public Client Discussion</span>
-                    </div>
-                    <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold">
-                      Visible to Reporters
-                    </span>
-                  </div>
-                  <div className="space-y-2.5">
-                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <div className="flex justify-between text-[11px] mb-1">
-                        <strong className="text-slate-800">Acme Client Support</strong>
-                        <span className="text-slate-400">10:14 AM</span>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    {/* To Do Column Preview */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider px-1">
+                        <span>To Do</span>
+                        <span className="bg-slate-200 text-slate-700 rounded-full px-2 py-0.5 text-[10px]">3</span>
                       </div>
-                      <p className="text-slate-600">We have deployed the initial patch to staging and are validating query performance.</p>
-                    </div>
-                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <div className="flex justify-between text-[11px] mb-1">
-                        <strong className="text-slate-800">External Reporter (Client)</strong>
-                        <span className="text-slate-400">10:20 AM</span>
+                      <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-subtle space-y-2 hover:border-slate-300 transition-colors">
+                        <div className="flex justify-between items-center">
+                          <span className="font-mono text-blue-600 font-bold">QUB-000102</span>
+                          <span className="bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-amber-200">High</span>
+                        </div>
+                        <p className="font-semibold text-slate-800">OAuth2 GitHub SSO Integration</p>
+                        <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t">
+                          <span className="flex items-center gap-1 text-slate-500"><Clock className="w-3 h-3" /> Due in 7 days</span>
+                          <span>💬 3</span>
+                        </div>
                       </div>
-                      <p className="text-slate-600">Thank you! Looking forward to the staging verification.</p>
                     </div>
-                  </div>
-                </div>
 
-                <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-amber-200">
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-amber-700" />
-                      <span className="font-bold text-amber-900">Protected Internal Notes</span>
-                    </div>
-                    <span className="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded font-bold uppercase">
-                      🔒 Strictly Hidden From Clients
-                    </span>
-                  </div>
-                  <div className="space-y-2.5">
-                    <div className="bg-white p-2.5 rounded-lg border border-amber-200 shadow-2xs">
-                      <div className="flex justify-between text-[11px] mb-1">
-                        <strong className="text-amber-900">Alex Rivera (Tech Lead)</strong>
-                        <span className="text-slate-400">10:11 AM</span>
+                    {/* In Progress Column Preview */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-blue-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                        <span>In Progress</span>
+                        <span className="bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 text-[10px]">2</span>
                       </div>
-                      <p className="text-slate-700">
-                        Root cause was missing compound index on tenant aggregation pipeline. Fix merged in PR #42. Do not disclose internal pipeline details to client.
-                      </p>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-lg border border-amber-200 shadow-2xs">
-                      <div className="flex justify-between text-[11px] mb-1">
-                        <strong className="text-amber-900">Sarah Jenkins (Owner)</strong>
-                        <span className="text-slate-400">10:13 AM</span>
+                      <div className="bg-white border border-blue-400 rounded-xl p-3.5 shadow-card space-y-2 ring-2 ring-blue-500/20">
+                        <div className="flex justify-between items-center">
+                          <span className="font-mono text-blue-600 font-bold">QUB-000101</span>
+                          <span className="bg-red-50 text-red-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-red-200">Critical</span>
+                        </div>
+                        <p className="font-semibold text-slate-900">High latency on replica queries during peak reporting</p>
+                        <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t border-slate-100">
+                          <span className="text-red-600 font-medium flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> SLA: 4 hrs left</span>
+                          <span>💬 5 • 📎 2</span>
+                        </div>
                       </div>
-                      <p className="text-slate-700">
-                        Approved. Ensure automated test coverage is added before promoting to production.
-                      </p>
+                    </div>
+
+                    {/* Resolved Column Preview */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-emerald-600 text-[11px] font-bold uppercase tracking-wider px-1">
+                        <span>Resolved</span>
+                        <span className="bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 text-[10px]">3</span>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-subtle space-y-2 hover:border-slate-300 transition-colors">
+                        <div className="flex justify-between items-center">
+                          <span className="font-mono text-blue-600 font-bold">QUB-000103</span>
+                          <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[10px] font-bold border border-emerald-200">Resolved</span>
+                        </div>
+                        <p className="font-semibold text-slate-800">Rotate stale JWT refresh tokens</p>
+                        <div className="flex justify-between text-slate-400 text-[10px] pt-2 border-t">
+                          <span className="text-emerald-600 font-medium flex items-center gap-1"><Check className="w-3 h-3" /> Completed</span>
+                          <span>💬 2</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Tab 3: Workflow Automation Builder Preview */}
-          {activeDemoTab === 'workflow' && (
-            <div className="p-6 bg-[#F8FAFC] space-y-4 text-xs">
-              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-blue-600" />
-                    <span className="font-bold text-slate-800">Rule: Auto-Escalate Critical Incidents</span>
+              {/* Tab 2: Ticket Drawer & Internal Notes Preview */}
+              {activeDemoTab === 'drawer' && (
+                <div className="p-6 bg-[#F8FAFC] space-y-4 text-xs">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-blue-600" />
+                          <span className="font-bold text-slate-800">Public Client Discussion</span>
+                        </div>
+                        <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold">
+                          Visible to Reporters
+                        </span>
+                      </div>
+                      <div className="space-y-2.5">
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <div className="flex justify-between text-[11px] mb-1">
+                            <strong className="text-slate-800">Acme Client Support</strong>
+                            <span className="text-slate-400">10:14 AM</span>
+                          </div>
+                          <p className="text-slate-600">We have deployed the initial patch to staging and are validating query performance.</p>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <div className="flex justify-between text-[11px] mb-1">
+                            <strong className="text-slate-800">External Reporter (Client)</strong>
+                            <span className="text-slate-400">10:20 AM</span>
+                          </div>
+                          <p className="text-slate-600">Thank you! Looking forward to the staging verification.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-amber-200">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-amber-700" />
+                          <span className="font-bold text-amber-900">Protected Internal Notes</span>
+                        </div>
+                        <span className="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded font-bold uppercase">
+                          🔒 Strictly Hidden From Clients
+                        </span>
+                      </div>
+                      <div className="space-y-2.5">
+                        <div className="bg-white p-2.5 rounded-lg border border-amber-200 shadow-2xs">
+                          <div className="flex justify-between text-[11px] mb-1">
+                            <strong className="text-amber-900">Alex Rivera (Tech Lead)</strong>
+                            <span className="text-slate-400">10:11 AM</span>
+                          </div>
+                          <p className="text-slate-700">
+                            Root cause was missing compound index on tenant aggregation pipeline. Fix merged in PR #42. Do not disclose internal pipeline details to client.
+                          </p>
+                        </div>
+                        <div className="bg-white p-2.5 rounded-lg border border-amber-200 shadow-2xs">
+                          <div className="flex justify-between text-[11px] mb-1">
+                            <strong className="text-amber-900">Sarah Jenkins (Owner)</strong>
+                            <span className="text-slate-400">10:13 AM</span>
+                          </div>
+                          <p className="text-slate-700">
+                            Approved. Ensure automated test coverage is added before promoting to production.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200">
-                    Active Automation
-                  </span>
                 </div>
+              )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Trigger (WHEN)</span>
-                    <p className="font-semibold text-slate-800">Ticket Priority becomes Critical</p>
-                    <p className="text-[11px] text-slate-500">Any project or service category</p>
+              {/* Tab 3: Workflow Automation Builder Preview */}
+              {activeDemoTab === 'workflow' && (
+                <div className="p-6 bg-[#F8FAFC] space-y-4 text-xs">
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-blue-600" />
+                        <span className="font-bold text-slate-800">Rule: Auto-Escalate Critical Incidents</span>
+                      </div>
+                      <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200">
+                        Active Automation
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Trigger (WHEN)</span>
+                        <p className="font-semibold text-slate-800">Ticket Priority becomes Critical</p>
+                        <p className="text-[11px] text-slate-500">Any project or service category</p>
+                      </div>
+
+                      <div className="text-center font-bold text-slate-400">&rarr; THEN EXECUTE &rarr;</div>
+
+                      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 space-y-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Actions (DO)</span>
+                        <ul className="space-y-1 text-[11px] text-slate-700">
+                          <li className="flex items-center gap-1.5"><Check className="w-3 h-3 text-indigo-600" /> Auto-assign to Lead Architect</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3 h-3 text-indigo-600" /> Dispatch push notification & email</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3 h-3 text-indigo-600" /> Attach tag: #urgent-sla</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
+                </div>
+              )}
 
-                  <div className="text-center font-bold text-slate-400">&rarr; THEN EXECUTE &rarr;</div>
-
-                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 space-y-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Actions (DO)</span>
-                    <ul className="space-y-1 text-[11px] text-slate-700">
-                      <li className="flex items-center gap-1.5"><Check className="w-3 h-3 text-indigo-600" /> Auto-assign to Lead Architect</li>
-                      <li className="flex items-center gap-1.5"><Check className="w-3 h-3 text-indigo-600" /> Dispatch push notification & email</li>
-                      <li className="flex items-center gap-1.5"><Check className="w-3 h-3 text-indigo-600" /> Attach tag: #urgent-sla</li>
-                    </ul>
+              {/* Tab 4: SLA & Analytics Preview */}
+              {activeDemoTab === 'analytics' && (
+                <div className="p-6 bg-[#F8FAFC] space-y-4 text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Total Tickets</span>
+                      <p className="text-2xl font-black text-slate-900 mt-1">128</p>
+                      <span className="text-[10px] text-emerald-600 font-bold">&uarr; +14% this month</span>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">SLA Compliance</span>
+                      <p className="text-2xl font-black text-blue-600 mt-1">98.4%</p>
+                      <span className="text-[10px] text-emerald-600 font-bold">Target: &gt;95.0%</span>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Avg Resolution</span>
+                      <p className="text-2xl font-black text-slate-900 mt-1">1.8h</p>
+                      <span className="text-[10px] text-emerald-600 font-bold">&darr; 42% faster</span>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Export Ready</span>
+                      <p className="text-xs font-bold text-slate-700 mt-2">1-Click PDF & CSV</p>
+                      <span className="text-[10px] text-slate-400">Audit-compliant</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 4: SLA & Analytics Preview */}
-          {activeDemoTab === 'analytics' && (
-            <div className="p-6 bg-[#F8FAFC] space-y-4 text-xs">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Total Tickets</span>
-                  <p className="text-2xl font-black text-slate-900 mt-1">128</p>
-                  <span className="text-[10px] text-emerald-600 font-bold">&uarr; +14% this month</span>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">SLA Compliance</span>
-                  <p className="text-2xl font-black text-blue-600 mt-1">98.4%</p>
-                  <span className="text-[10px] text-emerald-600 font-bold">Target: &gt;95.0%</span>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Avg Resolution</span>
-                  <p className="text-2xl font-black text-slate-900 mt-1">1.8h</p>
-                  <span className="text-[10px] text-emerald-600 font-bold">&darr; 42% faster</span>
-                </div>
-                <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Export Ready</span>
-                  <p className="text-xs font-bold text-slate-700 mt-2">1-Click PDF & CSV</p>
-                  <span className="text-[10px] text-slate-400">Audit-compliant</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
       </section>
 
       {/* Metrics Banner */}
@@ -945,10 +1017,10 @@ export const LandingPage: React.FC = () => {
           <div className="space-y-2">
             <h5 className="font-bold text-white text-xs uppercase tracking-wider">Product</h5>
             <ul className="space-y-1.5 text-slate-400">
-              <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#preview" className="hover:text-white transition-colors">Live Preview</a></li>
-              <li><a href="#solutions" className="hover:text-white transition-colors">Solutions</a></li>
-              <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+              <li><a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="hover:text-white transition-colors">Features</a></li>
+              <li><a href="#preview" onClick={(e) => scrollToSection(e, 'preview')} className="hover:text-white transition-colors">Live Preview</a></li>
+              <li><a href="#solutions" onClick={(e) => scrollToSection(e, 'solutions')} className="hover:text-white transition-colors">Solutions</a></li>
+              <li><a href="#pricing" onClick={(e) => scrollToSection(e, 'pricing')} className="hover:text-white transition-colors">Pricing</a></li>
             </ul>
           </div>
 
@@ -994,6 +1066,22 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Floating Back-to-Top Button */}
+      <AnimatePresence>
+        {showBackToTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30 transition-colors cursor-pointer group"
+            title="Scroll to top"
+          >
+            <ChevronUp className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

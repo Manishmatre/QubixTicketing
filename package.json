@@ -17,6 +17,10 @@
     "test:server": "npm --workspace=server run test",
     "seed": "npm --workspace=server run seed",
     "purge:demo": "npm --workspace=server run purge:demo"
+  },
+  "overrides": {
+    "dompurify": "^3.2.4",
+    "nodemailer": "^6.10.0"
   }
 }
 

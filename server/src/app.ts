@@ -86,11 +86,42 @@ export const createApp = (): Express => {
   });
   app.use('/api/', limiter);
 
+  // Dedicated Brute-Force Auth Protection
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30, // Max 30 attempts per 15 minutes per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      success: false,
+      error: { code: 'TOO_MANY_AUTH_ATTEMPTS', message: 'Too many authentication attempts. Please try again in 15 minutes.' },
+    },
+  });
+  app.use('/api/v1/auth/login', authLimiter);
+  app.use('/api/v1/auth/register', authLimiter);
+
   // Parsers & Logging
   app.use(express.json({ limit: '20mb' }));
   app.use(express.urlencoded({ extended: true, limit: '20mb' }));
   app.use(cookieParser());
   app.use(morgan('dev'));
+
+  // NoSQL Injection Prevention Sanitizer
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    const sanitize = (obj: any) => {
+      if (!obj || typeof obj !== 'object') return;
+      for (const key of Object.keys(obj)) {
+        if (key.startsWith('$') || key.includes('.')) {
+          delete obj[key];
+        } else if (typeof obj[key] === 'object') {
+          sanitize(obj[key]);
+        }
+      }
+    };
+    if (req.body) sanitize(req.body);
+    if (req.params) sanitize(req.params);
+    next();
+  });
 
   // Static uploads serving
   const uploadDir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || 'uploads');
