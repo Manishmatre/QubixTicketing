@@ -29,13 +29,11 @@ else
     echo "   ⚠️ Warning: $CLIENT_DIST does not exist yet. Please build client first."
 fi
 
-# Build backend server if dist is missing or out of date
-if [ ! -f "$APP_DIR/server/dist/index.js" ]; then
-    echo "🔨 Building backend TypeScript..."
-    cd "$APP_DIR/server"
-    npm run build
-    cd "$APP_DIR"
-fi
+# Build backend server
+echo "🔨 Compiling backend TypeScript..."
+cd "$APP_DIR/server"
+npm run build
+cd "$APP_DIR"
 
 # 2. Check and Deploy Nginx Configuration
 echo "⚙️ [2/5] Configuring Nginx..."
