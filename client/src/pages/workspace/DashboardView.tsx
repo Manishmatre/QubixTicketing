@@ -111,82 +111,82 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Top 4 Metrics Widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle hover:shadow-card transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Total Tickets
+      {/* Top 4 Metrics Widgets - Compact, Minimalist & Balanced Style */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between text-slate-400 mb-2.5">
+            <span className="text-xs font-medium text-slate-600">
+              Total tickets
             </span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <FolderKanban className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <FolderKanban className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900">{metrics.totalTickets}</span>
-            <span className="text-xs text-emerald-600 font-semibold flex items-center">
+            <span className="text-xl font-bold text-slate-900">{metrics.totalTickets}</span>
+            <span className="text-[11px] text-emerald-600 font-semibold flex items-center">
               <TrendingUp className="w-3 h-3 mr-0.5" /> Active
             </span>
           </div>
-          <div className="mt-3 flex items-center gap-3 text-xs text-slate-500 border-t border-slate-100 pt-2.5">
-            <span>{metrics.openTickets} To Do</span>
+          <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
+            <span>{metrics.openTickets} open</span>
             <span>•</span>
-            <span>{metrics.inProgressTickets} In Progress</span>
+            <span>{metrics.inProgressTickets} in progress</span>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle hover:shadow-card transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Resolved Tickets
+        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between text-slate-400 mb-2.5">
+            <span className="text-xs font-medium text-slate-600">
+              Resolved tickets
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CheckCircle2 className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900">{metrics.resolvedTickets}</span>
-            <span className="text-xs text-slate-500 font-medium">Completed</span>
+            <span className="text-xl font-bold text-slate-900">{metrics.resolvedTickets}</span>
+            <span className="text-[11px] text-slate-500 font-medium">Completed</span>
           </div>
-          <div className="mt-3 text-xs text-slate-500 border-t border-slate-100 pt-2.5">
+          <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
             {metrics.totalTickets > 0
               ? `${Math.round((metrics.resolvedTickets / metrics.totalTickets) * 100)}% resolution rate`
               : '0% resolution rate'}
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle hover:shadow-card transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Urgent & Critical
+        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between text-slate-400 mb-2.5">
+            <span className="text-xs font-medium text-slate-600">
+              Urgent & critical
             </span>
-            <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-              <Flame className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+              <Flame className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-red-600">{metrics.urgentTickets}</span>
-            <span className="text-xs text-red-600 font-medium">Need immediate review</span>
+            <span className="text-xl font-bold text-red-600">{metrics.urgentTickets}</span>
+            <span className="text-[11px] text-red-600 font-medium">Immediate priority</span>
           </div>
-          <div className="mt-3 text-xs text-slate-500 border-t border-slate-100 pt-2.5">
+          <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
             Prioritized by SLA rules
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle hover:shadow-card transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              My Assigned
+        <div className="bg-white border border-[#EAECF0] rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-all">
+          <div className="flex items-center justify-between text-slate-400 mb-2.5">
+            <span className="text-xs font-medium text-slate-600">
+              Assigned to me
             </span>
-            <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+              <Clock className="w-3.5 h-3.5" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900">{metrics.myAssignedTickets}</span>
-            <span className="text-xs text-purple-600 font-medium">On your plate</span>
+            <span className="text-xl font-bold text-slate-900">{metrics.myAssignedTickets}</span>
+            <span className="text-[11px] text-purple-600 font-medium">Active queue</span>
           </div>
-          <div className="mt-3 text-xs text-slate-500 border-t border-slate-100 pt-2.5">
+          <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
             {metrics.overdueTickets > 0 ? (
               <span className="text-red-600 font-semibold">{metrics.overdueTickets} overdue</span>
             ) : (

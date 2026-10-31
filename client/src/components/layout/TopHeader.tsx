@@ -105,7 +105,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   };
 
   return (
-    <header className="h-14 bg-white border-b border-[#EAECF0] px-6 flex items-center justify-between sticky top-0 z-20 shrink-0 font-sans">
+    <header className="h-13 bg-white border-b border-[#EAECF0] px-6 flex items-center justify-between sticky top-0 z-20 shrink-0 font-sans">
       {/* Left: Clean Minimal Page Title */}
       <div className="flex items-center gap-2">
         <h1 className="text-sm font-bold text-slate-900 tracking-tight">

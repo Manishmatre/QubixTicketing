@@ -7,6 +7,12 @@ import { SocketProvider } from './context/SocketContext';
 // Layouts & Pages
 import { AppLayout } from './components/layout/AppLayout';
 import { LandingPage, LoginPage, RegisterPage } from './pages/public/PublicPages';
+import {
+  VerifyEmailPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  AcceptInvitePage,
+} from './pages/public/AuthFlowPages';
 import { OnboardingPage } from './pages/onboarding/OnboardingPage';
 import {
   DashboardPage,
@@ -56,6 +62,11 @@ export const App: React.FC = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/admin/login" element={<SuperAdminLoginPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/accept-invite" element={<AcceptInvitePage />} />
+              <Route path="/invite" element={<AcceptInvitePage />} />
 
               {/* Onboarding Wizard */}
               <Route path="/onboarding" element={<OnboardingPage />} />

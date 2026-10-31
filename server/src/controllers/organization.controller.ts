@@ -126,11 +126,13 @@ export const completeOnboarding = async (req: Request, res: Response): Promise<v
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         });
 
-        await emailService.sendEmail({
-          to: normalized,
-          subject: `You've been invited to join ${organization.name} on QubixDesk`,
-          text: `You have been invited to collaborate with ${organization.name} on QubixDesk SaaS.\nUse your invitation link to join: ${process.env.CLIENT_URL || 'http://localhost:5173'}/invite?token=${token}`,
-        });
+        await emailService.sendTeamInvitationEmail(
+          normalized,
+          organization.name,
+          req.user?.name || 'Organization Owner',
+          'employee',
+          token
+        );
       }
     }
 
@@ -371,6 +373,13 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
         department: department || 'General',
       });
 
+      const org = await Organization.findById(req.organizationId);
+      await emailService.sendEmail({
+        to: normalized,
+        subject: `You've been added to ${org?.name || 'team workspace'} on QubixDesk`,
+        text: `Hi ${existingUser.name},\nYou have been added to ${org?.name || 'the team workspace'} on QubixDesk as ${role}. Log in at http://localhost:5173/login to access your tickets.`,
+      });
+
       res.status(201).json({
         success: true,
         message: 'Member successfully added to workspace.',
@@ -389,15 +398,18 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    await emailService.sendEmail({
-      to: normalized,
-      subject: `Invitation to join team workspace on QubixDesk`,
-      text: `You have been invited to join the team workspace on QubixDesk.\nAccept your invitation: ${process.env.CLIENT_URL || 'http://localhost:5173'}/register?inviteToken=${token}&email=${encodeURIComponent(normalized)}`,
-    });
+    const org = await Organization.findById(req.organizationId);
+    await emailService.sendTeamInvitationEmail(
+      normalized,
+      org?.name || 'Workspace',
+      req.user?.name || 'Your team',
+      role || 'employee',
+      token
+    );
 
     res.status(201).json({
       success: true,
-      message: 'Invitation sent successfully.',
+      message: 'Invitation sent successfully via SMTP email.',
       data: invitation,
     });
   } catch (err: any) {

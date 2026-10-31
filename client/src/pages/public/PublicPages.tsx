@@ -1092,14 +1092,21 @@ export const LoginPage: React.FC = () => {
             required
           />
 
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••••"
-            required
-          />
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block font-semibold text-slate-700 text-xs">Password</label>
+              <Link to="/forgot-password" className="text-[11px] text-blue-600 hover:underline font-semibold">
+                Forgot password?
+              </Link>
+            </div>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••"
+              required
+            />
+          </div>
 
           <Button type="submit" variant="primary" className="w-full text-xs font-bold" isLoading={isLoading}>
             Sign In to Workspace

@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
+import crypto from 'crypto';
 import { User } from '../models/User.js';
 import { Organization } from '../models/Organization.js';
 import { OrganizationMembership } from '../models/OrganizationMembership.js';
+import { Invitation } from '../models/Invitation.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import { logAuditEvent } from '../services/auditService.js';
+import { emailService } from '../services/emailAdapter.js';
 import mongoose from 'mongoose';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -30,12 +33,20 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     const passwordHash = await hashPassword(password);
+    const verificationToken = crypto.randomBytes(32).toString('hex');
     const user = await User.create({
       name: name.trim(),
       email: normalizedEmail,
       passwordHash,
       isSuperAdmin: false,
-      isVerified: true,
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    // Dispatch verification email via SMTP
+    emailService.sendVerificationEmail(user.email, user.name, verificationToken).catch((err) => {
+      console.error('[Auth] Failed to send verification email:', err);
     });
 
     let organization = null;
@@ -471,6 +482,259 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         name: user.name,
         email: user.email,
         avatarUrl: user.avatarUrl,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      res.status(400).json({ success: false, error: { message: 'Verification token is required.' } });
+      return;
+    }
+
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      res.status(400).json({
+        success: false,
+        error: { message: 'Invalid or expired verification link. Please request a new verification email.' },
+      });
+      return;
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+
+    await logAuditEvent({
+      userId: user._id as any,
+      action: 'EMAIL_VERIFIED',
+      entity: 'User',
+      entityId: user._id.toString(),
+      req,
+    });
+
+    res.json({ success: true, message: 'Email verified successfully! Your account is active.' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const resendVerification = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ success: false, error: { message: 'Email address is required.' } });
+      return;
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      res.json({ success: true, message: 'If an account exists with this email, a new verification link has been sent.' });
+      return;
+    }
+
+    if (user.isVerified) {
+      res.json({ success: true, message: 'This email is already verified. You can log in.' });
+      return;
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await user.save();
+
+    await emailService.sendVerificationEmail(user.email, user.name, verificationToken);
+
+    res.json({ success: true, message: 'A new verification email has been dispatched via SMTP.' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ success: false, error: { message: 'Email address is required.' } });
+      return;
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      res.json({
+        success: true,
+        message: 'If an account exists with that email address, a password reset link has been dispatched.',
+      });
+      return;
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    await emailService.sendPasswordResetEmail(user.email, user.name, resetToken);
+
+    res.json({
+      success: true,
+      message: 'If an account exists with that email address, a password reset link has been dispatched.',
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      res.status(400).json({ success: false, error: { message: 'Token and new password are required.' } });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ success: false, error: { message: 'New password must be at least 6 characters.' } });
+      return;
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      res.status(400).json({ success: false, error: { message: 'Invalid or expired password reset link. Please request a new one.' } });
+      return;
+    }
+
+    user.passwordHash = await hashPassword(newPassword);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    await logAuditEvent({
+      userId: user._id as any,
+      action: 'PASSWORD_RESET',
+      entity: 'User',
+      entityId: user._id.toString(),
+      req,
+    });
+
+    res.json({ success: true, message: 'Password reset successfully! You can now log in with your new credentials.' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const getInvitationDetails = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token } = req.params;
+    const invitation = await Invitation.findOne({ token, status: 'pending', expiresAt: { $gt: new Date() } })
+      .populate('organizationId', 'name slug logoUrl')
+      .populate('invitedBy', 'name email');
+
+    if (!invitation) {
+      res.status(404).json({ success: false, error: { message: 'Invitation not found or has expired.' } });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        email: invitation.email,
+        role: invitation.role,
+        organization: invitation.organizationId,
+        invitedBy: invitation.invitedBy,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const acceptInvitation = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token, name, password } = req.body;
+    if (!token) {
+      res.status(400).json({ success: false, error: { message: 'Invitation token is required.' } });
+      return;
+    }
+
+    const invitation = await Invitation.findOne({ token, status: 'pending', expiresAt: { $gt: new Date() } });
+    if (!invitation) {
+      res.status(404).json({ success: false, error: { message: 'Invalid or expired invitation.' } });
+      return;
+    }
+
+    let user = await User.findOne({ email: invitation.email });
+
+    // If user does not exist yet, require name & password to create account
+    if (!user) {
+      if (!name || !password) {
+        res.status(400).json({ success: false, error: { message: 'Name and password are required to create your account.' } });
+        return;
+      }
+      if (password.length < 6) {
+        res.status(400).json({ success: false, error: { message: 'Password must be at least 6 characters.' } });
+        return;
+      }
+
+      const passwordHash = await hashPassword(password);
+      user = await User.create({
+        name: name.trim(),
+        email: invitation.email,
+        passwordHash,
+        isVerified: true,
+        activeOrganizationId: invitation.organizationId,
+      });
+    } else {
+      user.activeOrganizationId = invitation.organizationId;
+      await user.save();
+    }
+
+    // Check if membership already exists
+    const existingMembership = await OrganizationMembership.findOne({
+      organizationId: invitation.organizationId,
+      userId: user._id,
+    });
+
+    if (!existingMembership) {
+      await OrganizationMembership.create({
+        organizationId: invitation.organizationId,
+        userId: user._id,
+        role: invitation.role,
+        status: 'active',
+      });
+    }
+
+    invitation.status = 'accepted';
+    await invitation.save();
+
+    const accessToken = generateAccessToken({
+      userId: user._id.toString(),
+      email: user.email,
+      isSuperAdmin: user.isSuperAdmin,
+      activeOrganizationId: invitation.organizationId.toString(),
+    });
+
+    res.json({
+      success: true,
+      message: 'Invitation accepted! Welcome to the team.',
+      data: {
+        accessToken,
+        userId: user._id,
+        email: user.email,
+        name: user.name,
       },
     });
   } catch (err: any) {

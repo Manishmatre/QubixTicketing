@@ -150,98 +150,46 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 w-full overflow-y-auto bg-white font-sans text-slate-800 p-6 md:p-8 space-y-6">
-      {/* 1. Header Row */}
-      <div className="pb-4 border-b border-[#EAECF0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="flex-1 w-full overflow-y-auto bg-white font-sans text-slate-800 p-6 space-y-4">
+      {/* 1. Standard Header (Consistent with all other pages) */}
+      <div className="pb-4 border-b border-[#EAECF0] flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
             Workspace Settings
-          </h1>
+          </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Manage organization identity, issue numbering policies, SLA configurations, security rules, and webhooks.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="primary"
-            onClick={handleSaveAll}
-            isLoading={isSaving}
-            leftIcon={<Save className="w-3.5 h-3.5" />}
-          >
-            Save All Settings
-          </Button>
-        </div>
-      </div>
-
-      {/* 2. Workspace Status Card */}
-      <div className="w-full bg-[#F8FAFC] border border-[#EAECF0] rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xs">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-600 text-white font-extrabold text-lg flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
-            {organization?.name ? organization.name.charAt(0).toUpperCase() : 'A'}
-          </div>
-
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base font-extrabold text-slate-900">{organization?.name || 'Acme Technologies Inc.'}</h2>
-              <span className="bg-blue-50 text-blue-700 border border-blue-200/80 font-bold text-[11px] px-2 py-0.5 rounded-full capitalize">
-                {organization?.subscriptionPlan || 'Professional'} Plan
-              </span>
-              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[11px] px-2 py-0.5 rounded-full">
-                Active & Healthy
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-500 font-mono flex items-center gap-1.5">
-              <span>https://qubixdesk.io/{organization?.slug || 'acme'}</span>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(`https://qubixdesk.io/${organization?.slug || 'acme'}`);
-                  alert('Workspace link copied to clipboard!');
-                }}
-                className="text-slate-400 hover:text-blue-600 p-0.5"
-                title="Copy workspace URL"
-              >
-                <Copy className="w-3 h-3" />
-              </button>
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6 text-xs text-slate-600 border-t md:border-t-0 md:border-l border-slate-200/80 pt-3 md:pt-0 md:pl-6">
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Tenant ID</span>
-            <span className="font-mono text-slate-800 font-semibold">{organization?.id?.slice(0, 8) || 'qub-0921'}...</span>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Prefix</span>
-            <span className="font-mono text-blue-600 font-bold">{ticketPrefix}</span>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Storage</span>
-            <span className="font-semibold text-slate-800">1.2 GB / 50 GB</span>
-          </div>
-        </div>
+        <Button
+          type="button"
+          size="sm"
+          variant="primary"
+          onClick={handleSaveAll}
+          isLoading={isSaving}
+          leftIcon={<Save className="w-3.5 h-3.5" />}
+        >
+          Save Changes
+        </Button>
       </div>
 
       {/* Notifications */}
       {saveSuccessMsg && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2 font-medium">
+        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2 font-medium">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{saveSuccessMsg}</span>
         </div>
       )}
 
       {saveErrorMsg && (
-        <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2 font-medium">
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2 font-medium">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{saveErrorMsg}</span>
         </div>
       )}
 
-      {/* 3. Navigation Tabs */}
+      {/* 2. Navigation Tabs (Directly beneath header, minimal top space) */}
       <div className="flex items-center gap-4 border-b border-[#EAECF0] text-xs font-bold overflow-x-auto">
         <button
           type="button"

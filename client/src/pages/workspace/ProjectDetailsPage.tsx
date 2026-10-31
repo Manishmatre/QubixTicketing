@@ -284,7 +284,7 @@ export const ProjectDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-white font-sans text-slate-800 p-6 md:p-8 space-y-6">
+    <div className="flex-1 overflow-y-auto bg-white font-sans text-slate-800 p-6 space-y-4">
       {/* 1. Header & Navigation Row */}
       <div className="flex items-center justify-between pb-1">
         <button
@@ -316,18 +316,18 @@ export const ProjectDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Project Hero Card */}
-      <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-2xl p-6 space-y-5 shadow-2xs">
+      {/* 2. Project Hero Card - Sleek Minimalist Padding */}
+      <div className="bg-[#F8FAFC] border border-[#EAECF0] rounded-xl p-5 space-y-4 shadow-2xs">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="font-mono text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">
                 [{project.key}]
               </span>
-              <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">
                 {project.name}
               </h1>
-              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-2 py-0.5 rounded-full capitalize">
+              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold px-2 py-0.5 rounded-full capitalize">
                 {project.status || 'Active'}
               </span>
               <span className="bg-slate-100 text-slate-700 text-[11px] font-medium px-2 py-0.5 rounded-full">
@@ -340,9 +340,9 @@ export const ProjectDetailsPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 shrink-0 text-xs text-slate-500">
+          <div className="flex items-center gap-5 shrink-0 text-xs text-slate-500">
             <div className="text-right">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Lead</span>
+              <span className="text-xs font-medium text-slate-400 block">Lead</span>
               <div className="flex items-center gap-1.5 mt-0.5 font-semibold text-slate-800">
                 <Avatar name={project.projectManagerId?.name || 'Lead'} src={project.projectManagerId?.avatarUrl} size="xs" />
                 <span>{project.projectManagerId?.name || 'Project Lead'}</span>
@@ -350,7 +350,7 @@ export const ProjectDetailsPage: React.FC = () => {
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Target Date</span>
+              <span className="text-xs font-medium text-slate-400 block">Target date</span>
               <div className="flex items-center gap-1 mt-0.5 font-semibold text-slate-800">
                 <Calendar className="w-3.5 h-3.5 text-slate-400" />
                 <span>{project.targetDate ? format(new Date(project.targetDate), 'MMM d, yyyy') : 'No target'}</span>
@@ -359,38 +359,38 @@ export const ProjectDetailsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Progress Bar & Telemetry Stats */}
-        <div className="pt-4 border-t border-slate-200/80 space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold">
-            <span className="text-slate-700">Project Delivery Velocity</span>
-            <span className="text-blue-600">{progressPercent}% Completed</span>
+        {/* Progress Bar & Telemetry Stats - Refined Sentence Case */}
+        <div className="pt-3 border-t border-slate-200/80 space-y-2">
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="text-slate-700">Project delivery velocity</span>
+            <span className="text-blue-600">{progressPercent}% completed</span>
           </div>
 
-          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className="bg-white border border-[#EAECF0] rounded-xl p-3 text-center">
-              <span className="block text-lg font-extrabold text-slate-900">{totalTickets}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Tickets</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+            <div className="bg-white border border-[#EAECF0] rounded-xl px-3 py-2 text-center shadow-2xs">
+              <span className="block text-base font-bold text-slate-900">{totalTickets}</span>
+              <span className="text-xs font-medium text-slate-500">Total tickets</span>
             </div>
-            <div className="bg-white border border-[#EAECF0] rounded-xl p-3 text-center">
-              <span className="block text-lg font-extrabold text-amber-600">
+            <div className="bg-white border border-[#EAECF0] rounded-xl px-3 py-2 text-center shadow-2xs">
+              <span className="block text-base font-bold text-amber-600">
                 {tickets.filter((t) => t.status === 'In Progress').length}
               </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">In Progress</span>
+              <span className="text-xs font-medium text-slate-500">In progress</span>
             </div>
-            <div className="bg-white border border-[#EAECF0] rounded-xl p-3 text-center">
-              <span className="block text-lg font-extrabold text-emerald-600">{resolvedTickets}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Resolved</span>
+            <div className="bg-white border border-[#EAECF0] rounded-xl px-3 py-2 text-center shadow-2xs">
+              <span className="block text-base font-bold text-emerald-600">{resolvedTickets}</span>
+              <span className="text-xs font-medium text-slate-500">Resolved</span>
             </div>
-            <div className="bg-white border border-[#EAECF0] rounded-xl p-3 text-center">
-              <span className="block text-lg font-extrabold text-blue-600">{project.members?.length || 1}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Engineers</span>
+            <div className="bg-white border border-[#EAECF0] rounded-xl px-3 py-2 text-center shadow-2xs">
+              <span className="block text-base font-bold text-blue-600">{project.members?.length || 1}</span>
+              <span className="text-xs font-medium text-slate-500">Engineers</span>
             </div>
           </div>
         </div>
@@ -848,3 +848,4 @@ export const ProjectDetailsPage: React.FC = () => {
     </div>
   );
 };
+

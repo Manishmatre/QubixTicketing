@@ -7,6 +7,10 @@ export interface IUser extends Document {
   avatarUrl?: string;
   isSuperAdmin: boolean;
   isVerified: boolean;
+  verificationToken?: string;
+  verificationTokenExpires?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   activeOrganizationId?: mongoose.Types.ObjectId;
   lastLoginAt?: Date;
   twoFactorEnabled: boolean;
@@ -22,7 +26,11 @@ const UserSchema = new Schema<IUser>(
     passwordHash: { type: String, required: true },
     avatarUrl: { type: String, default: '' },
     isSuperAdmin: { type: Boolean, default: false, index: true },
-    isVerified: { type: Boolean, default: true },
+    isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String, index: true },
+    verificationTokenExpires: { type: Date },
+    resetPasswordToken: { type: String, index: true },
+    resetPasswordExpires: { type: Date },
     activeOrganizationId: { type: Schema.Types.ObjectId, ref: 'Organization' },
     lastLoginAt: { type: Date },
     twoFactorEnabled: { type: Boolean, default: false },
