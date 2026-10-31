@@ -10,9 +10,9 @@ module.exports = {
     {
       name: 'qubixdesk-api',
       script: './server/dist/index.js',
-      cwd: './',
-      instances: 'max',
-      exec_mode: 'cluster',
+      cwd: __dirname,
+      instances: 1,
+      exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         PORT: PORT,
