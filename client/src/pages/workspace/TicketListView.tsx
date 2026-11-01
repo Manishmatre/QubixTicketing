@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSocket } from '../../context/SocketContext';
 import { Ticket } from '../../types';
 import { apiClient } from '../../api/client';
-import { PriorityBadge, StatusBadge } from '../../components/ui/Badge';
+import { PriorityBadge, StatusBadge, CategoryBadge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -327,13 +327,12 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
                         </span>
                       </td>
                       <td className="py-3 px-4 max-w-md border-r border-[#EAECF0]/40">
-                        <p className="font-semibold text-slate-900 group-hover:text-blue-600 truncate transition-colors text-xs">
-                          {t.title}
-                        </p>
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5 flex items-center gap-1.5">
-                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-300" />
-                          <span>{t.category || 'General'}</span>
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-slate-900 group-hover:text-blue-600 truncate transition-colors text-xs">
+                            {t.title}
+                          </p>
+                          <CategoryBadge category={t.category || 'Task'} size="sm" />
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-slate-600 font-medium whitespace-nowrap border-r border-[#EAECF0]/40">
                         {t.projectId?.name || 'General Project'}

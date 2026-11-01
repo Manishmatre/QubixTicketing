@@ -6,11 +6,15 @@ import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
+import { PriorityBadge, StatusBadge, CategoryBadge } from '../../components/ui/Badge';
 import {
   ArrowLeft,
   Calendar,
   Clock,
   User as UserIcon,
+  UserPlus,
+  X,
+  Flame,
   Tag,
   Paperclip,
   Send,
@@ -344,7 +348,82 @@ export const TicketDetailsPage: React.FC = () => {
 
   const completedSubTicketsCount = subTickets.filter((s) => s.done).length;
 
-  // Load team members for @mention autocomplete
+  const getStatusSelectStyling = (status: string) => {
+    switch (status) {
+      case 'Resolved':
+        return {
+          pill: 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300',
+          dot: 'text-emerald-600 dark:text-emerald-400 fill-emerald-600 dark:fill-emerald-400',
+          chevron: 'text-emerald-600 dark:text-emerald-400',
+        };
+      case 'In Progress':
+        return {
+          pill: 'bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300',
+          dot: 'text-amber-600 dark:text-amber-400 fill-amber-600 dark:fill-amber-400 animate-pulse',
+          chevron: 'text-amber-600 dark:text-amber-400',
+        };
+      case 'Under Review':
+        return {
+          pill: 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-300 dark:border-indigo-800 text-indigo-800 dark:text-indigo-300',
+          dot: 'text-indigo-600 dark:text-indigo-400 fill-indigo-600 dark:fill-indigo-400',
+          chevron: 'text-indigo-600 dark:text-indigo-400',
+        };
+      case 'Closed':
+        return {
+          pill: 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300',
+          dot: 'text-slate-500 fill-slate-500',
+          chevron: 'text-slate-500',
+        };
+      case 'Open':
+      case 'To Do':
+      default:
+        return {
+          pill: 'bg-sky-50 dark:bg-sky-950/60 border-sky-300 dark:border-sky-800 text-sky-800 dark:text-sky-300',
+          dot: 'text-sky-600 dark:text-sky-400 fill-sky-600 dark:fill-sky-400',
+          chevron: 'text-sky-600 dark:text-sky-400',
+        };
+    }
+  };
+
+  const getPrioritySelectClasses = (priority: string) => {
+    switch (priority) {
+      case 'Critical':
+        return 'bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 font-bold';
+      case 'Urgent':
+        return 'bg-orange-50 dark:bg-orange-950/60 border-orange-300 dark:border-orange-800 text-orange-800 dark:text-orange-300 font-bold';
+      case 'High':
+        return 'bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 font-bold';
+      case 'Normal':
+        return 'bg-sky-50 dark:bg-sky-950/60 border-sky-300 dark:border-sky-800 text-sky-800 dark:text-sky-300 font-bold';
+      case 'Low':
+      default:
+        return 'bg-teal-50 dark:bg-teal-950/60 border-teal-300 dark:border-teal-800 text-teal-800 dark:text-teal-300 font-bold';
+    }
+  };
+
+  const statusStyling = getStatusSelectStyling(ticket?.status || 'To Do');
+
+  // Assignee Management State & Handlers
+  const [showAssignDropdown, setShowAssignDropdown] = useState(false);
+  const [isUpdatingAssignees, setIsUpdatingAssignees] = useState(false);
+
+  const getCurrentAssigneeIds = (): string[] => {
+    if (!ticket) return [];
+    if (ticket.assigneeIds && ticket.assigneeIds.length > 0) {
+      return ticket.assigneeIds.map((a: any) => a.id || a._id).filter(Boolean);
+    }
+    if (ticket.assigneeId) {
+      const id = (ticket.assigneeId as any).id || (ticket.assigneeId as any)._id;
+      return id ? [id] : [];
+    }
+    return [];
+  };
+
+  const allAssignees = ticket ? ((ticket.assigneeIds && ticket.assigneeIds.length > 0)
+    ? ticket.assigneeIds
+    : (ticket.assigneeId ? [ticket.assigneeId] : [])) : [];
+  const allAssigneeIds = getCurrentAssigneeIds();
+
   useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
@@ -353,11 +432,69 @@ export const TicketDetailsPage: React.FC = () => {
           setTeamMembers(res.data.data);
         }
       } catch (err) {
-        console.error('Failed to load team members for mentions:', err);
+        console.error('Failed to load team members:', err);
       }
     };
     fetchTeamMembers();
   }, []);
+
+  const handleAddAssignee = async (memberUserId: string) => {
+    if (!ticket) return;
+    if (!canUpdateTask) {
+      alert('You do not have permission to assign teammates to this task.');
+      return;
+    }
+    const currentIds = getCurrentAssigneeIds();
+    if (currentIds.includes(memberUserId)) return;
+    const updatedIds = [...currentIds, memberUserId];
+
+    setIsUpdatingAssignees(true);
+    try {
+      const res = await apiClient.patch(`/tickets/${ticket._id}`, {
+        assigneeIds: updatedIds,
+        assigneeId: updatedIds[0],
+      });
+      if (res.data.success) {
+        setTicket(res.data.data);
+        setShowAssignDropdown(false);
+        const actRes = await apiClient.get(`/ticket-comments/ticket/${ticket._id}/activities`);
+        if (actRes.data.success) setActivities(actRes.data.data);
+      }
+    } catch (err: any) {
+      console.error('Failed to assign teammate:', err);
+      alert(err.response?.data?.message || 'Failed to assign teammate');
+    } finally {
+      setIsUpdatingAssignees(false);
+    }
+  };
+
+  const handleRemoveAssignee = async (memberUserId: string) => {
+    if (!ticket) return;
+    if (!canUpdateTask) {
+      alert('You do not have permission to modify teammates on this task.');
+      return;
+    }
+    const currentIds = getCurrentAssigneeIds();
+    const updatedIds = currentIds.filter((id) => id !== memberUserId);
+
+    setIsUpdatingAssignees(true);
+    try {
+      const res = await apiClient.patch(`/tickets/${ticket._id}`, {
+        assigneeIds: updatedIds,
+        assigneeId: updatedIds[0] || null,
+      });
+      if (res.data.success) {
+        setTicket(res.data.data);
+        const actRes = await apiClient.get(`/ticket-comments/ticket/${ticket._id}/activities`);
+        if (actRes.data.success) setActivities(actRes.data.data);
+      }
+    } catch (err: any) {
+      console.error('Failed to remove assignee:', err);
+      alert(err.response?.data?.message || 'Failed to remove assignee');
+    } finally {
+      setIsUpdatingAssignees(false);
+    }
+  };
 
   const handleAddLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1119,15 +1256,15 @@ export const TicketDetailsPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Status Selector Pill in QubixDesk Theme */}
+            {/* Dynamic Status Selector Pill Styled to Status Nature */}
             <div className="relative">
               <select
                 value={ticket.status}
                 disabled={!canUpdateTask}
                 title={!canUpdateTask ? 'Only assigned members can update this task' : undefined}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className={`w-full appearance-none bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100/70 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 font-bold text-xs rounded-xl pl-8 pr-7 py-2 outline-none transition-colors ${
-                  !canUpdateTask ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                className={`w-full appearance-none border font-bold text-xs rounded-xl pl-8 pr-7 py-2 outline-none transition-all shadow-2xs ${statusStyling.pill} ${
+                  !canUpdateTask ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-xs'
                 }`}
               >
                 <option value="To Do">Open / To Do</option>
@@ -1136,8 +1273,8 @@ export const TicketDetailsPage: React.FC = () => {
                 <option value="Resolved">Resolved</option>
                 <option value="Closed">Closed</option>
               </select>
-              <Circle className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <ChevronDown className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Circle className={`w-2.5 h-2.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none ${statusStyling.dot}`} />
+              <ChevronDown className={`w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${statusStyling.chevron}`} />
             </div>
             {!canUpdateTask && (
               <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
@@ -1160,9 +1297,9 @@ export const TicketDetailsPage: React.FC = () => {
                   value={ticket.priority}
                   disabled={!canUpdateTask}
                   onChange={(e) => handlePriorityChange(e.target.value)}
-                  className={`bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 outline-none transition-colors ${
-                    !canUpdateTask ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:border-slate-300'
-                  }`}
+                  className={`text-xs border rounded-lg px-2.5 py-1 outline-none transition-all cursor-pointer shadow-2xs ${getPrioritySelectClasses(
+                    ticket.priority
+                  )} ${!canUpdateTask ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-xs'}`}
                 >
                   <option value="Critical">Critical</option>
                   <option value="Urgent">Urgent</option>
@@ -1174,9 +1311,7 @@ export const TicketDetailsPage: React.FC = () => {
 
               <div className="flex items-center justify-between">
                 <span className="text-slate-500 dark:text-slate-400">Category</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px]">
-                  {ticket.category || 'Task'}
-                </span>
+                <CategoryBadge category={ticket.category || 'Task'} />
               </div>
 
               <div className="flex items-center justify-between">
@@ -1189,52 +1324,150 @@ export const TicketDetailsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* People Section: Multiple Assignees */}
+          {/* People Section: Interactive Teammate Assignment */}
           <div className="pt-4 border-t border-[#EAECF0] dark:border-slate-800 space-y-3.5">
-            <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
-              <UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Assigned Team</span>
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-bold text-slate-900 dark:text-slate-100 text-xs flex items-center gap-1.5">
+                <UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span>Assigned Team</span>
+                <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950 px-1.5 py-0.2 rounded-full">
+                  {allAssignees.length}
+                </span>
+              </h4>
 
-            <div className="space-y-3">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-slate-500 dark:text-slate-400">Assignees</span>
-                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
-                    {((ticket.assigneeIds && ticket.assigneeIds.length > 0)
-                      ? ticket.assigneeIds
-                      : (ticket.assigneeId ? [ticket.assigneeId] : [])).length} assigned
-                  </span>
-                </div>
+              {canUpdateTask && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowAssignDropdown(!showAssignDropdown)}
+                    disabled={isUpdatingAssignees}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <UserPlus className="w-3 h-3" />
+                    <span>+ Assign</span>
+                  </button>
 
-                <div className="space-y-2">
-                  {((ticket.assigneeIds && ticket.assigneeIds.length > 0)
-                    ? ticket.assigneeIds
-                    : (ticket.assigneeId ? [ticket.assigneeId] : [])
-                  ).map((assignee, idx) => (
-                    <div
-                      key={assignee.id || (assignee as any)._id || idx}
-                      className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60"
-                    >
-                      <Avatar name={assignee.name || 'Member'} src={assignee.avatarUrl} size="xs" />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate">
-                          {assignee.name || 'Member'}
-                        </p>
-                        <p className="text-[10px] text-slate-400 truncate">
-                          {assignee.email || assignee.designation || 'Team Member'}
-                        </p>
+                  {/* Teammates Picker Dropdown */}
+                  {showAssignDropdown && (
+                    <div className="absolute right-0 top-full mt-1.5 w-68 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-2 z-50 animate-fadeIn text-xs">
+                      <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100 dark:border-slate-800 px-1">
+                        <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">Select Teammates</span>
+                        <button
+                          onClick={() => setShowAssignDropdown(false)}
+                          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-0.5 rounded cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="max-h-52 overflow-y-auto space-y-1">
+                        {teamMembers.length === 0 ? (
+                          <div className="p-3 text-center text-xs text-slate-400">Loading members...</div>
+                        ) : (
+                          teamMembers.map((m) => {
+                            const mUserId = m.user?.id || (m.user as any)?._id || m.id;
+                            const isAssigned = allAssigneeIds.includes(mUserId);
+
+                            return (
+                              <button
+                                key={mUserId}
+                                type="button"
+                                disabled={isUpdatingAssignees}
+                                onClick={() => {
+                                  if (isAssigned) {
+                                    handleRemoveAssignee(mUserId);
+                                  } else {
+                                    handleAddAssignee(mUserId);
+                                  }
+                                }}
+                                className={`w-full p-1.5 rounded-lg flex items-center justify-between gap-2 text-left transition-colors cursor-pointer ${
+                                  isAssigned
+                                    ? 'bg-blue-50/90 dark:bg-blue-950/50 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-900'
+                                    : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <Avatar name={m.user?.name || 'User'} src={m.user?.avatarUrl} size="xs" />
+                                  <div className="min-w-0">
+                                    <p className="font-semibold text-xs truncate leading-tight">{m.user?.name}</p>
+                                    <p className="text-[10px] text-slate-400 truncate capitalize">{m.role}</p>
+                                  </div>
+                                </div>
+
+                                <div className="shrink-0">
+                                  {isAssigned ? (
+                                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-900 flex items-center gap-0.5">
+                                      <Check className="w-2.5 h-2.5" /> Assigned
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                                      + Add
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })
+                        )}
                       </div>
                     </div>
-                  ))}
-
-                  {(!ticket.assigneeIds || ticket.assigneeIds.length === 0) && !ticket.assigneeId && (
-                    <div className="text-slate-400 text-xs italic py-1">No team members assigned</div>
                   )}
                 </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-2">
+                {allAssignees.map((assignee, idx) => {
+                  const aId = assignee.id || (assignee as any)._id;
+
+                  return (
+                    <div
+                      key={aId || idx}
+                      className="group flex items-center justify-between gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 hover:border-blue-300 dark:hover:border-blue-700 transition-all"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Avatar name={assignee.name || 'Member'} src={assignee.avatarUrl} size="xs" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-semibold text-slate-800 dark:text-slate-200 text-xs truncate">
+                              {assignee.name || 'Member'}
+                            </p>
+                            {idx === 0 && (
+                              <span className="text-[9px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950 px-1.5 py-0.1 rounded border border-purple-200 dark:border-purple-900">
+                                Lead
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-slate-400 truncate">
+                            {assignee.email || assignee.designation || 'Teammate'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {canUpdateTask && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAssignee(aId)}
+                          disabled={isUpdatingAssignees}
+                          title="Remove teammate from task"
+                          className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-md transition-all cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {allAssignees.length === 0 && (
+                  <div className="text-slate-400 text-xs italic py-2 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+                    No team members assigned yet
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
                 <span className="text-slate-500 dark:text-slate-400">Reporter</span>
                 <div className="flex items-center gap-2">
                   <Avatar name={ticket.reporterId?.name || 'User'} size="xs" />

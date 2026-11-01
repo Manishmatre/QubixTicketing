@@ -47,7 +47,7 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       Ticket.countDocuments({ ...ticketBaseQuery, status: { $in: ['In Progress', 'Under Review'] } }),
       Ticket.countDocuments({ ...ticketBaseQuery, status: { $in: ['Resolved', 'Closed'] } }),
       Ticket.countDocuments({ ...ticketBaseQuery, priority: { $in: ['Urgent', 'Critical'] }, status: { $nin: ['Resolved', 'Closed'] } }),
-      Ticket.countDocuments({ organizationId: orgId, assigneeId: userId, status: { $nin: ['Resolved', 'Closed'] } }),
+      Ticket.countDocuments({ organizationId: orgId, $or: [{ assigneeId: userId }, { assigneeIds: userId }], status: { $nin: ['Resolved', 'Closed'] } }),
       Ticket.countDocuments({
         organizationId: orgId,
         status: { $nin: ['Resolved', 'Closed'] },
@@ -96,7 +96,7 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       members.map(async (m: any) => {
         const count = await Ticket.countDocuments({
           organizationId: orgId,
-          assigneeId: m.userId?._id,
+          $or: [{ assigneeId: m.userId?._id }, { assigneeIds: m.userId?._id }],
           status: { $nin: ['Resolved', 'Closed'] },
         });
         return {

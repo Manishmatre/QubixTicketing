@@ -5,6 +5,7 @@ import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
 import { Avatar } from '../../components/ui/Avatar';
 import { Button } from '../../components/ui/Button';
+import { PriorityBadge, StatusBadge, CategoryBadge } from '../../components/ui/Badge';
 import {
   Ticket as TicketIcon,
   SlidersHorizontal,
@@ -217,6 +218,36 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
     }
   };
 
+  const getColumnStyling = (colId: TicketStatus) => {
+    switch (colId) {
+      case 'To Do':
+        return {
+          pill: 'text-sky-700 dark:text-sky-300 bg-sky-100/90 dark:bg-sky-950/80 border border-sky-200/90 dark:border-sky-800',
+          container: 'border-t-2 border-t-sky-500',
+        };
+      case 'In Progress':
+        return {
+          pill: 'text-amber-800 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/80 border border-amber-200/90 dark:border-amber-800',
+          container: 'border-t-2 border-t-amber-500',
+        };
+      case 'Under Review':
+        return {
+          pill: 'text-indigo-800 dark:text-indigo-300 bg-indigo-100/90 dark:bg-indigo-950/80 border border-indigo-200/90 dark:border-indigo-800',
+          container: 'border-t-2 border-t-indigo-500',
+        };
+      case 'Resolved':
+        return {
+          pill: 'text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-200/90 dark:border-emerald-800',
+          container: 'border-t-2 border-t-emerald-500',
+        };
+      default:
+        return {
+          pill: 'text-slate-700 bg-slate-100 border border-slate-200',
+          container: '',
+        };
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800 dark:text-slate-200">
       {/* Sub-Toolbar: Clean Minimalist Filter Bar */}
@@ -280,12 +311,14 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               return t.status === col.id;
             });
 
+            const colStyle = getColumnStyling(col.id);
+
             return (
               <div
                 key={col.id}
                 onDragOver={handleDragOver}
                 onDrop={() => handleDrop(col.id)}
-                className="w-80 shrink-0 flex flex-col max-h-[calc(100vh-8.5rem)] select-none bg-slate-200/50 dark:bg-slate-900/60 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-800"
+                className={`w-80 shrink-0 flex flex-col max-h-[calc(100vh-8.5rem)] select-none bg-slate-200/50 dark:bg-slate-900/60 p-3 rounded-2xl border border-slate-200/70 dark:border-slate-800 ${colStyle.container}`}
               >
                 {/* Column Header */}
                 <div className="flex items-center justify-between pb-2.5 px-1 mb-2">
@@ -294,7 +327,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-tight">
                       {col.label}
                     </h3>
-                    <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold ml-0.5 bg-white/70 dark:bg-slate-800 px-1.5 py-0.5 rounded-full">
+                    <span className={`text-[11px] font-bold ml-0.5 px-2 py-0.5 rounded-full ${colStyle.pill}`}>
                       {columnTickets.length}
                     </span>
                   </div>
@@ -326,52 +359,15 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                           draggedTicketId === t._id ? 'opacity-40 scale-95' : 'opacity-100'
                         }`}
                       >
-                        {/* Top Row: Priority Signal + Number + Tag + Avatars + Menu */}
+                        {/* Top Row: Task ID + Category Badge + Priority Badge */}
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-1.5 min-w-0 text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
-                            {getPriorityIcon(t.priority)}
-                            <span className="font-mono text-slate-700 dark:text-slate-300 font-semibold">{t.ticketNumber}</span>
-                            <span>·</span>
-                            <span className="truncate">{t.category || 'Task'}</span>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-mono text-slate-800 dark:text-slate-200 font-bold text-xs">{t.ticketNumber}</span>
+                            <CategoryBadge category={t.category || 'Task'} size="sm" />
                           </div>
 
                           <div className="flex items-center gap-1 shrink-0">
-                            {/* Stacked avatars for multiple assignees */}
-                            <div className="flex items-center -space-x-1.5 overflow-hidden">
-                              {assignees.length > 0 ? (
-                                assignees.slice(0, 3).map((a, idx) => (
-                                  <Avatar
-                                    key={a.id || (a as any)._id || idx}
-                                    name={a.name || 'Member'}
-                                    src={a.avatarUrl}
-                                    size="xs"
-                                  />
-                                ))
-                              ) : (
-                                <Avatar name="Unassigned" size="xs" />
-                              )}
-                              {assignees.length > 3 && (
-                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-full px-1 ring-1 ring-white dark:ring-slate-900">
-                                  +{assignees.length - 3}
-                                </span>
-                              )}
-                            </div>
-
-                            {!editable && (
-                              <span title="Assigned tasks only" className="text-slate-400 ml-0.5">
-                                <Lock className="w-3 h-3 text-slate-400" />
-                              </span>
-                            )}
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onSelectTicket(t._id);
-                              }}
-                              className="text-slate-300 hover:text-slate-600 dark:hover:text-slate-400 p-0.5 rounded"
-                            >
-                              <MoreHorizontal className="w-3.5 h-3.5" />
-                            </button>
+                            <PriorityBadge priority={t.priority} size="sm" />
                           </div>
                         </div>
 
@@ -394,11 +390,52 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                           </div>
                         )}
 
-                        {/* Timestamp */}
-                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                          {t.createdAt
-                            ? formatDistanceToNow(new Date(t.createdAt), { addSuffix: true })
-                            : 'Recently'}
+                        {/* Bottom Row: Timestamp + Assignees Stack + Lock + Menu */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                            {t.createdAt
+                              ? formatDistanceToNow(new Date(t.createdAt), { addSuffix: true })
+                              : 'Recently'}
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            {/* Stacked avatars for multiple assignees */}
+                            <div className="flex items-center -space-x-1.5 overflow-hidden">
+                              {assignees.length > 0 ? (
+                                assignees.slice(0, 3).map((a, idx) => (
+                                  <Avatar
+                                    key={a.id || (a as any)._id || idx}
+                                    name={a.name || 'Member'}
+                                    src={a.avatarUrl}
+                                    size="xs"
+                                  />
+                                ))
+                              ) : (
+                                <Avatar name="Unassigned" size="xs" />
+                              )}
+                              {assignees.length > 3 && (
+                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded-full px-1 ring-1 ring-white dark:ring-slate-900">
+                                  +{assignees.length - 3}
+                                </span>
+                              )}
+                            </div>
+
+                            {!editable && (
+                              <span title="Assigned tasks only" className="text-slate-400">
+                                <Lock className="w-3 h-3 text-slate-400" />
+                              </span>
+                            )}
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectTicket(t._id);
+                              }}
+                              className="text-slate-300 hover:text-slate-600 dark:hover:text-slate-400 p-0.5 rounded"
+                            >
+                              <MoreHorizontal className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );

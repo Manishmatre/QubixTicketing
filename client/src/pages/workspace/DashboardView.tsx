@@ -16,6 +16,8 @@ import {
   Activity,
   Users,
   Calendar,
+  PlayCircle,
+  Sparkles,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -133,87 +135,126 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Top 4 Metrics Widgets - Distinct Border Accents & High Contrast */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200/90 border-t-2 border-t-blue-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-semibold text-slate-600">
-              Total tickets
+      {/* Top 5 Metrics Widgets - Richly Colored Based on Status Nature */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+        {/* 1. Total Workload (Blue / Sky) */}
+        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/40 dark:from-blue-950/40 dark:via-slate-900 dark:to-slate-900 border border-blue-200/90 dark:border-blue-900/60 rounded-xl p-4 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-blue-900 dark:text-blue-300">
+              Total tasks
             </span>
-            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-              <FolderKanban className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm shadow-blue-500/25">
+              <FolderKanban className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl font-bold text-slate-900">{metrics.totalTickets}</span>
-            <span className="text-[11px] text-emerald-600 font-bold flex items-center">
-              <TrendingUp className="w-3 h-3 mr-0.5" /> Active
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-black text-blue-950 dark:text-blue-100">{metrics.totalTickets}</span>
+            <span className="text-[11px] font-bold text-blue-700 bg-blue-100/80 dark:bg-blue-950/80 px-2 py-0.5 rounded-full">
+              {metrics.openTickets} Open
             </span>
           </div>
-          <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
-            <span>{metrics.openTickets} open</span>
-            <span>•</span>
-            <span>{metrics.inProgressTickets} in progress</span>
+          <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-blue-700/80 dark:text-blue-300/80 border-t border-blue-100/80 dark:border-blue-900/40 pt-2 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span>Workspace active volume</span>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/90 border-t-2 border-t-emerald-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-semibold text-slate-600">
-              Resolved tickets
+        {/* 2. In Progress (Amber / Orange) */}
+        <div className="bg-gradient-to-br from-amber-50/90 via-white to-orange-50/40 dark:from-amber-950/40 dark:via-slate-900 dark:to-slate-900 border border-amber-200/90 dark:border-amber-900/60 rounded-xl p-4 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
+              In progress
             </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-sm shadow-amber-500/25">
+              <PlayCircle className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl font-bold text-slate-900">{metrics.resolvedTickets}</span>
-            <span className="text-[11px] text-emerald-600 font-bold">Completed</span>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-black text-amber-950 dark:text-amber-100">{metrics.inProgressTickets}</span>
+            <span className="text-[11px] font-bold text-amber-800 bg-amber-100/90 dark:bg-amber-950/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              Active
+            </span>
           </div>
-          <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
-            {metrics.totalTickets > 0
-              ? `${Math.round((metrics.resolvedTickets / metrics.totalTickets) * 100)}% resolution rate`
-              : '0% resolution rate'}
+          <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-amber-700 dark:text-amber-300/80 border-t border-amber-100/80 dark:border-amber-900/40 pt-2 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span>Under execution & review</span>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/90 border-t-2 border-t-rose-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-semibold text-slate-600">
+        {/* 3. Resolved (Emerald / Green) */}
+        <div className="bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/40 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 border border-emerald-200/90 dark:border-emerald-900/60 rounded-xl p-4 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300">
+              Resolved tasks
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-sm shadow-emerald-500/25">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-black text-emerald-950 dark:text-emerald-100">{metrics.resolvedTickets}</span>
+            <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100/90 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full">
+              Completed
+            </span>
+          </div>
+          <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-300/80 border-t border-emerald-100/80 dark:border-emerald-900/40 pt-2 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>
+              {metrics.totalTickets > 0
+                ? `${Math.round((metrics.resolvedTickets / metrics.totalTickets) * 100)}% resolution rate`
+                : '100% rate'}
+            </span>
+          </div>
+        </div>
+
+        {/* 4. Urgent & Critical (Rose / Red) */}
+        <div className="bg-gradient-to-br from-rose-50/90 via-white to-red-50/40 dark:from-rose-950/40 dark:via-slate-900 dark:to-slate-900 border border-rose-200/90 dark:border-rose-900/60 rounded-xl p-4 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-rose-900 dark:text-rose-300">
               Urgent & critical
             </span>
-            <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
-              <Flame className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-sm shadow-rose-500/25">
+              <Flame className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl font-bold text-rose-600">{metrics.urgentTickets}</span>
-            <span className="text-[11px] text-rose-600 font-bold">Immediate priority</span>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-black text-rose-600 dark:text-rose-400">{metrics.urgentTickets}</span>
+            <span className="text-[11px] font-bold text-rose-800 bg-rose-100/90 dark:bg-rose-950/80 px-2 py-0.5 rounded-full">
+              SLA Priority
+            </span>
           </div>
-          <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
-            Prioritized by SLA rules
+          <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-rose-700 dark:text-rose-300/80 border-t border-rose-100/80 dark:border-rose-900/40 pt-2 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span>Highest severity escalation</span>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/90 border-t-2 border-t-purple-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all">
-          <div className="flex items-center justify-between text-slate-400 mb-2.5">
-            <span className="text-xs font-semibold text-slate-600">
+        {/* 5. Assigned to Me (Purple / Indigo) */}
+        <div className="bg-gradient-to-br from-purple-50/90 via-white to-indigo-50/40 dark:from-purple-950/40 dark:via-slate-900 dark:to-slate-900 border border-purple-200/90 dark:border-purple-900/60 rounded-xl p-4 shadow-2xs hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-purple-900 dark:text-purple-300">
               Assigned to me
             </span>
-            <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
-              <Clock className="w-3.5 h-3.5" />
+            <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center shadow-sm shadow-purple-500/25">
+              <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl font-bold text-slate-900">{metrics.myAssignedTickets}</span>
-            <span className="text-[11px] text-purple-600 font-bold">Active queue</span>
+          <div className="flex items-baseline justify-between mt-1">
+            <span className="text-2xl font-black text-purple-950 dark:text-purple-100">{metrics.myAssignedTickets}</span>
+            <span className="text-[11px] font-bold text-purple-800 bg-purple-100/90 dark:bg-purple-950/80 px-2 py-0.5 rounded-full">
+              My Queue
+            </span>
           </div>
-          <div className="mt-2.5 text-[11px] text-slate-500 border-t border-slate-100 pt-2">
-            {metrics.overdueTickets > 0 ? (
-              <span className="text-rose-600 font-bold">{metrics.overdueTickets} overdue</span>
-            ) : (
-              <span className="text-emerald-600 font-medium">Zero overdue items</span>
-            )}
+          <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-purple-700 dark:text-purple-300/80 border-t border-purple-100/80 dark:border-purple-900/40 pt-2 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+            <span>
+              {metrics.overdueTickets > 0 ? (
+                <span className="text-rose-600 font-bold">{metrics.overdueTickets} overdue</span>
+              ) : (
+                <span className="text-emerald-600 font-semibold">Zero overdue items</span>
+              )}
+            </span>
           </div>
         </div>
       </div>

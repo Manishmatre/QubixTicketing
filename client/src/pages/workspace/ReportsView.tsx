@@ -159,44 +159,44 @@ export const ReportsView: React.FC = () => {
         </div>
       </div>
 
-      {/* SLA / KPI Highlights */}
+      {/* SLA / KPI Highlights - Colored to Nature */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle">
-          <span className="text-xs font-semibold text-slate-500 block mb-2">
+        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/40 border border-blue-200/90 rounded-xl p-5 shadow-2xs hover:shadow-md transition-all">
+          <span className="text-xs font-bold text-blue-900 block mb-2">
             Average Resolution Time
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900">4.2</span>
-            <span className="text-sm font-semibold text-slate-500">hours</span>
+            <span className="text-3xl font-black text-blue-950">4.2</span>
+            <span className="text-sm font-semibold text-blue-700">hours</span>
           </div>
-          <p className="text-xs text-emerald-600 mt-2 font-medium flex items-center gap-1">
+          <p className="text-xs text-emerald-600 mt-2 font-bold flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" /> 18% faster than last month
           </p>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle">
-          <span className="text-xs font-semibold text-slate-500 block mb-2">
+        <div className="bg-gradient-to-br from-emerald-50/90 via-white to-teal-50/40 border border-emerald-200/90 rounded-xl p-5 shadow-2xs hover:shadow-md transition-all">
+          <span className="text-xs font-bold text-emerald-900 block mb-2">
             First Response SLA
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-emerald-600">98.4%</span>
-            <span className="text-sm font-semibold text-slate-500">on-time</span>
+            <span className="text-3xl font-black text-emerald-600">98.4%</span>
+            <span className="text-sm font-semibold text-emerald-700">on-time</span>
           </div>
-          <p className="text-xs text-slate-500 mt-2">Target benchmark: &gt;95%</p>
+          <p className="text-xs text-emerald-700/80 mt-2 font-medium">Target benchmark: &gt;95%</p>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-subtle">
-          <span className="text-xs font-semibold text-slate-500 block mb-2">
+        <div className="bg-gradient-to-br from-purple-50/90 via-white to-indigo-50/40 border border-purple-200/90 rounded-xl p-5 shadow-2xs hover:shadow-md transition-all">
+          <span className="text-xs font-bold text-purple-900 block mb-2">
             Resolution Ratio
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-blue-600">
+            <span className="text-3xl font-black text-purple-600">
               {data.metrics.totalTickets > 0
                 ? `${Math.round((data.metrics.resolvedTickets / data.metrics.totalTickets) * 100)}%`
                 : '100%'}
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-2">
+          <p className="text-xs text-purple-700/80 mt-2 font-medium">
             {data.metrics.resolvedTickets} of {data.metrics.totalTickets} total tasks closed
           </p>
         </div>
