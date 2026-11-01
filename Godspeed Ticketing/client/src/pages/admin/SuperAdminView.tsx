@@ -416,7 +416,7 @@ export const SuperAdminView: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-extrabold tracking-tight">QubixDesk Platform Owner</h1>
+              <h1 className="text-sm font-extrabold tracking-tight">Godspeed Desk Platform Owner</h1>
               <span className="bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-mono px-2 py-0.2 rounded-full font-bold">
                 ROOT SUPER ADMIN
               </span>

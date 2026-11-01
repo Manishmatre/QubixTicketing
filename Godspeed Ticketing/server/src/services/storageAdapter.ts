@@ -82,7 +82,7 @@ export const processUploadedFile = async (
   if (isCloudinaryConfigured) {
     try {
       const res = await cloudinary.uploader.upload(file.path, {
-        folder: 'qubix-attachments',
+        folder: 'godspeed-attachments',
         resource_type: 'auto',
       });
       // Optionally cleanup local temp file

@@ -10,7 +10,7 @@ import { Project } from '../models/Project.js';
 import { Ticket } from '../models/Ticket.js';
 import { generateAccessToken } from '../utils/jwt.js';
 
-describe('QUBIX Multi-Tenant Isolation & Security Tests', () => {
+describe('Godspeed Multi-Tenant Isolation & Security Tests', () => {
   let app: any;
   let userA: any;
   let userB: any;

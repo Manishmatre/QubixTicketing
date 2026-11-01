@@ -123,7 +123,7 @@ export const OnboardingPage: React.FC = () => {
       <div className="mb-6 text-center">
         <img
           src="/logo.png"
-          alt="QubixDesk"
+          alt="Godspeed Desk"
           className="h-10 mx-auto object-contain"
         />
         <p className="text-xs text-slate-500 mt-1 font-medium">
@@ -185,7 +185,7 @@ export const OnboardingPage: React.FC = () => {
                   {companyName && (
                     <p className="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1 font-mono">
                       <Globe className="w-3 h-3 text-blue-500" />
-                      Workspace URL: <span className="text-blue-600 font-bold">qubixdesk.toolio.tech/workspace/{generatedSlug}</span>
+                      Workspace URL: <span className="text-blue-600 font-bold">ticketing.godspeedhomesales.com/workspace/{generatedSlug}</span>
                     </p>
                   )}
                 </div>
@@ -394,7 +394,7 @@ export const OnboardingPage: React.FC = () => {
 
             <div className="space-y-2">
               <h2 className="text-2xl font-black tracking-tight text-white">
-                🎉 Welcome to QubixDesk!
+                🎉 Welcome to Godspeed Desk!
               </h2>
               <p className="text-xs text-slate-400">
                 Setting up your isolated workspace: <strong className="text-blue-400">{companyName}</strong>

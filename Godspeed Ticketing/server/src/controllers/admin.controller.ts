@@ -654,12 +654,12 @@ export const getPlatformSettings = async (_req: Request, res: Response): Promise
         maintenanceMode: false,
         announcementBanner: {
           enabled: false,
-          message: 'Welcome to QubixDesk 2.0! Real-time issue tracking active.',
+          message: 'Welcome to Godspeed Operations Desk! Real-time property deliverables and task tracking active.',
           type: 'info',
         },
         allowRegistrations: true,
-        defaultPlan: 'free',
-        supportEmail: 'support@qubixdesk.toolio.tech',
+        defaultPlan: 'enterprise',
+        supportEmail: 'andrewfarley@godspeedhomesales.com',
       });
     }
 

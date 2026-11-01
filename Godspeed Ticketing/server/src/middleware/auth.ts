@@ -13,8 +13,8 @@ export const requireAuth = async (
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.split(' ')[1];
-    } else if (req.cookies && (req.cookies.godspeed_token || req.cookies.qubix_token)) {
-      token = req.cookies.godspeed_token || req.cookies.qubix_token;
+    } else if (req.cookies && req.cookies.godspeed_token) {
+      token = req.cookies.godspeed_token;
     }
 
     if (!token) {

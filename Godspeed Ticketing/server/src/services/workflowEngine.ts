@@ -144,7 +144,7 @@ export class WorkflowEngine {
           if (recipientUser && recipientUser.email) {
             await emailService.sendEmail({
               to: recipientUser.email,
-              subject: action.params.subject || `[QubixDesk Alert] Ticket ${ticket.ticketNumber}`,
+              subject: action.params.subject || `[Godspeed Alert] Ticket ${ticket.ticketNumber}`,
               text:
                 action.params.body ||
                 `Ticket ${ticket.ticketNumber}: "${ticket.title}" has been updated by automated workflow rule.`,

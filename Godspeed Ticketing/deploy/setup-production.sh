@@ -2,18 +2,18 @@
 set -e
 
 echo "=========================================================="
-echo "🚀 QubixDesk Production Setup & Live Deployment"
-echo "   Domain: qubixdesk.toolio.tech"
+echo "🚀 Godspeed Desk Production Setup & Live Deployment"
+echo "   Domain: ticketing.godspeedhomesales.com"
 echo "   Server IP: 2.25.126.135"
 echo "   Backend Port: 4050"
 echo "=========================================================="
 
 APP_DIR="/var/www/QubixTicketing"
 CLIENT_DIST="$APP_DIR/client/dist"
-NGINX_CONF_AVAILABLE="/etc/nginx/sites-available/qubixdesk.toolio.tech"
-NGINX_CONF_ENABLED="/etc/nginx/sites-enabled/qubixdesk.toolio.tech"
-SSL_CERT="/etc/letsencrypt/live/qubixdesk.toolio.tech/fullchain.pem"
-SSL_KEY="/etc/letsencrypt/live/qubixdesk.toolio.tech/privkey.pem"
+NGINX_CONF_AVAILABLE="/etc/nginx/sites-available/ticketing.godspeedhomesales.com"
+NGINX_CONF_ENABLED="/etc/nginx/sites-enabled/ticketing.godspeedhomesales.com"
+SSL_CERT="/etc/letsencrypt/live/ticketing.godspeedhomesales.com/fullchain.pem"
+SSL_KEY="/etc/letsencrypt/live/ticketing.godspeedhomesales.com/privkey.pem"
 
 cd "$APP_DIR"
 
@@ -39,16 +39,16 @@ cd "$APP_DIR"
 echo "⚙️ [2/5] Configuring Nginx..."
 if [ -f "$SSL_CERT" ] && [ -f "$SSL_KEY" ]; then
     echo "   🔒 SSL certificate detected. Deploying full HTTPS configuration."
-    cp "$APP_DIR/deploy/nginx-qubixdesk.conf" "$NGINX_CONF_AVAILABLE"
+    cp "$APP_DIR/deploy/nginx-godspeed.conf" "$NGINX_CONF_AVAILABLE"
 else
     echo "   ⚠️ SSL certificate not found. Deploying HTTP-only configuration..."
     cat > "$NGINX_CONF_AVAILABLE" << 'EOF'
 server {
     listen 80;
     listen [::]:80;
-    server_name qubixdesk.toolio.tech;
+    server_name ticketing.godspeedhomesales.com;
 
-    root /var/www/QubixTicketing/client/dist;
+    root "/var/www/QubixTicketing/Godspeed Ticketing/client/dist";
     index index.html;
 
     gzip on;
@@ -118,7 +118,7 @@ echo "🩺 [5/5] Checking service health..."
 sleep 2
 
 API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:4050/health || echo "DOWN")
-WEB_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -k https://qubixdesk.toolio.tech || echo "DOWN")
+WEB_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -k https://ticketing.godspeedhomesales.com || echo "DOWN")
 
 echo "=========================================================="
 echo "📊 System Status Summary:"
@@ -126,6 +126,6 @@ echo "   • Nginx: Active & Running"
 echo "   • Backend API (Port 4050): HTTP $API_STATUS"
 echo "   • Web Frontend: HTTP $WEB_STATUS"
 echo ""
-echo "✨ QubixDesk is LIVE at: https://qubixdesk.toolio.tech"
+echo "✨ Godspeed Desk is LIVE at: https://ticketing.godspeedhomesales.com"
 echo "=========================================================="
 

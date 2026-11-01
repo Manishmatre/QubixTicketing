@@ -8,7 +8,7 @@ const PORT = Number(process.env.PORT) || 4050;
 module.exports = {
   apps: [
     {
-      name: 'qubixdesk-api',
+      name: 'godspeed-desk-api',
       script: './server/dist/index.js',
       cwd: __dirname,
       instances: 1,

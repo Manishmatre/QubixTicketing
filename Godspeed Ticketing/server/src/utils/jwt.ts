@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'qubix_enterprise_jwt_super_secret_key_2026_xyz!';
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'qubix_enterprise_refresh_super_secret_key_2026_xyz!';
+const JWT_SECRET = process.env.JWT_SECRET || 'godspeed_enterprise_jwt_super_secret_key_2026_xyz!';
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'godspeed_enterprise_refresh_super_secret_key_2026_xyz!';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
 

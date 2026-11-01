@@ -63,7 +63,7 @@ export class EmailAdapter {
       }
     } else {
       // Mock mode logging
-      console.log(`\n================== [QUBIXDESK OUTGOING EMAIL - TEST MODE] ==================`);
+      console.log(`\n================== [GODSPEED OUTGOING EMAIL - TEST MODE] ==================`);
       console.log(`To: ${options.to}`);
       console.log(`Subject: ${options.subject}`);
       console.log(`Content:\n${options.text}`);
@@ -234,7 +234,7 @@ export class EmailAdapter {
           </p>
           <div style="background: #ffffff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 14px 18px; margin: 16px 0;">
             <p style="font-size: 13px; color: #475569; margin: 0; line-height: 1.5;">
-              ✨ <strong>Multi-Workspace Tip:</strong> Since you already have an active QubixDesk account, you can easily switch between your companies anytime using the <strong>Workspace Switcher</strong> in the dashboard navigation!
+              ✨ Log in to your Godspeed Operations account anytime using the direct link below.
             </p>
           </div>
           <div style="text-align: center; margin: 24px 0 16px 0;">

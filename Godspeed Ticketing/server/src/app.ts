@@ -43,8 +43,6 @@ export const createApp = (): Express => {
     ...envClientOrigins,
     'https://ticketing.godspeedhomesales.com',
     'http://ticketing.godspeedhomesales.com',
-    'https://qubixdesk.toolio.tech',
-    'http://qubixdesk.toolio.tech',
     'http://2.25.126.135',
     'http://localhost:5173',
     'http://localhost:5174',
@@ -60,7 +58,6 @@ export const createApp = (): Express => {
           !origin ||
           allowedOrigins.includes(origin) ||
           origin.endsWith('.godspeedhomesales.com') ||
-          origin.endsWith('.toolio.tech') ||
           origin.includes('localhost') ||
           origin.includes('127.0.0.1')
         ) {

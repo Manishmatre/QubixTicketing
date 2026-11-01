@@ -2,7 +2,7 @@
 set -e
 
 echo "========================================================"
-echo "🚀 Deploying QubixDesk on qubixdesk.toolio.tech"
+echo "🚀 Deploying Godspeed Desk on ticketing.godspeedhomesales.com"
 echo "   Server IP: 2.25.126.135"
 echo "========================================================"
 
@@ -25,6 +25,6 @@ else
 fi
 
 echo "========================================================"
-echo "✨ QubixDesk is running and live at: https://qubixdesk.toolio.tech"
+echo "✨ Godspeed Desk is running and live at: https://ticketing.godspeedhomesales.com"
 echo "========================================================"
 

@@ -23,7 +23,7 @@ export const SuperAdminLoginPage: React.FC = () => {
 
     if (res.success) {
       // Check if user is super admin
-      const token = localStorage.getItem('qubix_access_token');
+      const token = localStorage.getItem('godspeed_access_token');
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
@@ -44,7 +44,7 @@ export const SuperAdminLoginPage: React.FC = () => {
   };
 
   const fillSuperAdmin = () => {
-    setEmail('admin@qubix.io');
+    setEmail('admin@godspeedhomesales.com');
     setPassword('Password123!');
   };
 
@@ -56,7 +56,7 @@ export const SuperAdminLoginPage: React.FC = () => {
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
         <div className="text-center space-y-3">
           <div className="bg-white/95 p-2 rounded-xl inline-block shadow-md mx-auto">
-            <img src="/logo.png" alt="QubixDesk" className="h-7 w-auto object-contain" />
+            <img src="/logo.png" alt="Godspeed Desk" className="h-7 w-auto object-contain" />
           </div>
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-md">
@@ -83,7 +83,7 @@ export const SuperAdminLoginPage: React.FC = () => {
         <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex items-center justify-between text-xs">
           <div>
             <span className="font-bold text-slate-300 block">Super Admin Demo</span>
-            <span className="text-[11px] text-slate-400 font-mono">admin@qubix.io</span>
+            <span className="text-[11px] text-slate-400 font-mono">admin@godspeedhomesales.com</span>
           </div>
           <button
             type="button"
@@ -110,7 +110,7 @@ export const SuperAdminLoginPage: React.FC = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@qubix.io"
+              placeholder="admin@godspeedhomesales.com"
               required
               className="w-full bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
             />

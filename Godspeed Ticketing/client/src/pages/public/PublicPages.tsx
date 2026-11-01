@@ -197,20 +197,20 @@ export const LandingPage: React.FC = () => {
 
   const faqs = [
     {
-      q: 'How does QubixDesk enforce true multi-tenant data isolation?',
+      q: 'How does Godspeed Desk enforce true multi-tenant data isolation?',
       a: 'Every organization is provisioned with a mathematically isolated workspace. Tenant context is validated in backend middleware and injected directly into Mongoose database queries using compound indexes on { organizationId, _id }. Cross-tenant queries are blocked before reaching the database, ensuring zero possibility of cross-organization data leakage.',
     },
     {
       q: 'Can external clients or reporters view internal team comments?',
-      a: 'Never. QubixDesk enforces strict role separation. Internal notes and discussion threads are accessible exclusively to internal employees, leads, and administrators. External reporters and clients see only sanitized public replies.',
+      a: 'Never. Godspeed Desk enforces strict role separation. Internal notes and discussion threads are accessible exclusively to internal employees, leads, and administrators. External reporters and clients see only sanitized public replies.',
     },
     {
       q: 'How do real-time updates work across team members?',
-      a: 'QubixDesk runs a dedicated Socket.IO event engine. When a ticket is moved on the Kanban board, assigned, or updated, events are broadcast directly to the specific organization channel (org_${organizationId}). All team members see immediate updates on their screens without refreshing.',
+      a: 'Godspeed Desk runs a dedicated Socket.IO event engine. When a ticket is moved on the Kanban board, assigned, or updated, events are broadcast directly to the specific organization channel (org_${organizationId}). All team members see immediate updates on their screens without refreshing.',
     },
     {
       q: 'Can we automate assignments when critical or urgent bugs occur?',
-      a: 'Yes! The QubixDesk Workflow Engine enables conditional rules without writing any code. For example, configure rules like: "IF Priority becomes Critical THEN Auto-Assign to Tech Lead AND send immediate email notification AND tag #escalated".',
+      a: 'Yes! The Godspeed Desk Workflow Engine enables conditional rules without writing any code. For example, configure rules like: "IF Priority becomes Critical THEN Auto-Assign to Tech Lead AND send immediate email notification AND tag #escalated".',
     },
     {
       q: 'Can we export reports for management or executive audits?',
@@ -218,7 +218,7 @@ export const LandingPage: React.FC = () => {
     },
     {
       q: 'How quickly can our team get started?',
-      a: 'In less than 2 minutes. The guided 5-step onboarding wizard lets you name your organization, pick a workspace slug (qubixdesk.io/your-company), select a starter project, invite team members, and create your first ticket immediately.',
+      a: 'In less than 2 minutes. The guided 5-step onboarding wizard lets you name your organization, pick a workspace slug (godspeedhomesales.com/your-company), select a starter project, invite team members, and create your first ticket immediately.',
     },
   ];
 
@@ -235,7 +235,7 @@ export const LandingPage: React.FC = () => {
       <div className="relative z-10 bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 text-white text-[11px] font-semibold py-2 px-4 text-center flex items-center justify-center gap-2">
         <Sparkles className="w-3.5 h-3.5 text-blue-200 shrink-0" />
         <span>
-          Announcing <strong>QubixDesk 2.0</strong> — Multi-Tenant Architecture, SLA Automations, and Real-Time WebSocket Collaboration.
+          Announcing <strong>Godspeed Operations Desk</strong> — Multi-Tenant Architecture, SLA Automations, and Real-Time WebSocket Collaboration.
         </span>
         <Link to="/register" className="underline font-bold text-white hover:text-blue-100 ml-1">
           Explore Free &rarr;
@@ -248,7 +248,7 @@ export const LandingPage: React.FC = () => {
           <Link to="/" className="flex items-center group">
             <img
               src="/logo.png"
-              alt="QubixDesk - Work Smarter. Track Better. Deliver Faster."
+              alt="Godspeed Desk - Work Smarter. Track Better. Deliver Faster."
               className="h-8 sm:h-9 w-auto object-contain group-hover:scale-102 transition-transform"
             />
           </Link>
@@ -349,7 +349,7 @@ export const LandingPage: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="text-base sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-normal"
         >
-          QubixDesk unifies project management, issue tracking, and client helpdesk into one ultra-fast, multi-tenant workspace. Built with strict data isolation, real-time collaboration, and intelligent workflow automation.
+          Godspeed Desk unifies project management, issue tracking, and client helpdesk into one ultra-fast, multi-tenant workspace. Built with strict data isolation, real-time collaboration, and intelligent workflow automation.
         </motion.p>
 
         <motion.div
@@ -452,7 +452,7 @@ export const LandingPage: React.FC = () => {
               </div>
               <span className="text-xs font-mono text-slate-500 ml-2 bg-white px-2.5 py-0.5 rounded border border-slate-200 flex items-center gap-1.5">
                 <Lock className="w-3 h-3 text-emerald-600" />
-                https://qubixdesk.toolio.tech/workspace/{activeDemoTab}
+                https://ticketing.godspeedhomesales.com/workspace/{activeDemoTab}
               </span>
             </div>
 
@@ -1261,9 +1261,9 @@ export const LandingPage: React.FC = () => {
       <section id="comparison" className="py-24 bg-white border-t border-slate-200 px-6 sm:px-8">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="text-xs font-bold text-blue-600 uppercase tracking-wider">Why Choose QubixDesk?</h2>
+            <h2 className="text-xs font-bold text-blue-600 uppercase tracking-wider">Why Choose Godspeed Desk?</h2>
             <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              How QubixDesk Outperforms Legacy Platforms
+              How Godspeed Desk Outperforms Legacy Platforms
             </h3>
             <p className="text-sm text-slate-500">
               Clean architecture, sub-100ms response times, and zero unnecessary configuration bloat.
@@ -1275,7 +1275,7 @@ export const LandingPage: React.FC = () => {
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-700">
                 <tr>
                   <th className="py-4 px-6 font-bold">Platform Capability</th>
-                  <th className="py-4 px-6 font-extrabold text-blue-600 bg-blue-50/50">QubixDesk</th>
+                  <th className="py-4 px-6 font-extrabold text-blue-600 bg-blue-50/50">Godspeed Desk</th>
                   <th className="py-4 px-6 font-semibold text-slate-500">Legacy Jira</th>
                   <th className="py-4 px-6 font-semibold text-slate-500">Zendesk</th>
                 </tr>
@@ -1333,7 +1333,7 @@ export const LandingPage: React.FC = () => {
                 {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
               </div>
               <p className="text-slate-600 italic leading-relaxed">
-                "QubixDesk cut our sprint bug turnaround time by almost half. The real-time Kanban board and protected internal notes make collaborating with clients painless."
+                "Godspeed Desk cut our sprint bug turnaround time by almost half. The real-time Kanban board and protected internal notes make collaborating with clients painless."
               </p>
               <div className="pt-2 border-t flex items-center gap-3">
                 <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" className="w-9 h-9 rounded-full object-cover" alt="Sarah" />
@@ -1349,7 +1349,7 @@ export const LandingPage: React.FC = () => {
                 {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
               </div>
               <p className="text-slate-600 italic leading-relaxed">
-                "We replaced three separate disjointed tools with QubixDesk. The workflow engine auto-assigns urgent tickets immediately, and the PDF executive reports save us hours of prep."
+                "We replaced three separate disjointed tools with Godspeed Desk. The workflow engine auto-assigns urgent tickets immediately, and the PDF executive reports save us hours of prep."
               </p>
               <div className="pt-2 border-t flex items-center gap-3">
                 <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100" className="w-9 h-9 rounded-full object-cover" alt="Alex" />
@@ -1562,7 +1562,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-3xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Frequently Asked Questions</h3>
-            <p className="text-xs text-slate-500">Everything you need to know about getting started with QubixDesk.</p>
+            <p className="text-xs text-slate-500">Everything you need to know about getting started with Godspeed Desk.</p>
           </div>
 
           <div className="space-y-3">
@@ -1594,7 +1594,7 @@ export const LandingPage: React.FC = () => {
             <div className="bg-white/95 p-2 rounded-xl inline-block shadow-sm">
               <img
                 src="/logo.png"
-                alt="QubixDesk"
+                alt="Godspeed Desk"
                 className="h-7 w-auto object-contain"
               />
             </div>
@@ -1647,7 +1647,7 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="max-w-6xl mx-auto pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-          <span>&copy; {new Date().getFullYear()} QubixDesk Technologies Inc. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} GodSpeed Home Sales Inc. All rights reserved.</span>
           <div className="flex gap-6">
             <span className="hover:text-slate-400 cursor-pointer">Privacy Policy</span>
             <span className="hover:text-slate-400 cursor-pointer">Terms of Service</span>
