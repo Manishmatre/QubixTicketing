@@ -15,11 +15,29 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
-        PORT: PORT,
+        PORT: 4050,
       },
       env_production: {
         NODE_ENV: 'production',
-        PORT: PORT,
+        PORT: 4050,
+      },
+      max_memory_restart: '800M',
+      autorestart: true,
+      watch: false,
+    },
+    {
+      name: 'godspeed-desk-api',
+      script: './dist/index.js',
+      cwd: path.resolve(__dirname, 'Godspeed Ticketing/server'),
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 4060,
+      },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 4060,
       },
       max_memory_restart: '800M',
       autorestart: true,

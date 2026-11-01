@@ -1,0 +1,28 @@
+{
+  "name": "godspeed-ticketing",
+  "version": "1.0.0",
+  "description": "Godspeed Dedicated Operations & Ticketing Portal",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev:server": "npm --workspace=server run dev",
+    "dev:client": "npm --workspace=client run dev",
+    "dev": "node dev-all.js",
+    "build:server": "npm --workspace=server run build",
+    "build:client": "npm --workspace=client run build",
+    "build": "npm run build:server && npm run build:client",
+    "start": "node server/dist/index.js",
+    "test:server": "npm --workspace=server run test",
+    "seed": "npm --workspace=server run seed",
+    "purge:demo": "npm --workspace=server run purge:demo"
+  },
+  "overrides": {
+    "dompurify": "^3.2.4",
+    "nodemailer": "^6.10.0"
+  }
+}
+
