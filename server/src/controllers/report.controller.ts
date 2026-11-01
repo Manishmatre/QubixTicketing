@@ -57,7 +57,8 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
         .populate('userId', 'name email avatarUrl')
         .populate('ticketId', 'ticketNumber title')
         .sort({ createdAt: -1 })
-        .limit(10),
+        .limit(10)
+        .lean(),
     ]);
 
     // Priority Distribution
@@ -90,7 +91,8 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     // Team Workload
     const members = await OrganizationMembership.find({ organizationId: orgId, status: 'active' })
       .populate('userId', 'name email avatarUrl')
-      .limit(10);
+      .limit(10)
+      .lean();
 
     const workloadList = await Promise.all(
       members.map(async (m: any) => {

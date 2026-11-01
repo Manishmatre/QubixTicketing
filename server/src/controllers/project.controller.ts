@@ -23,7 +23,8 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
     const projects = await Project.find(tenantScope(req, filter))
       .populate('projectManagerId', 'name email avatarUrl')
       .populate('members.userId', 'name email avatarUrl')
-      .sort({ updatedAt: -1 });
+      .sort({ updatedAt: -1 })
+      .lean();
 
     res.json({ success: true, data: projects });
   } catch (err: any) {
@@ -268,6 +269,57 @@ export const addProjectMilestone = async (req: Request, res: Response): Promise<
 
     await project.save();
     res.status(201).json({ success: true, data: project.milestones });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const updateProjectMilestone = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id, milestoneId } = req.params;
+    const { title, description, dueDate, completed } = req.body;
+
+    const project = await Project.findOne(tenantScope(req, { _id: id }));
+    if (!project) {
+      res.status(404).json({ success: false, error: { message: 'Project not found' } });
+      return;
+    }
+
+    const ms = (project.milestones as any).id(milestoneId);
+    if (!ms) {
+      res.status(404).json({ success: false, error: { message: 'Milestone not found' } });
+      return;
+    }
+
+    if (title !== undefined) ms.title = title.trim();
+    if (description !== undefined) ms.description = description.trim();
+    if (dueDate !== undefined) ms.dueDate = new Date(dueDate);
+    if (completed !== undefined) {
+      ms.completed = Boolean(completed);
+      ms.completedAt = completed ? new Date() : undefined;
+    }
+
+    await project.save();
+    res.json({ success: true, data: project.milestones });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: { message: err.message } });
+  }
+};
+
+export const deleteProjectMilestone = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id, milestoneId } = req.params;
+
+    const project = await Project.findOne(tenantScope(req, { _id: id }));
+    if (!project) {
+      res.status(404).json({ success: false, error: { message: 'Project not found' } });
+      return;
+    }
+
+    project.milestones = project.milestones.filter((m: any) => m._id.toString() !== milestoneId);
+    await project.save();
+
+    res.json({ success: true, data: project.milestones });
   } catch (err: any) {
     res.status(500).json({ success: false, error: { message: err.message } });
   }

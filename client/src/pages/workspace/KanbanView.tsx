@@ -72,6 +72,8 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   const { user, organization } = useAuth();
   const { socket } = useSocket();
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [projects, setProjects] = useState<Array<{ _id: string; name: string; key: string }>>([]);
+  const [projectFilter, setProjectFilter] = useState<string>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
@@ -107,6 +109,17 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
   useEffect(() => {
     fetchTickets();
+    const fetchProjects = async () => {
+      try {
+        const res = await apiClient.get('/projects');
+        if (res.data.success) {
+          setProjects(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load projects for kanban:', err);
+      }
+    };
+    fetchProjects();
   }, []);
 
   // Real-time socket sync
@@ -192,6 +205,10 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   };
 
   const filteredTickets = tickets.filter((t) => {
+    if (projectFilter !== 'all') {
+      const pId = t.projectId?._id || (t.projectId as any)?.id || (typeof t.projectId === 'string' ? t.projectId : null);
+      if (pId !== projectFilter) return false;
+    }
     if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
     if (categoryFilter !== 'all' && t.category !== categoryFilter) return false;
     if (searchFilter) {
@@ -253,6 +270,22 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       {/* Sub-Toolbar: Clean Minimalist Filter Bar */}
       <div className="px-5 py-2.5 border-b border-slate-200/90 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 bg-white dark:bg-slate-900 text-xs shadow-2xs">
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">Project:</span>
+            <select
+              value={projectFilter}
+              onChange={(e) => setProjectFilter(e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 dark:text-slate-200 outline-none cursor-pointer hover:border-slate-300 dark:hover:border-slate-600 transition-colors max-w-44 truncate"
+            >
+              <option value="all">All Projects</option>
+              {projects.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.name} ({p.key})
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex items-center gap-2">
             <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">Priority:</span>
             <select

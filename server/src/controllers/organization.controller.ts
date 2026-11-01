@@ -307,18 +307,24 @@ export const getMembers = async (req: Request, res: Response): Promise<void> => 
       organizationId: req.organizationId,
     })
       .populate('userId', 'name email avatarUrl lastLoginAt')
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1 })
+      .lean();
 
     // Calculate workload / assigned tickets per member
     const tickets = await Ticket.find({
       organizationId: req.organizationId,
       status: { $nin: ['Resolved', 'Closed'] },
-    }).select('assigneeId');
+    }).select('assigneeId assigneeIds').lean();
 
     const workloadMap: Record<string, number> = {};
     for (const t of tickets) {
-      if (t.assigneeId) {
-        const idStr = t.assigneeId.toString();
+      const ids: string[] = [];
+      if (t.assigneeIds && t.assigneeIds.length > 0) {
+        t.assigneeIds.forEach((a: any) => ids.push(a.toString()));
+      } else if (t.assigneeId) {
+        ids.push(t.assigneeId.toString());
+      }
+      for (const idStr of ids) {
         workloadMap[idStr] = (workloadMap[idStr] || 0) + 1;
       }
     }

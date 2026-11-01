@@ -61,6 +61,14 @@ export const ProjectDetailsPage: React.FC = () => {
   const [milestoneDueDate, setMilestoneDueDate] = useState('');
   const [isAddingMilestone, setIsAddingMilestone] = useState(false);
 
+  // Edit Milestone Form
+  const [editingMilestone, setEditingMilestone] = useState<any>(null);
+  const [isEditMilestoneModalOpen, setIsEditMilestoneModalOpen] = useState(false);
+  const [editMilestoneTitle, setEditMilestoneTitle] = useState('');
+  const [editMilestoneDesc, setEditMilestoneDesc] = useState('');
+  const [editMilestoneDueDate, setEditMilestoneDueDate] = useState('');
+  const [isUpdatingMilestone, setIsUpdatingMilestone] = useState(false);
+
   // New Member Form
   const [orgMembers, setOrgMembers] = useState<any[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState('');
@@ -158,6 +166,63 @@ export const ProjectDetailsPage: React.FC = () => {
       alert(err.response?.data?.error?.message || 'Failed to add milestone');
     } finally {
       setIsAddingMilestone(false);
+    }
+  };
+
+  const handleToggleMilestone = async (mId: string, currentCompleted: boolean) => {
+    if (!project) return;
+    try {
+      const res = await apiClient.patch(`/projects/${project._id}/milestones/${mId}`, {
+        completed: !currentCompleted,
+      });
+      if (res.data.success) {
+        setProject((prev) => (prev ? { ...prev, milestones: res.data.data } : prev));
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to update milestone');
+    }
+  };
+
+  const handleOpenEditMilestone = (m: any) => {
+    setEditingMilestone(m);
+    setEditMilestoneTitle(m.title || '');
+    setEditMilestoneDesc(m.description || '');
+    setEditMilestoneDueDate(m.dueDate ? m.dueDate.split('T')[0] : '');
+    setIsEditMilestoneModalOpen(true);
+  };
+
+  const handleUpdateMilestone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!project || !editingMilestone || !editMilestoneTitle.trim() || !editMilestoneDueDate) return;
+    setIsUpdatingMilestone(true);
+    try {
+      const res = await apiClient.patch(`/projects/${project._id}/milestones/${editingMilestone._id}`, {
+        title: editMilestoneTitle.trim(),
+        description: editMilestoneDesc.trim(),
+        dueDate: editMilestoneDueDate,
+      });
+      if (res.data.success) {
+        setProject((prev) => (prev ? { ...prev, milestones: res.data.data } : prev));
+        setIsEditMilestoneModalOpen(false);
+        setEditingMilestone(null);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to save milestone changes');
+    } finally {
+      setIsUpdatingMilestone(false);
+    }
+  };
+
+  const handleDeleteMilestone = async (mId: string) => {
+    if (!project) return;
+    if (!confirm('Are you sure you want to permanently delete this milestone?')) return;
+    try {
+      const res = await apiClient.delete(`/projects/${project._id}/milestones/${mId}`);
+      if (res.data.success) {
+        setProject((prev) => (prev ? { ...prev, milestones: res.data.data } : prev));
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message || 'Failed to delete milestone');
     }
   };
 
@@ -566,30 +631,75 @@ export const ProjectDetailsPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {project.milestones.map((m, idx) => (
-                <div
-                  key={m._id || idx}
-                  className="bg-white border border-[#EAECF0] rounded-xl p-4 flex items-center justify-between gap-4 shadow-2xs"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-                      <Flag className="w-3.5 h-3.5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-xs">{m.title}</h4>
-                      {m.description && <p className="text-xs text-slate-500 mt-0.5">{m.description}</p>}
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-1 font-medium">
-                        <Calendar className="w-3 h-3" />
-                        <span>Due {format(new Date(m.dueDate), 'MMM d, yyyy')}</span>
+              {project.milestones.map((m: any, idx: number) => {
+                const isDone = Boolean(m.completed);
+                return (
+                  <div
+                    key={m._id || idx}
+                    className="bg-white dark:bg-slate-900 border border-[#EAECF0] dark:border-slate-800 rounded-xl p-4 flex items-center justify-between gap-4 shadow-2xs group hover:border-blue-300 dark:hover:border-blue-700 transition-all"
+                  >
+                    <div className="flex items-start gap-3 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleMilestone(m._id, isDone)}
+                        className="mt-0.5 shrink-0 cursor-pointer text-slate-400 hover:text-emerald-600 transition-colors"
+                        title={isDone ? 'Mark as in progress' : 'Mark as completed'}
+                      >
+                        {isDone ? (
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-slate-300 dark:text-slate-600 hover:text-blue-500" />
+                        )}
+                      </button>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className={`font-bold text-xs truncate ${isDone ? 'line-through text-slate-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                            {m.title}
+                          </h4>
+                          {isDone ? (
+                            <span className="bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <CheckCircle2 className="w-2.5 h-2.5" /> Completed
+                            </span>
+                          ) : (
+                            <span className="bg-sky-50 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              In Progress
+                            </span>
+                          )}
+                        </div>
+
+                        {m.description && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{m.description}</p>
+                        )}
+
+                        <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-1 font-medium">
+                          <Calendar className="w-3 h-3" />
+                          <span>Due {format(new Date(m.dueDate), 'MMM d, yyyy')}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <span className="bg-blue-50 text-blue-700 border border-blue-200/80 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    Active Target
-                  </span>
-                </div>
-              ))}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditMilestone(m)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                        title="Edit Milestone"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteMilestone(m._id)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
+                        title="Delete Milestone"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -754,6 +864,43 @@ export const ProjectDetailsPage: React.FC = () => {
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setIsMilestoneModalOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary" isLoading={isAddingMilestone}>Add Milestone</Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Modal: Edit Milestone */}
+      <Modal isOpen={isEditMilestoneModalOpen} onClose={() => setIsEditMilestoneModalOpen(false)} title="Edit Project Milestone">
+        <form onSubmit={handleUpdateMilestone} className="space-y-4 text-xs">
+          <Input
+            label="Milestone Title *"
+            value={editMilestoneTitle}
+            onChange={(e) => setEditMilestoneTitle(e.target.value)}
+            placeholder="e.g. Beta MVP Release"
+            required
+          />
+
+          <Input
+            label="Target Date *"
+            type="date"
+            value={editMilestoneDueDate}
+            onChange={(e) => setEditMilestoneDueDate(e.target.value)}
+            required
+          />
+
+          <div>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Description (Optional)</label>
+            <textarea
+              rows={2}
+              value={editMilestoneDesc}
+              onChange={(e) => setEditMilestoneDesc(e.target.value)}
+              placeholder="What deliverables are expected..."
+              className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-xs outline-none focus:border-blue-500 text-slate-800 dark:text-slate-200"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={() => setIsEditMilestoneModalOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="primary" isLoading={isUpdatingMilestone}>Save Milestone</Button>
           </div>
         </form>
       </Modal>

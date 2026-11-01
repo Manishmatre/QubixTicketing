@@ -16,6 +16,8 @@ import {
   Clock,
   ArrowRight,
   TrendingUp,
+  Trash2,
+  Edit2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -79,6 +81,21 @@ export const ProjectsView: React.FC = () => {
     }
   };
 
+  const handleDeleteProject = async (e: React.MouseEvent, projId: string, projName: string) => {
+    e.stopPropagation();
+    if (!confirm(`Are you sure you want to permanently delete project "${projName}" and all its tasks? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      const res = await apiClient.delete(`/projects/${projId}`);
+      if (res.data.success) {
+        setProjects((prev) => prev.filter((p) => p._id !== projId));
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete project');
+    }
+  };
+
   return (
     <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800">
       {/* Header */}
@@ -130,9 +147,19 @@ export const ProjectsView: React.FC = () => {
                         {proj.category || 'General'}
                       </span>
                     </div>
-                    <Badge variant={proj.status === 'active' ? 'success' : 'default'} size="sm">
-                      {proj.status}
-                    </Badge>
+                    <div className="flex items-center gap-1.5">
+                      <Badge variant={proj.status === 'active' ? 'success' : 'default'} size="sm">
+                        {proj.status}
+                      </Badge>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteProject(e, proj._id, proj.name)}
+                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded transition-all cursor-pointer"
+                        title="Delete project"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">

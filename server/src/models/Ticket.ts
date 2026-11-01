@@ -39,6 +39,13 @@ export interface ITicketLink {
   createdAt?: Date;
 }
 
+export interface ITicketSubtask {
+  id: string;
+  title: string;
+  done: boolean;
+  num?: string;
+}
+
 export interface ITicket extends Document {
   organizationId: mongoose.Types.ObjectId;
   projectId: mongoose.Types.ObjectId;
@@ -55,6 +62,7 @@ export interface ITicket extends Document {
   watchers: mongoose.Types.ObjectId[];
   tags: string[];
   links: ITicketLink[];
+  subtasks: ITicketSubtask[];
   dueDate?: Date;
   relatedTicketIds: mongoose.Types.ObjectId[];
   order: number;
@@ -132,6 +140,14 @@ const TicketSchema = new Schema<ITicket>(
         url: { type: String, required: true },
         type: { type: String, default: 'web' },
         createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    subtasks: [
+      {
+        id: { type: String, required: true },
+        title: { type: String, required: true },
+        done: { type: Boolean, default: false },
+        num: { type: String },
       },
     ],
     dueDate: { type: Date, index: true },

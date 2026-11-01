@@ -26,7 +26,7 @@ router.patch('/:id', requirePermission('changeTicketStatus'), updateTicket);
 router.patch('/:id/status', requirePermission('changeTicketStatus'), updateTicketStatus);
 router.post('/:id/links', requirePermission('createTickets'), addTicketLink);
 router.delete('/:id/links/:linkId', requirePermission('createTickets'), deleteTicketLink);
-router.delete('/:id', requirePermission('manageOrganization'), deleteTicket);
+router.delete('/:id', requirePermission('createTickets'), deleteTicket);
 
 export default router;
 

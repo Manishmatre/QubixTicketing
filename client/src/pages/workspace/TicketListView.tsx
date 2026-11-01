@@ -139,6 +139,22 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
     }
   };
 
+  const handleDeleteTicket = async (e: React.MouseEvent, tId: string, tNum: string) => {
+    e.stopPropagation();
+    if (!confirm(`Are you sure you want to permanently delete task "${tNum}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      const res = await apiClient.delete(`/tickets/${tId}`);
+      if (res.data.success) {
+        setTickets((prev) => prev.filter((t) => t._id !== tId));
+        setTotalCount((c) => Math.max(0, c - 1));
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete task');
+    }
+  };
+
   const handleExportCSV = async () => {
     try {
       const res = await apiClient.get('/reports/export-csv', { responseType: 'blob' });
@@ -288,20 +304,21 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
                   <th className="py-3 px-4 w-28 border-r border-[#EAECF0]/60">Priority</th>
                   <th className="py-3 px-4 w-40 border-r border-[#EAECF0]/60">Assignee</th>
                   <th className="py-3 px-4 w-32 border-r border-[#EAECF0]/60">Due Date</th>
-                  <th className="py-3 px-4 w-32">Created</th>
+                  <th className="py-3 px-4 w-32 border-r border-[#EAECF0]/60">Created</th>
+                  <th className="py-3 px-3 w-16 text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EAECF0] bg-white">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-16 text-slate-400">
+                    <td colSpan={10} className="text-center py-16 text-slate-400">
                       <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2" />
                       <p className="font-medium text-xs">Loading tickets...</p>
                     </td>
                   </tr>
                 ) : tickets.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-16 text-slate-400">
+                    <td colSpan={10} className="text-center py-16 text-slate-400">
                       <p className="font-semibold text-slate-600 text-sm">No tickets found</p>
                       <p className="text-xs text-slate-400 mt-1">Try adjusting your filters or create a new ticket.</p>
                     </td>
@@ -378,8 +395,18 @@ export const TicketListView: React.FC<TicketListViewProps> = ({
                       <td className="py-3 px-4 text-slate-600 whitespace-nowrap border-r border-[#EAECF0]/40">
                         {t.dueDate ? format(new Date(t.dueDate), 'MMM d, yyyy') : '-'}
                       </td>
-                      <td className="py-3 px-4 text-slate-400 whitespace-nowrap text-[11px]">
+                      <td className="py-3 px-4 text-slate-400 whitespace-nowrap text-[11px] border-r border-[#EAECF0]/40">
                         {format(new Date(t.createdAt), 'MMM d, yyyy')}
+                      </td>
+                      <td className="py-3 px-3 text-center whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteTicket(e, t._id, t.ticketNumber)}
+                          className="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                          title="Delete task"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </td>
                     </tr>
                   ))

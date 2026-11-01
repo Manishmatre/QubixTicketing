@@ -14,7 +14,8 @@ export const getAttachmentsByTicket = async (req: Request, res: Response): Promi
     const { ticketId } = req.params;
     const attachments = await TicketAttachment.find(tenantScope(req, { ticketId }))
       .populate('uploadedById', 'name email avatarUrl')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json({ success: true, data: attachments });
   } catch (err: any) {

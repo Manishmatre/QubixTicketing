@@ -7,6 +7,8 @@ import {
   deleteProject,
   addProjectMember,
   addProjectMilestone,
+  updateProjectMilestone,
+  deleteProjectMilestone,
 } from '../controllers/project.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireTenant } from '../middleware/tenantIsolation.js';
@@ -23,6 +25,8 @@ router.patch('/:id', requirePermission('editProjects'), updateProject);
 router.delete('/:id', requirePermission('deleteProjects'), deleteProject);
 router.post('/:id/members', requirePermission('editProjects'), addProjectMember);
 router.post('/:id/milestones', requirePermission('editProjects'), addProjectMilestone);
+router.patch('/:id/milestones/:milestoneId', requirePermission('editProjects'), updateProjectMilestone);
+router.delete('/:id/milestones/:milestoneId', requirePermission('editProjects'), deleteProjectMilestone);
 
 export default router;
 

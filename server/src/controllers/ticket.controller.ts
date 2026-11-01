@@ -73,7 +73,8 @@ export const getTickets = async (req: Request, res: Response): Promise<void> => 
         .populate('projectId', 'name key')
         .sort(sortOptions)
         .skip(skip)
-        .limit(limitNum),
+        .limit(limitNum)
+        .lean(),
       Ticket.countDocuments(tenantScope(req, filter)),
     ]);
 
@@ -234,7 +235,8 @@ export const getTicketById = async (req: Request, res: Response): Promise<void> 
       .populate('assigneeIds', 'name email avatarUrl designation')
       .populate('watchers', 'name email avatarUrl')
       .populate('projectId', 'name key priority status')
-      .populate('relatedTicketIds', 'ticketNumber title status priority');
+      .populate('relatedTicketIds', 'ticketNumber title status priority')
+      .lean();
 
     if (!ticket) {
       res.status(404).json({ success: false, error: { message: 'Ticket not found in this workspace' } });
@@ -262,6 +264,7 @@ export const updateTicket = async (req: Request, res: Response): Promise<void> =
       tags,
       watchers,
       resolutionSummary,
+      subtasks,
     } = req.body;
 
     const ticket = await Ticket.findOne(tenantScope(req, { _id: id }));
@@ -324,6 +327,7 @@ export const updateTicket = async (req: Request, res: Response): Promise<void> =
     if (tags) ticket.tags = tags;
     if (watchers) ticket.watchers = watchers;
     if (resolutionSummary !== undefined) ticket.resolutionSummary = resolutionSummary;
+    if (subtasks !== undefined) ticket.subtasks = subtasks;
 
     await ticket.save();
 
@@ -515,6 +519,18 @@ export const deleteTicket = async (req: Request, res: Response): Promise<void> =
     const ticket = await Ticket.findOne(tenantScope(req, { _id: id }));
     if (!ticket) {
       res.status(404).json({ success: false, error: { message: 'Ticket not found' } });
+      return;
+    }
+
+    const userRole = req.membershipRole || 'employee';
+    const isManager = ['owner', 'admin', 'project_manager'].includes(userRole) || req.user?.isSuperAdmin;
+    const isReporter = ticket.reporterId.toString() === req.user?._id.toString();
+
+    if (!isManager && !isReporter) {
+      res.status(403).json({
+        success: false,
+        error: { message: 'You do not have permission to delete this task.' },
+      });
       return;
     }
 

@@ -120,6 +120,8 @@ export const TicketDetailsPage: React.FC = () => {
     (ticket?.reporterId as any)?._id === currentUserId;
 
   const canUpdateTask = isManager || !!isAssigned;
+  const canDeleteTask = isManager || (ticket?.reporterId && (ticket.reporterId.id === currentUserId || (ticket.reporterId as any)._id === currentUserId));
+  const [isDeletingTask, setIsDeletingTask] = useState(false);
 
   const fetchTicketDetails = async (id: string) => {
     setIsLoading(true);
@@ -135,6 +137,9 @@ export const TicketDetailsPage: React.FC = () => {
         setTicket(tRes.data.data);
         setTitleValue(tRes.data.data.title);
         setDescValue(tRes.data.data.description || '');
+        if (tRes.data.data.subtasks && Array.isArray(tRes.data.data.subtasks)) {
+          setSubTickets(tRes.data.data.subtasks);
+        }
       }
       if (cRes.data.success) setComments(cRes.data.data);
       if (aRes.data.success) setAttachments(aRes.data.data);
@@ -320,30 +325,71 @@ export const TicketDetailsPage: React.FC = () => {
     }
   };
 
-  const toggleSubTicket = (id: string) => {
-    if (!canUpdateTask) {
+  const toggleSubTicket = async (id: string) => {
+    if (!canUpdateTask || !ticket) {
       alert('You can only update checklist items on tasks assigned to you.');
       return;
     }
-    setSubTickets((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, done: !s.done } : s))
-    );
+    const updated = subTickets.map((s) => (s.id === id ? { ...s, done: !s.done } : s));
+    setSubTickets(updated);
+    try {
+      await apiClient.patch(`/tickets/${ticket._id}`, { subtasks: updated });
+    } catch (err) {
+      console.error('Failed to toggle subtask:', err);
+    }
   };
 
-  const handleAddSubTicket = (e: React.FormEvent) => {
+  const handleAddSubTicket = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newSubTicketText.trim()) return;
-    setSubTickets((prev) => [
-      ...prev,
-      {
-        id: `sub-${Date.now()}`,
-        title: newSubTicketText.trim(),
-        done: false,
-        num: `QUB-${String(prev.length + 1).padStart(2, '0')}`,
-      },
-    ]);
+    if (!newSubTicketText.trim() || !ticket) return;
+    const newSub = {
+      id: `sub-${Date.now()}`,
+      title: newSubTicketText.trim(),
+      done: false,
+      num: `${ticket.ticketNumber || 'QUB'}-${String(subTickets.length + 1).padStart(2, '0')}`,
+    };
+    const updated = [...subTickets, newSub];
+    setSubTickets(updated);
     setNewSubTicketText('');
     setShowAddSubTicket(false);
+    try {
+      await apiClient.patch(`/tickets/${ticket._id}`, { subtasks: updated });
+    } catch (err) {
+      console.error('Failed to add subtask:', err);
+    }
+  };
+
+  const handleDeleteSubTicket = async (id: string) => {
+    if (!canUpdateTask || !ticket) return;
+    const updated = subTickets.filter((s) => s.id !== id);
+    setSubTickets(updated);
+    try {
+      await apiClient.patch(`/tickets/${ticket._id}`, { subtasks: updated });
+    } catch (err) {
+      console.error('Failed to delete subtask:', err);
+    }
+  };
+
+  const handleDeleteTask = async () => {
+    if (!ticket) return;
+    if (!canDeleteTask) {
+      alert('Only project managers or the reporter can delete this task.');
+      return;
+    }
+    if (!confirm(`Are you sure you want to permanently delete task "${ticket.ticketNumber}: ${ticket.title}"? This cannot be undone.`)) {
+      return;
+    }
+    setIsDeletingTask(true);
+    try {
+      const res = await apiClient.delete(`/tickets/${ticket._id}`);
+      if (res.data.success) {
+        navigate('/workspace/tickets');
+      }
+    } catch (err: any) {
+      console.error('Failed to delete ticket:', err);
+      alert(err.response?.data?.error?.message || err.response?.data?.message || 'Failed to delete task');
+      setIsDeletingTask(false);
+    }
   };
 
   const completedSubTicketsCount = subTickets.filter((s) => s.done).length;
@@ -407,22 +453,15 @@ export const TicketDetailsPage: React.FC = () => {
   const [showAssignDropdown, setShowAssignDropdown] = useState(false);
   const [isUpdatingAssignees, setIsUpdatingAssignees] = useState(false);
 
-  const getCurrentAssigneeIds = (): string[] => {
-    if (!ticket) return [];
-    if (ticket.assigneeIds && ticket.assigneeIds.length > 0) {
-      return ticket.assigneeIds.map((a: any) => a.id || a._id).filter(Boolean);
-    }
-    if (ticket.assigneeId) {
-      const id = (ticket.assigneeId as any).id || (ticket.assigneeId as any)._id;
-      return id ? [id] : [];
-    }
-    return [];
-  };
-
   const allAssignees = ticket ? ((ticket.assigneeIds && ticket.assigneeIds.length > 0)
     ? ticket.assigneeIds
     : (ticket.assigneeId ? [ticket.assigneeId] : [])) : [];
-  const allAssigneeIds = getCurrentAssigneeIds();
+
+  const allAssigneeIds: string[] = allAssignees.map((a: any) => a.id || a._id).filter(Boolean);
+
+  const getCurrentAssigneeIds = (): string[] => {
+    return allAssigneeIds;
+  };
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -690,9 +729,24 @@ export const TicketDetailsPage: React.FC = () => {
               <span>Back to Board</span>
             </button>
 
-            <span className="font-mono text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-md">
-              {ticket.ticketNumber}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-900 px-2 py-0.5 rounded-md">
+                {ticket.ticketNumber}
+              </span>
+
+              {canDeleteTask && (
+                <button
+                  type="button"
+                  onClick={handleDeleteTask}
+                  disabled={isDeletingTask}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-900 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                  title="Delete Task"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{isDeletingTask ? 'Deleting...' : 'Delete Task'}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Title Area */}
@@ -827,18 +881,36 @@ export const TicketDetailsPage: React.FC = () => {
                 {subTickets.map((st) => (
                   <div
                     key={st.id}
-                    onClick={() => toggleSubTicket(st.id)}
-                    className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-50 cursor-pointer group transition-colors text-xs"
+                    className="flex items-center justify-between gap-2.5 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/60 group transition-colors text-xs"
                   >
-                    <span className="text-[10px] font-mono text-slate-400">{st.num}</span>
-                    {st.done ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    ) : (
-                      <Circle className="w-4 h-4 text-slate-300 group-hover:text-blue-500 shrink-0" />
+                    <div
+                      onClick={() => toggleSubTicket(st.id)}
+                      className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer"
+                    >
+                      <span className="text-[10px] font-mono text-slate-400">{st.num}</span>
+                      {st.done ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      ) : (
+                        <Circle className="w-4 h-4 text-slate-300 group-hover:text-blue-500 shrink-0" />
+                      )}
+                      <span className={`truncate ${st.done ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-200 font-medium'}`}>
+                        {st.title}
+                      </span>
+                    </div>
+
+                    {canUpdateTask && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSubTicket(st.id);
+                        }}
+                        className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded"
+                        title="Delete sub-ticket"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     )}
-                    <span className={st.done ? 'text-slate-400 line-through' : 'text-slate-800 font-medium'}>
-                      {st.title}
-                    </span>
                   </div>
                 ))}
               </div>

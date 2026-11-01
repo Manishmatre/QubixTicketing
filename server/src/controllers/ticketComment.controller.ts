@@ -28,7 +28,8 @@ export const getCommentsByTicket = async (req: Request, res: Response): Promise<
     const comments = await TicketComment.find(tenantScope(req, filter))
       .populate('authorId', 'name email avatarUrl')
       .populate('reactions.userIds', 'name email avatarUrl')
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: 1 })
+      .lean();
 
     res.json({ success: true, data: comments });
   } catch (err: any) {
@@ -248,7 +249,8 @@ export const getTicketActivities = async (req: Request, res: Response): Promise<
     const { ticketId } = req.params;
     const activities = await TicketActivity.find(tenantScope(req, { ticketId }))
       .populate('userId', 'name email avatarUrl')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json({ success: true, data: activities });
   } catch (err: any) {

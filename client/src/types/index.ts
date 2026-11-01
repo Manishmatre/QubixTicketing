@@ -145,6 +145,12 @@ export interface Ticket {
   watchers: User[];
   tags: string[];
   links?: TicketLink[];
+  subtasks?: Array<{
+    id: string;
+    title: string;
+    done: boolean;
+    num?: string;
+  }>;
   dueDate?: string;
   relatedTicketIds?: any[];
   order: number;
