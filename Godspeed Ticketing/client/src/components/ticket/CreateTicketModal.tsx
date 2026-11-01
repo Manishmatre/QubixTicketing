@@ -125,7 +125,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
             required
-            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
           >
             {projects.map((p) => (
               <option key={p._id} value={p._id}>
@@ -151,7 +151,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             >
               <option value="Task">Task (General Work)</option>
               <option value="Improvement">Improvement / Enhancement</option>
@@ -171,7 +171,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             >
               <option value="Critical">Critical</option>
               <option value="Urgent">Urgent</option>
@@ -259,7 +259,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             >
               <option value="To Do">Open / To Do</option>
               <option value="In Progress">In Progress</option>
@@ -277,7 +277,7 @@ export const CreateTicketModal: React.FC<CreateTicketModalProps> = ({
             placeholder="Detailed notes, deliverables, project scope, specifications, or instructions..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none"
+            className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-xs text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 resize-none"
           />
         </div>
 

@@ -70,10 +70,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           : effectiveCollapsed
           ? 'w-16'
           : 'w-64'
-      } bg-[#F8FAFC] dark:bg-[#0F172A] border-r border-slate-300 dark:border-slate-800 flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800 dark:text-slate-200 transition-all duration-300 ease-in-out`}
+      } bg-[#F8FAFC] dark:bg-[#0F172A] border-r border-slate-200/80 dark:border-slate-800 flex flex-col shrink-0 select-none h-screen sticky top-0 z-30 font-sans text-slate-800 dark:text-slate-200 transition-all duration-300 ease-in-out`}
     >
       {/* 1. Dedicated GodSpeed Operations Brand Banner */}
-      <div className={`h-14 px-3 border-b border-slate-300 dark:border-slate-800 bg-[#F8FAFC] dark:bg-[#0F172A] flex items-center justify-between ${effectiveCollapsed ? 'justify-center' : ''}`}>
+      <div className={`h-14 px-3 border-b border-slate-200/80 dark:border-slate-800 bg-[#F8FAFC] dark:bg-[#0F172A] flex items-center justify-between ${effectiveCollapsed ? 'justify-center' : ''}`}>
         {effectiveCollapsed ? (
           <Link
             to="/workspace/dashboard"
@@ -222,7 +222,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* 3. Pinned Bottom Footer */}
-      <div className="p-2 border-t border-slate-300 dark:border-slate-800 space-y-1 text-xs text-slate-600 dark:text-slate-400 bg-[#F8FAFC] dark:bg-[#0F172A]">
+      <div className="p-2 border-t border-slate-200/80 dark:border-slate-800 space-y-1 text-xs text-slate-600 dark:text-slate-400 bg-[#F8FAFC] dark:bg-[#0F172A]">
         {/* Organization Admin Level Actions: Settings */}
         {isOrgAdmin && (
           <NavLink

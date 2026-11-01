@@ -115,13 +115,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="flex-1 p-5 space-y-4 overflow-y-auto bg-[#F1F5F9] dark:bg-[#0B0F19] font-sans text-slate-800 dark:text-slate-200">
       {/* 1. Welcome Banner & Operational Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
               Welcome back, {user?.name?.split(' ')[0]} 👋
             </h2>
-            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-900">
+            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
               <Building2 className="w-3 h-3 text-blue-600 dark:text-blue-400" />
               GodSpeed Home Sales
             </span>
@@ -132,7 +132,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-1 flex items-center text-xs font-medium">
+          <div className="bg-slate-100/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1 flex items-center text-xs font-medium">
             {['today', 'week', 'month', 'all'].map((t) => (
               <button
                 key={t}
@@ -161,7 +161,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 2. Key Operational Metrics - Clean Simple White Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. Total Deliverables */}
-        <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-400 transition-colors">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total deliverables</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200 dark:border-blue-900">
@@ -182,7 +182,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* 2. In Progress */}
-        <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-400 transition-colors">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">In execution</span>
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-900">
@@ -204,7 +204,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* 3. Urgent & Escalated */}
-        <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-400 transition-colors">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Urgent & critical</span>
             <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center border border-rose-200 dark:border-rose-900">
@@ -225,7 +225,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* 4. Completed Closings */}
-        <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-400 transition-colors">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs hover:border-slate-300 transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Completed items</span>
             <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-900">
@@ -247,8 +247,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* 3. Active Real Estate Operational Deliverables & Tasks Table */}
-      <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl overflow-hidden shadow-2xs">
-        <div className="px-5 py-3.5 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between">
+      <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden shadow-2xs">
+        <div className="px-5 py-3.5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Building2 className="w-4 h-4 text-blue-600" />
@@ -343,7 +343,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 4. Visual Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Resolution Trend (Line/Area Chart) */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
+        <div className="lg:col-span-2 bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Ticket Velocity Trend</h3>
@@ -391,7 +391,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Priority Distribution (Bar Chart) */}
-        <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Priority Distribution</h3>
           <p className="text-xs text-slate-400 mb-5">Current active workload by severity</p>
 
@@ -423,7 +423,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* 5. Lower Row: Team Workload & Recent Activity Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Team Workload */}
-        <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Users className="w-4 h-4 text-blue-600" /> Operations Team Workload
@@ -452,7 +452,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Recent Activity Feed */}
-        <div className="bg-white dark:bg-[#111827] border border-slate-300 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
+        <div className="bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 rounded-xl p-5 shadow-2xs">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Activity className="w-4 h-4 text-blue-600" /> Recent Operations Audit

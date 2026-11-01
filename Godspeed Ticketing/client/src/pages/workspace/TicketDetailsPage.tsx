@@ -416,7 +416,7 @@ export const TicketDetailsPage: React.FC = () => {
         };
       case 'Closed':
         return {
-          pill: 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300',
+          pill: 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-300',
           dot: 'text-slate-500 fill-slate-500',
           chevron: 'text-slate-500',
         };
@@ -961,7 +961,7 @@ export const TicketDetailsPage: React.FC = () => {
                       placeholder="e.g. API Guidebook, Phosphor Icons, Loom..."
                       value={newLinkTitle}
                       onChange={(e) => setNewLinkTitle(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                      className="w-full bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
                     />
                   </div>
                   <div>
@@ -971,7 +971,7 @@ export const TicketDetailsPage: React.FC = () => {
                       placeholder="https://..."
                       value={newLinkUrl}
                       onChange={(e) => setNewLinkUrl(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
+                      className="w-full bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs outline-none focus:border-blue-500"
                       required
                       autoFocus
                     />

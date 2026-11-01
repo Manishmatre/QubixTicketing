@@ -246,7 +246,7 @@ export const TeamsView: React.FC = () => {
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
               >
                 <option value="admin">Admin</option>
                 <option value="project_manager">Project Manager</option>
@@ -262,7 +262,7 @@ export const TeamsView: React.FC = () => {
               <select
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
               >
                 <option value="Engineering">Engineering</option>
                 <option value="Product Design">Product Design</option>

@@ -26,7 +26,7 @@ export const Select: React.FC<SelectProps> = ({
       <select
         id={selectId}
         className={`w-full bg-white border text-sm text-slate-900 rounded-lg px-3 py-2 transition-all outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 cursor-pointer ${
-          error ? 'border-red-500' : 'border-slate-300'
+          error ? 'border-red-500' : 'border-slate-200'
         } ${className}`}
         {...props}
       >

@@ -39,7 +39,7 @@ export const Button: React.FC<ButtonProps> = ({
     secondary:
       'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/80 active:scale-[0.98]',
     outline:
-      'bg-white hover:bg-slate-50 text-slate-700 border border-slate-300/80 shadow-2xs active:scale-[0.98]',
+      'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 shadow-2xs active:scale-[0.98]',
     ghost:
       'bg-transparent hover:bg-slate-100 text-slate-700 active:bg-slate-200',
     link:

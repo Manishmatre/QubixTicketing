@@ -857,7 +857,7 @@ export const ProjectDetailsPage: React.FC = () => {
               value={milestoneDesc}
               onChange={(e) => setMilestoneDesc(e.target.value)}
               placeholder="What deliverables are expected..."
-              className="w-full border border-slate-300 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
+              className="w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
             />
           </div>
 
@@ -894,7 +894,7 @@ export const ProjectDetailsPage: React.FC = () => {
               value={editMilestoneDesc}
               onChange={(e) => setEditMilestoneDesc(e.target.value)}
               placeholder="What deliverables are expected..."
-              className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-xs outline-none focus:border-blue-500 text-slate-800 dark:text-slate-200"
+              className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg p-2 text-xs outline-none focus:border-blue-500 text-slate-800 dark:text-slate-200"
             />
           </div>
 
@@ -913,7 +913,7 @@ export const ProjectDetailsPage: React.FC = () => {
             <select
               value={selectedMemberId}
               onChange={(e) => setSelectedMemberId(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
+              className="w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
             >
               {orgMembers.map((m: any) => (
                 <option key={m.id || m._id} value={m.user?.id || m.userId?._id || m.id}>
@@ -928,7 +928,7 @@ export const ProjectDetailsPage: React.FC = () => {
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value as any)}
-              className="w-full border border-slate-300 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
+              className="w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
             >
               <option value="member">Member</option>
               <option value="lead">Lead</option>
@@ -960,7 +960,7 @@ export const ProjectDetailsPage: React.FC = () => {
               <select
                 value={ticketPriority}
                 onChange={(e) => setTicketPriority(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
+                className="w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
               >
                 <option value="Critical">Critical</option>
                 <option value="Urgent">Urgent</option>
@@ -975,7 +975,7 @@ export const ProjectDetailsPage: React.FC = () => {
               <select
                 value={ticketCategory}
                 onChange={(e) => setTicketCategory(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
+                className="w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:border-blue-500"
               >
                 <option value="Bug">Bug</option>
                 <option value="UI/UX Issue">UI/UX Issue</option>

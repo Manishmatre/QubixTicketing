@@ -248,7 +248,7 @@ export const ProjectsView: React.FC = () => {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
               >
                 <option value="Engineering">Engineering</option>
                 <option value="Product Design">Product Design</option>
@@ -266,7 +266,7 @@ export const ProjectsView: React.FC = () => {
               placeholder="Brief project mission and scope..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none"
+              className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900 outline-none focus:border-blue-600 resize-none"
             />
           </div>
 

@@ -54,9 +54,9 @@ export const Badge: React.FC<BadgeProps> = ({
     pink:
       'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/60 dark:text-pink-300 dark:border-pink-800 font-semibold',
     outline:
-      'bg-transparent text-slate-700 border-slate-300 dark:text-slate-300 dark:border-slate-700 font-medium',
+      'bg-transparent text-slate-700 border-slate-200 dark:text-slate-300 dark:border-slate-700 font-medium',
     slate:
-      'bg-slate-200 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 font-medium',
+      'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 font-medium',
   }[variant];
 
   return (

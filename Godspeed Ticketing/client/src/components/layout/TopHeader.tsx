@@ -140,7 +140,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
   return (
     <>
-      <header className="h-14 bg-white dark:bg-[#0F172A] border-b border-slate-300 dark:border-slate-800 px-3 sm:px-5 flex items-center justify-between shrink-0 font-sans z-20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+      <header className="h-14 bg-white dark:bg-[#0F172A] border-b border-slate-200/80 dark:border-slate-800 px-3 sm:px-5 flex items-center justify-between shrink-0 font-sans z-20 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
         {/* Left: Mobile Menu Toggle & Dynamic Breadcrumb */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
@@ -172,10 +172,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             title="Open Universal Search (⌘K / Ctrl+K)"
           >
             <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 absolute left-3 pointer-events-none transition-colors" />
-            <div className="w-full bg-slate-100/70 dark:bg-slate-800/80 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-lg pl-8 pr-10 py-1.5 text-xs text-slate-500 dark:text-slate-400 transition-all select-none truncate">
+            <div className="w-full bg-slate-100/70 dark:bg-slate-800/80 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 border border-slate-200/90 dark:border-slate-700/80 rounded-lg pl-8 pr-10 py-1.5 text-xs text-slate-500 dark:text-slate-400 transition-all select-none truncate">
               Search tickets, projects, or pages...
             </div>
-            <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none bg-white dark:bg-slate-900 px-1 py-0.5 rounded border border-slate-300 dark:border-slate-700 shadow-2xs">
+            <span className="absolute right-2.5 text-[10px] text-slate-400 font-mono pointer-events-none bg-white dark:bg-slate-900 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-700 shadow-2xs">
               ⌘K
             </span>
           </div>

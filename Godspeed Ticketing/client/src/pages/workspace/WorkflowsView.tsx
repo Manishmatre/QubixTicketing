@@ -241,7 +241,7 @@ export const WorkflowsView: React.FC = () => {
             <select
               value={triggerEvent}
               onChange={(e) => setTriggerEvent(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
             >
               <option value="priority_urgent">Ticket Priority becomes Urgent or Critical</option>
               <option value="ticket_created">New Ticket is Created</option>
@@ -255,7 +255,7 @@ export const WorkflowsView: React.FC = () => {
             <select
               value={actionType}
               onChange={(e) => setActionType(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
+              className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-600"
             >
               <option value="add_tag">Add Tag to Ticket</option>
               <option value="send_notification">Send Notification Alert</option>
