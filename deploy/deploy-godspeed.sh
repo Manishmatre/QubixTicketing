@@ -20,8 +20,8 @@ fi
 cd "Godspeed Ticketing"
 npm install
 
-# 4. Build server and client
-npm run build
+# 4. Build server
+npm run build:server
 cd ..
 
 # 5. Reload PM2
